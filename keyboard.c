@@ -35,7 +35,9 @@ void keyboard_register_event_source(ALLEGRO_EVENT_QUEUE* queue)
 
 bool keyboard_is_pressed(int keycode)
 {
-    return key[keycode] != 0;
+    if (keycode <= 0 || keycode >= ALLEGRO_KEY_MAX)
+        return false;
+    return key[keycode] == KEY_SEEN;
 }
 
 #undef KEY_SEEN

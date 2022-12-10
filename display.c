@@ -45,3 +45,8 @@ void disp_register_event_source(ALLEGRO_EVENT_QUEUE* queue)
 {
     al_register_event_source(queue, al_get_display_event_source(disp));
 }
+
+ALLEGRO_BITMAP* disp_get_buffer(void)
+{
+    return buffer;
+}

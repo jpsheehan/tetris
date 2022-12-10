@@ -5,6 +5,6 @@
 #include <stdbool.h>
 
 void must_init(bool test, const char *description);
-void safe_exit(int code);
+void safe_exit(const char* description, int code);
 
 #endif

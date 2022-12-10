@@ -9,11 +9,15 @@ void must_init(bool test, const char *description)
         return;
     
     printf("couldn't initialise %s\n", description);
-    safe_exit(1);
+    safe_exit(NULL, 1);
 }
 
-void safe_exit(int code)
+void safe_exit(const char *message, int code)
 {
+    if (message != NULL) {
+        printf("%s\n", message);
+    }
+
     disp_deinit();
 
     exit(code);

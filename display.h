@@ -15,5 +15,6 @@ void disp_deinit();
 void disp_pre_draw();
 void disp_post_draw();
 void disp_register_event_source(ALLEGRO_EVENT_QUEUE* queue);
+ALLEGRO_BITMAP* disp_get_buffer(void);
 
 #endif
