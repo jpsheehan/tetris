@@ -31,9 +31,9 @@ void score_increase(int delta)
 
 void score_update(int frames)
 {
-    if (score != score_display && frames % (FPS / 10) == 0) // 10 times per second
+    if (score != score_display) // 10 times per second
     {
-        score_display += 25;
+        score_display += 2;
     }
 }
 

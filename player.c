@@ -93,9 +93,7 @@ void player_init()
     player.c = player_get_default_colour(player.piece);
 
     if (player_collides_with_cell(&player))
-    {
         safe_exit("game over", 0);
-    }
 }
 
 bool player_is_in_bounds(PLAYER *p)
@@ -116,10 +114,57 @@ bool player_is_in_bounds(PLAYER *p)
     return true;
 }
 
+void player_move_left(PLAYER *p)
+{
+    p->x--;
+}
+
+void player_move_right(PLAYER *p)
+{
+    p->x++;
+}
+
+void player_move_down(PLAYER *p)
+{
+    p->y++;
+}
+
+void player_rotate_cw(PLAYER *p)
+{
+    switch (p->piece)
+    {
+    case O:
+        p->rotation = (p->rotation + 1) % 4;
+        break;
+    default:
+        safe_exit("invalid piece in player_rotate_cw()", 1);
+        break;
+    }
+
+    if (p == &player)
+        audio_play_sfx(SFX_ROTATE_CW);
+}
+
+void player_rotate_ccw(PLAYER *p)
+{
+    switch (p->piece)
+    {
+    case O:
+        p->rotation = (p->rotation + 3) % 4;
+        break;
+    default:
+        safe_exit("invalid piece in player_rotate_ccw()", 1);
+        break;
+    }
+
+    if (p == &player)
+        audio_play_sfx(SFX_ROTATE_CCW);
+}
+
 bool player_can_move_down()
 {
     PLAYER new_player = player;
-    new_player.y++;
+    player_move_down(&new_player);
 
     return player_is_in_bounds(&new_player) && !player_collides_with_cell(&new_player);
 }
@@ -127,7 +172,7 @@ bool player_can_move_down()
 bool player_can_move_right()
 {
     PLAYER new_player = player;
-    new_player.x++;
+    player_move_right(&new_player);
 
     return player_is_in_bounds(&new_player) && !player_collides_with_cell(&new_player);
 }
@@ -135,33 +180,25 @@ bool player_can_move_right()
 bool player_can_move_left()
 {
     PLAYER new_player = player;
-    new_player.x--;
+    player_move_left(&new_player);
 
     return player_is_in_bounds(&new_player) && !player_collides_with_cell(&new_player);
 }
 
 bool player_can_rotate_cw()
 {
-    switch (player.piece)
-    {
-    case O:
-        return true;
-    default:
-        safe_exit("invalid piece in player_can_rotate_cw()", 1);
-        return false;
-    }
+    PLAYER new_player = player;
+    player_rotate_cw(&new_player);
+
+    return player_is_in_bounds(&new_player) && !player_collides_with_cell(&new_player);
 }
 
 bool player_can_rotate_ccw()
 {
-    switch (player.piece)
-    {
-    case O:
-        return true;
-    default:
-        safe_exit("invalid piece in player_can_rotate_ccw()", 1);
-        return false;
-    }
+    PLAYER new_player = player;
+    player_rotate_ccw(&new_player);
+
+    return player_is_in_bounds(&new_player) && !player_collides_with_cell(&new_player);
 }
 
 void player_lock_down()
@@ -180,56 +217,13 @@ void player_lock_down()
     }
 }
 
-void player_move_left()
-{
-    player.x--;
-}
-
-void player_move_right()
-{
-    player.x++;
-}
-
-void player_rotate_cw()
-{
-    switch (player.piece)
-    {
-    case O:
-        player.rotation = (player.rotation + 1) % 4;
-        break;
-    default:
-        safe_exit("invalid piece in player_rotate_cw()", 1);
-        break;
-    }
-    audio_play_sfx(SFX_ROTATE_CW);
-}
-
-void player_rotate_ccw()
-{
-    switch (player.piece)
-    {
-    case O:
-        player.rotation = (player.rotation + 3) % 4;
-        break;
-    default:
-        safe_exit("invalid piece in player_rotate_ccw()", 1);
-        break;
-    }
-    audio_play_sfx(SFX_ROTATE_CCW);
-}
-
-void player_move_down()
-{
-    player.y++;
-}
-
 void player_update(ALLEGRO_EVENT *event, int frames)
 {
     if (frames % FPS == 0) // each second
     {
         if (player_can_move_down())
         {
-            player_move_down();
+            player_move_down(&player);
         }
         else
         {
@@ -246,7 +240,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         {
             if (player_can_move_left())
             {
-                player_move_left();
+                player_move_left(&player);
             }
         }
 
@@ -255,7 +249,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         {
             if (player_can_move_right())
             {
-                player_move_right();
+                player_move_right(&player);
             }
         }
 
@@ -264,7 +258,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         {
             if (player_can_move_down())
             {
-                player.y++;
+                player_move_down(&player);
             }
             else
             {
@@ -281,7 +275,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         {
             if (player_can_rotate_cw())
             {
-                player_rotate_cw();
+                player_rotate_cw(&player);
             }
         }
 
@@ -289,7 +283,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         {
             if (player_can_rotate_ccw())
             {
-                player_rotate_ccw();
+                player_rotate_ccw(&player);
             }
         }
 
@@ -298,7 +292,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         {
             while (player_can_move_down())
             {
-                player.y++;
+                player_move_down(&player);
             }
             player_lock_down();
             player_init();
