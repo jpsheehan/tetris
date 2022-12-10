@@ -2,6 +2,7 @@
 #include "field.h"
 #include "utils.h"
 #include "keyboard.h"
+#include "audio.h"
 
 static PLAYER player;
 
@@ -24,11 +25,11 @@ ALLEGRO_COLOR player_get_default_colour(PIECE piece)
 {
     switch (piece)
     {
-        case O:
-            return al_map_rgb(0xEF, 0xE7, 0x10);
-        default:
-            safe_exit("invalid piece in player_get_default_colour()", 1);
-            return al_map_rgb(0,0,0);
+    case O:
+        return al_map_rgb(0xEF, 0xE7, 0x10);
+    default:
+        safe_exit("invalid piece in player_get_default_colour()", 1);
+        return al_map_rgb(0, 0, 0);
     }
 }
 
@@ -87,11 +88,11 @@ bool player_can_rotate_cw()
 {
     switch (player.piece)
     {
-        case O:
-            return true;
-        default:
-            safe_exit("invalid piece in player_can_rotate_cw()", 1);
-            return false;
+    case O:
+        return true;
+    default:
+        safe_exit("invalid piece in player_can_rotate_cw()", 1);
+        return false;
     }
 }
 
@@ -99,11 +100,11 @@ bool player_can_rotate_ccw()
 {
     switch (player.piece)
     {
-        case O:
-            return true;
-        default:
-            safe_exit("invalid piece in player_can_rotate_ccw()", 1);
-            return false;
+    case O:
+        return true;
+    default:
+        safe_exit("invalid piece in player_can_rotate_ccw()", 1);
+        return false;
     }
 }
 
@@ -137,24 +138,26 @@ void player_rotate_cw()
 {
     switch (player.piece)
     {
-        case O:
-            break;
-        default:
-            safe_exit("invalid piece in player_rotate_cw()", 1);
-            break;
+    case O:
+        break;
+    default:
+        safe_exit("invalid piece in player_rotate_cw()", 1);
+        break;
     }
+    audio_play_sfx(SFX_ROTATE_CW);
 }
 
 void player_rotate_ccw()
 {
     switch (player.piece)
     {
-        case O:
-            break;
-        default:
-            safe_exit("invalid piece in player_rotate_ccw()", 1);
-            break;
+    case O:
+        break;
+    default:
+        safe_exit("invalid piece in player_rotate_ccw()", 1);
+        break;
     }
+    audio_play_sfx(SFX_ROTATE_CCW);
 }
 
 void player_move_down()
@@ -174,6 +177,7 @@ void player_update(int frames)
         {
             player_lock_down();
             player_init();
+            audio_play_sfx(SFX_LOCK_DOWN);
         }
     }
 
@@ -209,7 +213,7 @@ void player_update(int frames)
         {
             if (player_can_rotate_ccw())
             {
-                player_can_rotate_ccw();
+                player_rotate_ccw();
             }
         }
 
@@ -224,6 +228,7 @@ void player_update(int frames)
             {
                 player_lock_down();
                 player_init();
+                audio_play_sfx(SFX_LOCK_DOWN);
             }
         }
 
@@ -236,6 +241,7 @@ void player_update(int frames)
             }
             player_lock_down();
             player_init();
+            audio_play_sfx(SFX_HARD_DROP);
         }
     }
 }

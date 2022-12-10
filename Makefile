@@ -1,5 +1,5 @@
-CFLAGS=-g -Werror -Wall `pkg-config allegro-5 allegro_primitives-5 --cflags`
-LFLAGS=`pkg-config allegro-5 allegro_font-5 allegro_primitives-5 allegro_audio-5 allegro_acodec-5 allegro_image-5 --libs`
+CFLAGS=-g -Werror -Wall `pkg-config allegro-5 allegro_primitives-5 allegro_audio-5 allegro_acodec-5  --cflags`
+LFLAGS=`pkg-config allegro-5 allegro_font-5 allegro_primitives-5 allegro_audio-5 allegro_acodec-5 --libs`
 CC=gcc
 
 all: tetris
@@ -9,7 +9,7 @@ clean:
 
 .PHONE: all clean
 
-tetris: tetris.c utils.o display.o keyboard.o field.o player.o score.o
+tetris: tetris.c utils.o display.o keyboard.o field.o player.o score.o audio.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LFLAGS)
 
 utils.o: utils.c utils.h
@@ -28,4 +28,7 @@ player.o: player.c player.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 score.o: score.c score.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+audio.o: audio.c audio.h
 	$(CC) -c -o $@ $< $(CFLAGS)

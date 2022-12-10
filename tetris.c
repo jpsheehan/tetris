@@ -10,6 +10,7 @@
 #include "field.h"
 #include "player.h"
 #include "score.h"
+#include "audio.h"
 
 int main()
 {
@@ -21,8 +22,9 @@ int main()
     ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
     must_init(queue, "queue");
 
-    keyboard_init();
     disp_init();
+    keyboard_init();
+    audio_init();
 
     must_init(al_init_primitives_addon(), "primitives");
     must_init(al_init_font_addon(), "font");
@@ -36,11 +38,11 @@ int main()
     ALLEGRO_EVENT event;
     int frames = 0;
 
-    al_start_timer(timer);
-
     player_init();
     field_init();
     score_init();
+
+    al_start_timer(timer);
 
     while (1)
     {
@@ -85,6 +87,7 @@ int main()
     }
 
     score_deinit();
+    audio_deinit();
     disp_deinit();
     al_destroy_timer(timer);
     al_destroy_event_queue(queue);

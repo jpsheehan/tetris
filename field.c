@@ -2,6 +2,7 @@
 
 #include "field.h"
 #include "score.h"
+#include "audio.h"
 
 static CELL field[FIELD_H][FIELD_W];
 
@@ -13,6 +14,13 @@ void field_draw_cell(int x, int y, ALLEGRO_COLOR c)
     int buffer_x = FIELD_MARGIN_X + x * CELL_W;
     int buffer_y = FIELD_MARGIN_Y + y * CELL_H;
     al_draw_filled_rectangle(buffer_x, buffer_y, buffer_x + CELL_W, buffer_y + CELL_H, c);
+
+    float r, g, b;
+    al_unmap_rgb_f(c, &r, &g, &b);
+    r *= 0.7;
+    g *= 0.7;
+    b *= 0.7;
+    al_draw_rectangle(buffer_x, buffer_y, buffer_x + CELL_W, buffer_y + CELL_H, al_map_rgb_f(r, g, b), 1);
 }
 
 void field_init(void)
@@ -63,6 +71,7 @@ void field_update(void)
     {
         int points = get_points_for_clearing_rows(num_rows_cleared);
         score_increase(points);
+        audio_play_sfx(SFX_LINE_CLEAR);
     }
 }
 
