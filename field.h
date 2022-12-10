@@ -20,6 +20,7 @@ typedef struct CELL
 } CELL;
 
 void field_init(void);
+void field_update(void);
 void field_draw(void);
 void field_draw_cell(int x, int y, ALLEGRO_COLOR c);
 bool field_get_used_or_default(int x, int y, bool default_);

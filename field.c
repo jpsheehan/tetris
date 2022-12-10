@@ -1,6 +1,7 @@
 #include <allegro5/allegro_primitives.h>
 
 #include "field.h"
+#include "score.h"
 
 static CELL field[FIELD_H][FIELD_W];
 
@@ -14,7 +15,7 @@ void field_draw_cell(int x, int y, ALLEGRO_COLOR c)
     al_draw_filled_rectangle(buffer_x, buffer_y, buffer_x + CELL_W, buffer_y + CELL_H, c);
 }
 
-void field_init()
+void field_init(void)
 {
     for (int y = 0; y < FIELD_H; y++)
         for (int x = 0; x < FIELD_W; x++)
@@ -24,7 +25,48 @@ void field_init()
         }
 }
 
-void field_draw()
+int get_points_for_clearing_rows(int num_rows)
+{
+    return num_rows * 100;
+}
+
+void clear_row(int j)
+{
+    for (int i = 0; i < FIELD_W; i++)
+        field[j][i].used = false;
+}
+
+void field_update(void)
+{
+    int num_rows_cleared = 0;
+
+    for (int j = 0; j < FIELD_H; j++)
+    {
+        bool row_is_cleared = true;
+        for (int i = 0; i < FIELD_W; i++)
+        {
+            if (!field[j][i].used)
+            {
+                row_is_cleared = false;
+                break;
+            }
+        }
+
+        if (row_is_cleared)
+        {
+            num_rows_cleared++;
+            clear_row(j);
+        }
+    }
+
+    if (num_rows_cleared > 0)
+    {
+        int points = get_points_for_clearing_rows(num_rows_cleared);
+        score_increase(points);
+    }
+}
+
+void field_draw(void)
 {
     int border_w = 1;
     ALLEGRO_COLOR border_c = al_map_rgb(0x98, 0x00, 0xff);

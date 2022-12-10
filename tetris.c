@@ -2,12 +2,14 @@
 #include <stdlib.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_font.h>
 
 #include "utils.h"
 #include "display.h"
 #include "keyboard.h"
 #include "field.h"
 #include "player.h"
+#include "score.h"
 
 int main()
 {
@@ -23,6 +25,7 @@ int main()
     disp_init();
 
     must_init(al_init_primitives_addon(), "primitives");
+    must_init(al_init_font_addon(), "font");
 
     keyboard_register_event_source(queue);
     disp_register_event_source(queue);
@@ -37,6 +40,7 @@ int main()
 
     player_init();
     field_init();
+    score_init();
 
     while (1)
     {
@@ -63,6 +67,8 @@ int main()
 
         keyboard_update(&event);
         player_update(frames);
+        field_update();
+        score_update(frames);
 
         if (redraw && al_is_event_queue_empty(queue))
         {
@@ -71,12 +77,14 @@ int main()
 
             field_draw();
             player_draw();
+            score_draw();
 
             disp_post_draw();
             redraw = false;
         }
     }
 
+    score_deinit();
     disp_deinit();
     al_destroy_timer(timer);
     al_destroy_event_queue(queue);

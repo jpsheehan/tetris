@@ -9,7 +9,7 @@ clean:
 
 .PHONE: all clean
 
-tetris: tetris.c utils.o display.o keyboard.o field.o player.o
+tetris: tetris.c utils.o display.o keyboard.o field.o player.o score.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LFLAGS)
 
 utils.o: utils.c utils.h
@@ -25,4 +25,7 @@ field.o: field.c field.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 player.o: player.c player.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+score.o: score.c score.h
 	$(CC) -c -o $@ $< $(CFLAGS)
