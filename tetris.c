@@ -16,7 +16,7 @@ int main()
 {
     must_init(al_init(), "allegro");
 
-    ALLEGRO_TIMER *timer = al_create_timer(1.0 / 60.0);
+    ALLEGRO_TIMER *timer = al_create_timer(1.0 / (float)FPS);
     must_init(timer, "timer");
 
     ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();

@@ -6,12 +6,14 @@
 typedef enum PIECE
 {
     O,
+    //T,
     PIECE_MAX
 } PIECE;
 
 typedef struct PLAYER
 {
     int x, y;
+    int rotation;
     ALLEGRO_COLOR c;
     PIECE piece;
 } PLAYER;

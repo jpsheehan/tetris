@@ -38,6 +38,18 @@ int get_points_for_clearing_rows(int num_rows)
     return num_rows * 100;
 }
 
+void shift_upper_rows_down(int j)
+{
+    for (int y = j - 1; y >= 0; y--)
+    {
+        for (int x = 0; x < FIELD_W; x++)
+        {
+            field[y + 1][x].used = field[y][x].used;
+            field[y + 1][x].c = field[y][x].c;
+        }
+    }
+}
+
 void clear_row(int j)
 {
     for (int i = 0; i < FIELD_W; i++)
@@ -64,6 +76,7 @@ void field_update(void)
         {
             num_rows_cleared++;
             clear_row(j);
+            shift_upper_rows_down(j);
         }
     }
 

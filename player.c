@@ -6,19 +6,67 @@
 
 static PLAYER player;
 
+typedef struct POINT
+{
+    int x, y;
+} POINT;
+
+typedef struct ROTATION
+{
+    POINT ps[4];
+} ROTATION;
+
+static POINT rotations[PIECE_MAX][4][4] = {
+    {// O
+     {
+         // ##
+         // ##
+         {.x = 0, .y = 0},
+         {.x = 1, .y = 0},
+         {.x = 0, .y = 1},
+         {.x = 1, .y = 1},
+     },
+     {
+         // ##
+         // ##
+         {.x = 0, .y = 0},
+         {.x = 1, .y = 0},
+         {.x = 0, .y = 1},
+         {.x = 1, .y = 1},
+     },
+     {
+         // ##
+         // ##
+         {.x = 0, .y = 0},
+         {.x = 1, .y = 0},
+         {.x = 0, .y = 1},
+         {.x = 1, .y = 1},
+     },
+     {
+         // ##
+         // ##
+         {.x = 0, .y = 0},
+         {.x = 1, .y = 0},
+         {.x = 0, .y = 1},
+         {.x = 1, .y = 1},
+     }}};
+
 bool player_collides_with_cell(PLAYER *p)
 {
-    switch (p->piece)
-    {
-    case O:
-        return field_get_used_or_default(p->x, p->y, false) ||
-               field_get_used_or_default(p->x + 1, p->y, false) ||
-               field_get_used_or_default(p->x, p->y + 1, false) ||
-               field_get_used_or_default(p->x + 1, p->y + 1, false);
-    default:
+    if (p->piece < 0 || p->piece >= PIECE_MAX)
         safe_exit("invalid piece in player_collides_with_cell()", 1);
-        return false;
+    if (p->rotation < 0 || p->rotation >= 4)
+        safe_exit("invalid rotation in player_collides_with_cell()", 1);
+
+    for (int i = 0; i < 4; i++)
+    {
+        int x = p->x + rotations[p->piece][p->rotation][i].x;
+        int y = p->y + rotations[p->piece][p->rotation][i].y;
+
+        if (field_get_used_or_default(x, y, false))
+            return true;
     }
+    return false;
 }
 
 ALLEGRO_COLOR player_get_default_colour(PIECE piece)
@@ -27,6 +75,8 @@ ALLEGRO_COLOR player_get_default_colour(PIECE piece)
     {
     case O:
         return al_map_rgb(0xEF, 0xE7, 0x10);
+    // case T:
+    //     return al_map_rgb(0xc2, 0x2d, 0xd2);
     default:
         safe_exit("invalid piece in player_get_default_colour()", 1);
         return al_map_rgb(0, 0, 0);
@@ -36,8 +86,9 @@ ALLEGRO_COLOR player_get_default_colour(PIECE piece)
 void player_init()
 {
     player.piece = (PIECE)(rand() % PIECE_MAX);
-    player.x = FIELD_W / 2;
+    player.x = FIELD_W / 2 - 1;
     player.y = -1;
+    player.rotation = 0;
 
     player.c = player_get_default_colour(player.piece);
 
@@ -49,15 +100,20 @@ void player_init()
 
 bool player_is_in_bounds(PLAYER *p)
 {
-    switch (p->piece)
+    if (p->piece < 0 || p->piece >= PIECE_MAX)
+        safe_exit("piece is invalid in player_is_in_bounds()", 1);
+    if (p->rotation < 0 || p->rotation >= 4)
+        safe_exit("rotation is invalid in player_is_in_bounds()", 1);
+
+    for (int i = 0; i < 4; i++)
     {
-    case O:
-        return p->x >= 0 && p->x + 1 < FIELD_W &&
-               p->y >= 0 && p->y + 1 < FIELD_H;
-    default:
-        safe_exit("invalid piece in player_is_in_bounds()", 1);
-        return false;
+        int x = p->x + rotations[p->piece][p->rotation][i].x;
+        int y = p->y + rotations[p->piece][p->rotation][i].y;
+
+        if (x < 0 || x >= FIELD_W || y < 0 || y >= FIELD_H)
+            return false;
     }
+    return true;
 }
 
 bool player_can_move_down()
@@ -110,17 +166,17 @@ bool player_can_rotate_ccw()
 
 void player_lock_down()
 {
-    switch (player.piece)
+    if (player.piece < 0 || player.piece >= PIECE_MAX)
+        safe_exit("piece is invalid in player_lock_down()", 1);
+    if (player.rotation < 0 || player.rotation >= 4)
+        safe_exit("rotation is invalid in player_lock_down()", 1);
+
+    for (int i = 0; i < 4; i++)
     {
-    case O:
-        field_set_used_safely(player.x, player.y, player.c);
-        field_set_used_safely(player.x + 1, player.y, player.c);
-        field_set_used_safely(player.x, player.y + 1, player.c);
-        field_set_used_safely(player.x + 1, player.y + 1, player.c);
-        break;
-    default:
-        safe_exit("invalid piece in player_lock_down()", 1);
-        break;
+        int x = player.x + rotations[player.piece][player.rotation][i].x;
+        int y = player.y + rotations[player.piece][player.rotation][i].y;
+
+        field_set_used_safely(x, y, player.c);
     }
 }
 
@@ -139,6 +195,7 @@ void player_rotate_cw()
     switch (player.piece)
     {
     case O:
+        player.rotation = (player.rotation + 1) % 4;
         break;
     default:
         safe_exit("invalid piece in player_rotate_cw()", 1);
@@ -152,6 +209,7 @@ void player_rotate_ccw()
     switch (player.piece)
     {
     case O:
+        player.rotation = (player.rotation + 3) % 4;
         break;
     default:
         safe_exit("invalid piece in player_rotate_ccw()", 1);
@@ -251,16 +309,13 @@ void player_update(ALLEGRO_EVENT *event, int frames)
 
 void player_draw()
 {
-    switch (player.piece)
+    if (player.piece < 0 || player.piece >= PIECE_MAX || player.rotation < 0 || player.rotation >= 4)
+        safe_exit("invalid piece or rotation in player_draw()", 1);
+
+    for (int i = 0; i < 4; i++)
     {
-    case O:
-        field_draw_cell(player.x, player.y, player.c);
-        field_draw_cell(player.x + 1, player.y, player.c);
-        field_draw_cell(player.x, player.y + 1, player.c);
-        field_draw_cell(player.x + 1, player.y + 1, player.c);
-        break;
-    default:
-        safe_exit("invalid piece in player_draw()", 1);
-        break;
+        int x = player.x + rotations[player.piece][player.rotation][i].x;
+        int y = player.y + rotations[player.piece][player.rotation][i].y;
+        field_draw_cell(x, y, player.c);
     }
 }
