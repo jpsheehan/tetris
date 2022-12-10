@@ -85,12 +85,26 @@ bool player_can_move_left()
 
 bool player_can_rotate_cw()
 {
-    return false;
+    switch (player.piece)
+    {
+        case O:
+            return true;
+        default:
+            safe_exit("invalid piece in player_can_rotate_cw()", 1);
+            return false;
+    }
 }
 
 bool player_can_rotate_ccw()
 {
-    return false;
+    switch (player.piece)
+    {
+        case O:
+            return true;
+        default:
+            safe_exit("invalid piece in player_can_rotate_ccw()", 1);
+            return false;
+    }
 }
 
 void player_lock_down()
@@ -111,22 +125,36 @@ void player_lock_down()
 
 void player_move_left()
 {
-
     player.x--;
 }
 
 void player_move_right()
 {
-
     player.x++;
 }
 
 void player_rotate_cw()
 {
+    switch (player.piece)
+    {
+        case O:
+            break;
+        default:
+            safe_exit("invalid piece in player_rotate_cw()", 1);
+            break;
+    }
 }
 
 void player_rotate_ccw()
 {
+    switch (player.piece)
+    {
+        case O:
+            break;
+        default:
+            safe_exit("invalid piece in player_rotate_ccw()", 1);
+            break;
+    }
 }
 
 void player_move_down()
