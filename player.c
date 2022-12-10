@@ -15,17 +15,30 @@ bool player_collides_with_cell(PLAYER *p)
                field_get_used_or_default(p->x, p->y + 1, false) ||
                field_get_used_or_default(p->x + 1, p->y + 1, false);
     default:
-        safe_exit("invalid piece in collides_with_cell()", 1);
+        safe_exit("invalid piece in player_collides_with_cell()", 1);
         return false;
+    }
+}
+
+ALLEGRO_COLOR player_get_default_colour(PIECE piece)
+{
+    switch (piece)
+    {
+        case O:
+            return al_map_rgb(0xEF, 0xE7, 0x10);
+        default:
+            safe_exit("invalid piece in player_get_default_colour()", 1);
+            return al_map_rgb(0,0,0);
     }
 }
 
 void player_init()
 {
-    player.piece = O;
+    player.piece = (PIECE)(rand() % PIECE_MAX);
     player.x = FIELD_W / 2;
     player.y = -1;
-    player.c = al_map_rgb_f(1, 1, 1);
+
+    player.c = player_get_default_colour(player.piece);
 
     if (player_collides_with_cell(&player))
     {
@@ -41,7 +54,7 @@ bool player_is_in_bounds(PLAYER *p)
         return p->x >= 0 && p->x + 1 < FIELD_W &&
                p->y >= 0 && p->y + 1 < FIELD_H;
     default:
-        safe_exit("invalid piece in is_player_in_bounds()", 1);
+        safe_exit("invalid piece in player_is_in_bounds()", 1);
         return false;
     }
 }

@@ -5,7 +5,8 @@
 
 typedef enum PIECE
 {
-    O
+    O,
+    PIECE_MAX
 } PIECE;
 
 typedef struct PLAYER
