@@ -68,7 +68,7 @@ int main()
             break;
 
         keyboard_update(&event);
-        player_update(frames);
+        player_update(&event, frames);
         field_update();
         score_update(frames);
 

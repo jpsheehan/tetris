@@ -20,7 +20,7 @@ void keyboard_update(ALLEGRO_EVENT *event)
             key[i] &= KEY_SEEN;
         break;
     case ALLEGRO_EVENT_KEY_DOWN:
-        key[event->keyboard.keycode] = KEY_SEEN | KEY_RELEASED;
+        key[event->keyboard.keycode] = (KEY_SEEN | KEY_RELEASED);
         break;
     case ALLEGRO_EVENT_KEY_UP:
         key[event->keyboard.keycode] &= KEY_RELEASED;
@@ -38,6 +38,13 @@ bool keyboard_is_pressed(int keycode)
     if (keycode <= 0 || keycode >= ALLEGRO_KEY_MAX)
         return false;
     return key[keycode] == KEY_SEEN;
+}
+
+bool keyboard_is_just_pressed(int keycode)
+{
+    if (keycode <= 0 || keycode >= ALLEGRO_KEY_MAX)
+        return false;
+    return key[keycode] == (KEY_SEEN | KEY_RELEASED);
 }
 
 #undef KEY_SEEN

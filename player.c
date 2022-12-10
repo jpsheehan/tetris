@@ -165,7 +165,7 @@ void player_move_down()
     player.y++;
 }
 
-void player_update(int frames)
+void player_update(ALLEGRO_EVENT *event, int frames)
 {
     if (frames % FPS == 0) // each second
     {
@@ -181,7 +181,7 @@ void player_update(int frames)
         }
     }
 
-    if (frames % (FPS / 12) == 0) // 12 times per second
+    if (frames % (FPS / 20) == 0) // 20 times per second
     {
         // MOVE LEFT
         if (keyboard_is_pressed(ALLEGRO_KEY_LEFT))
@@ -201,22 +201,6 @@ void player_update(int frames)
             }
         }
 
-        if (keyboard_is_pressed(ALLEGRO_KEY_Z))
-        {
-            if (player_can_rotate_cw())
-            {
-                player_rotate_cw();
-            }
-        }
-
-        if (keyboard_is_pressed(ALLEGRO_KEY_X))
-        {
-            if (player_can_rotate_ccw())
-            {
-                player_rotate_ccw();
-            }
-        }
-
         // SOFT DROP
         if (keyboard_is_pressed(ALLEGRO_KEY_DOWN))
         {
@@ -231,9 +215,28 @@ void player_update(int frames)
                 audio_play_sfx(SFX_LOCK_DOWN);
             }
         }
+    }
+
+    if (event->type == ALLEGRO_EVENT_KEY_DOWN)
+    {
+        if (keyboard_is_just_pressed(ALLEGRO_KEY_Z))
+        {
+            if (player_can_rotate_cw())
+            {
+                player_rotate_cw();
+            }
+        }
+
+        if (keyboard_is_just_pressed(ALLEGRO_KEY_X))
+        {
+            if (player_can_rotate_ccw())
+            {
+                player_rotate_ccw();
+            }
+        }
 
         // HARD DROP
-        if (keyboard_is_pressed(ALLEGRO_KEY_UP))
+        if (keyboard_is_just_pressed(ALLEGRO_KEY_UP))
         {
             while (player_can_move_down())
             {
