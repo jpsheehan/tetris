@@ -4,11 +4,6 @@
 #include "utils.h"
 #include "field.h"
 
-typedef struct POINT
-{
-    int x, y;
-} POINT;
-
 static unsigned char colours[PIECE_MAX][3] = {
     {0xEF, 0xE7, 0x10}, // O
     {0xc2, 0x2d, 0xd2}, // T
@@ -297,6 +292,174 @@ static POINT rotations[PIECE_MAX][4][4] = {
         },
     },
 };
+
+// from https://tetris.fandom.com/wiki/SRS#Wall_Kicks
+// note that the y-values have been inverted due to the coordinate system I'm using
+
+#define CW 0
+#define CCW 1
+
+static POINT jltsz_kicks[4][2][4] = {
+    {
+        // Rotation 0
+        {
+            // CW (to Rotation 1)
+            {.x = -1, .y = 0},
+            {.x = -1, .y = -1},
+            {.x = 0, .y = 2},
+            {.x = -1, .y = 2},
+        },
+        {
+            // CCW (to Rotation 3)
+            {.x = 1, .y = 0},
+            {.x = 1, .y = -1},
+            {.x = 0, .y = 2},
+            {.x = 1, .y = 2},
+        },
+    },
+    {
+        // Rotation 1
+        {
+            // CW (to Rotation 2)
+            {.x = 1, .y = 0},
+            {.x = 1, .y = 1},
+            {.x = 0, .y = -2},
+            {.x = 1, .y = -2},
+        },
+        {
+            // CCW (to rotation 0)
+            {.x = 1, .y = 0},
+            {.x = 1, .y = 1},
+            {.x = 0, .y = -2},
+            {.x = 1, .y = -2},
+        },
+    },
+    {
+        // Rotation 2
+        {
+            // CW (to Rotation 3)
+            {.x = 1, .y = 0},
+            {.x = 1, .y = -1},
+            {.x = 0, .y = 2},
+            {.x = 1, .y = 2},
+        },
+        {
+            // CCW (to Rotation 1)
+            {.x = -1, .y = 0},
+            {.x = -1, .y = -1},
+            {.x = 0, .y = 2},
+            {.x = -1, .y = 2},
+        },
+    },
+    {
+        // Rotation 3
+        {
+            // CW (to Rotation 0)
+            {.x = -1, .y = 0},
+            {.x = -1, .y = 1},
+            {.x = 0, .y = -2},
+            {.x = -1, .y = -2},
+        },
+        {
+            // CCW (to Rotation 2)
+            {.x = -1, .y = 0},
+            {.x = -1, .y = 1},
+            {.x = 0, .y = -2},
+            {.x = -1, .y = -2},
+        },
+    },
+};
+
+static POINT i_kicks[4][2][4] = {
+    {
+        // Rotation 0
+        {
+            // CW (to Rotation 1)
+            {.x = -2, .y = 0},
+            {.x = 1, .y = 0},
+            {.x = -2, .y = 1},
+            {.x = 1, .y = -2},
+        },
+        {
+            // CCW (to Rotation 3)
+            {.x = -1, .y = 0},
+            {.x = 2, .y = 0},
+            {.x = -1, .y = -2},
+            {.x = 2, .y = 1},
+        },
+    },
+    {
+        // Rotation 1
+        {
+            // CW (to Rotation 2)
+            {.x = -1, .y = 0},
+            {.x = 2, .y = 0},
+            {.x = -1, .y = -2},
+            {.x = 2, .y = 1},
+        },
+        {
+            // CCW (to rotation 0)
+            {.x = 2, .y = 0},
+            {.x = -1, .y = 0},
+            {.x = 2, .y = -1},
+            {.x = -1, .y = 2},
+        },
+    },
+    {
+        // Rotation 2
+        {
+            // CW (to Rotation 3)
+            {.x = 2, .y = 0},
+            {.x = -1, .y = 0},
+            {.x = 2, .y = -1},
+            {.x = -1, .y = 2},
+        },
+        {
+            // CCW (to Rotation 1)
+            {.x = 1, .y = 0},
+            {.x = -2, .y = 0},
+            {.x = 1, .y = 2},
+            {.x = -2, .y = -1},
+        },
+    },
+    {
+        // Rotation 3
+        {
+            // CW (to Rotation 0)
+            {.x = 1, .y = 0},
+            {.x = -2, .y = 0},
+            {.x = 1, .y = 2},
+            {.x = -2, .y = -1},
+        },
+        {
+            // CCW (to Rotation 2)
+            {.x = -2, .y = 0},
+            {.x = 1, .y = 0},
+            {.x = -2, .y = 1},
+            {.x = 1, .y = -2},
+        },
+    },
+};
+
+POINT* mino_get_kick_data(PIECE piece, int start_rotation, bool ccw)
+{
+    ASSERT_PIECE(piece);
+    ASSERT_ROTATION(start_rotation);
+
+    switch (piece)
+    {
+        case J:
+        case L:
+        case T:
+        case S:
+        case Z:
+            return jltsz_kicks[start_rotation][ccw ? 1 : 0];
+        case I:
+            return i_kicks[start_rotation][ccw ? 1 : 0];
+        default:
+            return NULL;
+    }
+}
 
 ALLEGRO_COLOR mino_get_default_colour(PIECE piece)
 {

@@ -100,20 +100,48 @@ void player_move_down(PLAYER *p)
     p->y++;
 }
 
-void player_rotate_cw(PLAYER *p)
+bool player_rotate(PLAYER *p, bool ccw)
 {
-    p->rotation = (p->rotation + 1) % 4;
+    int initial_rotation = p->rotation;
+    int initial_x = p->x;
+    int initial_y = p->y;
 
-    if (p == &player)
-        audio_play_sfx(SFX_ROTATE_CW);
+    p->rotation = (p->rotation + (ccw ? 3 : 1)) % 4;
+
+    if (player_is_in_bounds(p) && !player_collides_with_cell(p))
+        return true;
+
+    POINT *kicks = mino_get_kick_data(p->piece, initial_rotation, false);
+    if (kicks == NULL)
+    {
+        p->rotation = initial_rotation;
+        return false;
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+        POINT kick = kicks[i];
+        p->x = initial_x + kick.x;
+        p->y = initial_y + kick.y;
+
+        if (player_is_in_bounds(p) && !player_collides_with_cell(p))
+            return true;
+    }
+
+    p->rotation = initial_rotation;
+    p->x = initial_x;
+    p->y = initial_y;
+    return false;
 }
 
-void player_rotate_ccw(PLAYER *p)
+bool player_rotate_ccw(PLAYER *p)
 {
-    p->rotation = (p->rotation + 3) % 4;
+    return player_rotate(p, true);
+}
 
-    if (p == &player)
-        audio_play_sfx(SFX_ROTATE_CCW);
+bool player_rotate_cw(PLAYER *p)
+{
+    return player_rotate(p, false);
 }
 
 bool player_can_move_down(PLAYER *p)
@@ -229,16 +257,12 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         switch (event->keyboard.keycode)
         {
         case ALLEGRO_KEY_X:
-            if (player_can_rotate_cw(&player))
-            {
-                player_rotate_cw(&player);
-            };
+            if (player_rotate_cw(&player))
+                audio_play_sfx(SFX_ROTATE_CW);
             break;
         case ALLEGRO_KEY_Z:
-            if (player_can_rotate_ccw(&player))
-            {
-                player_rotate_ccw(&player);
-            }
+            if (player_rotate_ccw(&player))
+                audio_play_sfx(SFX_ROTATE_CCW);
             break;
         case ALLEGRO_KEY_UP: // HARD DROP
             while (player_can_move_down(&player))

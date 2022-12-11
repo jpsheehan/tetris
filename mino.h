@@ -18,9 +18,15 @@ typedef enum PIECE
     PIECE_MAX
 } PIECE;
 
+typedef struct POINT
+{
+    int x, y;
+} POINT;
+
 ALLEGRO_COLOR mino_get_default_colour(PIECE piece);
 void mino_unmap_xy_offsets(PIECE piece, int rotation, int idx, int* x, int* y);
 void mino_draw(PIECE piece, int rotation, int offset_x, int offset_y, ALLEGRO_COLOR c, float scale);
 void mino_draw_cell(int x, int y, ALLEGRO_COLOR c, float scale);
+POINT* mino_get_kick_data(PIECE piece, int start_rotation, bool ccw);
 
 #endif
