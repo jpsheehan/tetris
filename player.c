@@ -20,6 +20,8 @@
 #define ASSERT_ROTATION(rot) ASSERT_RANGE(rot, 0, 4, "rotation")
 
 static PLAYER player;
+static PIECE held_piece;
+static bool can_swap_with_held_piece;
 
 typedef struct POINT
 {
@@ -347,17 +349,28 @@ ALLEGRO_COLOR player_get_default_colour(PIECE piece)
     return al_map_rgb(r, g, b);
 }
 
-void player_init()
+void dispense_specific_piece(PIECE piece)
 {
-    player.piece = (PIECE)(rand() % PIECE_MAX);
+    player.piece = piece;
     player.x = (FIELD_W - 4) / 2;
     player.y = -1;
     player.rotation = 0;
-
     player.c = player_get_default_colour(player.piece);
 
     if (player_collides_with_cell(&player))
         safe_exit("game over", 0);
+}
+
+void dispense_next_piece()
+{
+    dispense_specific_piece((PIECE)(rand() % PIECE_MAX));
+    can_swap_with_held_piece = true;
+}
+
+void player_init()
+{
+    held_piece = PIECE_MAX;
+    dispense_next_piece();
 }
 
 bool player_is_in_bounds(PLAYER *p)
@@ -472,7 +485,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         else
         {
             player_lock_down();
-            player_init();
+            dispense_next_piece();
             audio_play_sfx(SFX_LOCK_DOWN);
         }
     }
@@ -507,7 +520,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
             else
             {
                 player_lock_down();
-                player_init();
+                dispense_next_piece();
                 audio_play_sfx(SFX_LOCK_DOWN);
             }
         }
@@ -515,32 +528,46 @@ void player_update(ALLEGRO_EVENT *event, int frames)
 
     if (event->type == ALLEGRO_EVENT_KEY_DOWN)
     {
-        if (keyboard_is_just_pressed(ALLEGRO_KEY_X))
+        switch (event->keyboard.keycode)
         {
+        case ALLEGRO_KEY_X:
             if (player_can_rotate_cw())
             {
                 player_rotate_cw(&player);
-            }
-        }
-
-        if (keyboard_is_just_pressed(ALLEGRO_KEY_Z))
-        {
+            };
+            break;
+        case ALLEGRO_KEY_Z:
             if (player_can_rotate_ccw())
             {
                 player_rotate_ccw(&player);
             }
-        }
-
-        // HARD DROP
-        if (keyboard_is_just_pressed(ALLEGRO_KEY_UP))
-        {
+            break;
+        case ALLEGRO_KEY_UP: // HARD DROP
             while (player_can_move_down())
             {
                 player_move_down(&player);
             }
             player_lock_down();
-            player_init();
+            dispense_next_piece();
             audio_play_sfx(SFX_HARD_DROP);
+            break;
+        case ALLEGRO_KEY_SPACE: // SWAP
+            if (can_swap_with_held_piece)
+            {
+                if (held_piece >= 0 && held_piece < PIECE_MAX)
+                {
+                    PIECE temp = held_piece;
+                    held_piece = player.piece;
+                    dispense_specific_piece(temp);
+                }
+                else
+                {
+                    held_piece = player.piece;
+                    dispense_next_piece();
+                }
+                can_swap_with_held_piece = false;
+            }
+            break;
         }
     }
 }
@@ -555,5 +582,15 @@ void player_draw()
         int x = player.x + rotations[player.piece][player.rotation][i].x;
         int y = player.y + rotations[player.piece][player.rotation][i].y;
         field_draw_cell(x, y, player.c);
+    }
+
+    if (held_piece >= 0 && held_piece < PIECE_MAX)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            int x = 20 + rotations[held_piece][0][i].x * CELL_W;
+            int y = 40 + rotations[held_piece][0][i].y * CELL_H;
+            field_draw_cell_raw(x, y, player_get_default_colour(held_piece));
+        }
     }
 }

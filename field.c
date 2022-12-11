@@ -6,6 +6,19 @@
 
 static CELL field[FIELD_H][FIELD_W];
 
+void field_draw_cell_raw(int x, int y, ALLEGRO_COLOR c)
+{
+    al_draw_filled_rectangle(x, y, x + CELL_W, y + CELL_H, c);
+
+    float r, g, b;
+    al_unmap_rgb_f(c, &r, &g, &b);
+    r *= 0.7;
+    g *= 0.7;
+    b *= 0.7;
+    al_draw_rectangle(x, y, x + CELL_W, y + CELL_H, al_map_rgb_f(r, g, b), 1);
+
+}
+
 void field_draw_cell(int x, int y, ALLEGRO_COLOR c)
 {
     if (x < 0 || x >= FIELD_W || y < 0 || y >= FIELD_H)
@@ -13,14 +26,8 @@ void field_draw_cell(int x, int y, ALLEGRO_COLOR c)
 
     int buffer_x = FIELD_MARGIN_X + x * CELL_W;
     int buffer_y = FIELD_MARGIN_Y + y * CELL_H;
-    al_draw_filled_rectangle(buffer_x, buffer_y, buffer_x + CELL_W, buffer_y + CELL_H, c);
 
-    float r, g, b;
-    al_unmap_rgb_f(c, &r, &g, &b);
-    r *= 0.7;
-    g *= 0.7;
-    b *= 0.7;
-    al_draw_rectangle(buffer_x, buffer_y, buffer_x + CELL_W, buffer_y + CELL_H, al_map_rgb_f(r, g, b), 1);
+    field_draw_cell_raw(buffer_x, buffer_y, c);
 }
 
 void field_init(void)
