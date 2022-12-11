@@ -588,7 +588,7 @@ void draw_ghost_piece()
         int x = ghost.x + rotations[ghost.piece][ghost.rotation][i].x;
         int y = ghost.y + rotations[ghost.piece][ghost.rotation][i].y;
 
-        field_draw_cell(x, y, al_map_rgba_f(1, 1, 1, 0.3));
+        field_draw_cell(x, y, al_map_rgba_f(0.5, 0.5, 0.5, 0.3));
     }
 }
 
