@@ -14,6 +14,7 @@ static PLAYER player;
 static PIECE held_piece;
 static bool can_swap_with_held_piece;
 static ALLEGRO_FONT *font;
+static ALLEGRO_TIMER *lock_delay;
 
 bool player_collides_with_cell(PLAYER *p)
 {
@@ -54,6 +55,7 @@ void dispense_next_piece()
 void player_init()
 {
     font = al_create_builtin_font();
+    lock_delay = al_create_timer(0.5);
     held_piece = PIECE_MAX;
     dispense_next_piece();
 }
@@ -64,6 +66,22 @@ void player_deinit()
     {
         al_destroy_font(font);
         font = NULL;
+    }
+
+    if (lock_delay != NULL)
+    {
+        al_destroy_timer(lock_delay);
+        lock_delay = NULL;
+    }
+}
+
+void reset_lock_delay(void)
+{
+    if (lock_delay != NULL)
+    {
+        al_stop_timer(lock_delay);
+        al_set_timer_count(lock_delay, 0);
+        al_start_timer(lock_delay);
     }
 }
 
@@ -184,10 +202,27 @@ bool player_can_rotate_ccw(PLAYER *p)
     return player_is_in_bounds(&new_player) && !player_collides_with_cell(&new_player);
 }
 
-void player_lock_down()
+bool player_lock_down(bool hard_lock)
 {
     ASSERT_PIECE(player.piece);
     ASSERT_ROTATION(player.rotation);
+
+    if (!hard_lock)
+
+    {
+        if (!al_get_timer_started(lock_delay))
+        {
+            reset_lock_delay();
+        }
+
+        if (!al_get_timer_count(lock_delay))
+        {
+            return false;
+        }
+    }
+
+    if (al_get_timer_started(lock_delay))
+        al_stop_timer(lock_delay);
 
     for (int i = 0; i < 4; i++)
     {
@@ -198,6 +233,8 @@ void player_lock_down()
 
         field_set_used_safely(x, y, player.c);
     }
+
+    return true;
 }
 
 void player_update(ALLEGRO_EVENT *event, int frames)
@@ -210,9 +247,11 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         }
         else
         {
-            player_lock_down();
-            dispense_next_piece();
-            audio_play_sfx(SFX_LOCK_DOWN);
+            if (player_lock_down(false))
+            {
+                dispense_next_piece();
+                audio_play_sfx(SFX_LOCK_DOWN);
+            }
         }
     }
 
@@ -245,9 +284,11 @@ void player_update(ALLEGRO_EVENT *event, int frames)
             }
             else
             {
-                player_lock_down();
-                dispense_next_piece();
-                audio_play_sfx(SFX_LOCK_DOWN);
+                if (player_lock_down(true))
+                {
+                    dispense_next_piece();
+                    audio_play_sfx(SFX_LOCK_DOWN);
+                }
             }
         }
     }
@@ -269,9 +310,11 @@ void player_update(ALLEGRO_EVENT *event, int frames)
             {
                 player_move_down(&player);
             }
-            player_lock_down();
-            dispense_next_piece();
-            audio_play_sfx(SFX_HARD_DROP);
+            if (player_lock_down(false))
+            {
+                dispense_next_piece();
+                audio_play_sfx(SFX_HARD_DROP);
+            }
             break;
         case ALLEGRO_KEY_SPACE: // SWAP
             if (can_swap_with_held_piece)
