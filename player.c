@@ -34,77 +34,291 @@ typedef struct ROTATION
 static unsigned char colours[PIECE_MAX][3] = {
     {0xEF, 0xE7, 0x10}, // O
     {0xc2, 0x2d, 0xd2}, // T
+    {0x1e, 0xcb, 0xe1}, // I
+    {0x16, 0x0b, 0xf4}, // J
+    {0xff, 0xc2, 0x00}, // L
+    {0x41, 0xff, 0x00}, // S
+    {0xe7, 0x18, 0x23}, // Z
 };
 
 static POINT rotations[PIECE_MAX][4][4] = {
-    {// O
-     {
-         // ##
-         // ##
-         {.x = 0, .y = 0},
-         {.x = 1, .y = 0},
-         {.x = 0, .y = 1},
-         {.x = 1, .y = 1},
-     },
-     {
-         // ##
-         // ##
-         {.x = 0, .y = 0},
-         {.x = 1, .y = 0},
-         {.x = 0, .y = 1},
-         {.x = 1, .y = 1},
-     },
-     {
-         // ##
-         // ##
-         {.x = 0, .y = 0},
-         {.x = 1, .y = 0},
-         {.x = 0, .y = 1},
-         {.x = 1, .y = 1},
-     },
-     {
-         // ##
-         // ##
-         {.x = 0, .y = 0},
-         {.x = 1, .y = 0},
-         {.x = 0, .y = 1},
-         {.x = 1, .y = 1},
-     }},
-    {// T
-     {
-         //  #
-         // ###
-         {.x = 1, .y = 0},
-         {.x = 0, .y = 1},
-         {.x = 1, .y = 1},
-         {.x = 2, .y = 1},
-     },
-     {
-         // #
-         // ##
-         // #
-         {.x = 0, .y = 0},
-         {.x = 0, .y = 1},
-         {.x = 0, .y = 2},
-         {.x = 1, .y = 1},
-     },
-     {
-         // ###
-         //  #
-         {.x = 1, .y = 1},
-         {.x = 0, .y = 0},
-         {.x = 1, .y = 0},
-         {.x = 2, .y = 0},
-     },
-     {
-         //  #
-         // ##
-         //  #
-         {.x = 1, .y = 0},
-         {.x = 1, .y = 1},
-         {.x = 1, .y = 2},
-         {.x = 0, .y = 1},
-     }}};
+    {
+        // O
+        {
+            //  ##
+            //  ##
+            //
+            {.x = 1, .y = 0},
+            {.x = 2, .y = 0},
+            {.x = 1, .y = 1},
+            {.x = 2, .y = 1},
+        },
+        {
+            //  ##
+            //  ##
+            //
+            {.x = 1, .y = 0},
+            {.x = 2, .y = 0},
+            {.x = 1, .y = 1},
+            {.x = 2, .y = 1},
+        },
+        {
+            //  ##
+            //  ##
+            //
+            {.x = 1, .y = 0},
+            {.x = 2, .y = 0},
+            {.x = 1, .y = 1},
+            {.x = 2, .y = 1},
+        },
+        {
+            //  ##
+            //  ##
+            //
+            {.x = 1, .y = 0},
+            {.x = 2, .y = 0},
+            {.x = 1, .y = 1},
+            {.x = 2, .y = 1},
+        },
+    },
+    {
+        // T
+        {
+            //  #
+            // ###
+            {.x = 1, .y = 0},
+            {.x = 0, .y = 1},
+            {.x = 1, .y = 1},
+            {.x = 2, .y = 1},
+        },
+        {
+            //  #
+            //  ##
+            //  #
+            {.x = 1, .y = 0},
+            {.x = 1, .y = 1},
+            {.x = 1, .y = 2},
+            {.x = 2, .y = 1},
+        },
+        {
+            //
+            // ###
+            //  #
+            {.x = 1, .y = 2},
+            {.x = 0, .y = 1},
+            {.x = 1, .y = 1},
+            {.x = 2, .y = 1},
+        },
+        {
+            //  #
+            // ##
+            //  #
+            {.x = 1, .y = 0},
+            {.x = 1, .y = 1},
+            {.x = 1, .y = 2},
+            {.x = 0, .y = 1},
+        },
+    },
+    {
+        // I
+        {
+            //
+            // ####
+            //
+            //
+            {.x = 0, .y = 1},
+            {.x = 1, .y = 1},
+            {.x = 2, .y = 1},
+            {.x = 3, .y = 1},
+        },
+        {
+            //   #
+            //   #
+            //   #
+            //   #
+            {.x = 2, .y = 0},
+            {.x = 2, .y = 1},
+            {.x = 2, .y = 2},
+            {.x = 2, .y = 3},
+        },
+        {
+            //
+            //
+            // ####
+            //
+            {.x = 0, .y = 2},
+            {.x = 1, .y = 2},
+            {.x = 2, .y = 2},
+            {.x = 3, .y = 2},
+        },
+        {
+            //  #
+            //  #
+            //  #
+            //  #
+            {.x = 1, .y = 0},
+            {.x = 1, .y = 1},
+            {.x = 1, .y = 2},
+            {.x = 1, .y = 3},
+        },
+    },
+    {
+        // J
+        {
+            // #
+            // ###
+            //
+            {.x = 0, .y = 0},
+            {.x = 0, .y = 1},
+            {.x = 1, .y = 1},
+            {.x = 2, .y = 1},
+        },
+        {
+            //  ##
+            //  #
+            //  #
+            {.x = 1, .y = 0},
+            {.x = 1, .y = 1},
+            {.x = 1, .y = 2},
+            {.x = 2, .y = 0},
+        },
+        {
+            //
+            // ###
+            //   #
+            {.x = 2, .y = 2},
+            {.x = 0, .y = 1},
+            {.x = 1, .y = 1},
+            {.x = 2, .y = 1},
+        },
+        {
+            //  #
+            //  #
+            // ##
+            {.x = 1, .y = 0},
+            {.x = 1, .y = 1},
+            {.x = 1, .y = 2},
+            {.x = 0, .y = 2},
+        },
+    },
+    {
+        // L
+        {
+            //   #
+            // ###
+            //
+            {.x = 2, .y = 0},
+            {.x = 0, .y = 1},
+            {.x = 1, .y = 1},
+            {.x = 2, .y = 1},
+        },
+        {
+            //  #
+            //  #
+            //  ##
+            {.x = 1, .y = 0},
+            {.x = 1, .y = 1},
+            {.x = 1, .y = 2},
+            {.x = 2, .y = 2},
+        },
+        {
+            //
+            // ###
+            // #
+            {.x = 0, .y = 2},
+            {.x = 0, .y = 1},
+            {.x = 1, .y = 1},
+            {.x = 2, .y = 1},
+        },
+        {
+            // ##
+            //  #
+            //  #
+            {.x = 1, .y = 0},
+            {.x = 1, .y = 1},
+            {.x = 1, .y = 2},
+            {.x = 0, .y = 0},
+        },
+    },
+    {
+        // S
+        {
+            //  ##
+            // ##
+            //
+            {.x = 0, .y = 1},
+            {.x = 1, .y = 1},
+            {.x = 1, .y = 0},
+            {.x = 2, .y = 0},
+        },
+        {
+            //  #
+            //  ##
+            //   #
+            {.x = 1, .y = 0},
+            {.x = 1, .y = 1},
+            {.x = 2, .y = 1},
+            {.x = 2, .y = 2},
+        },
+        {
+            //
+            //  ##
+            // ##
+            {.x = 0, .y = 2},
+            {.x = 1, .y = 2},
+            {.x = 1, .y = 1},
+            {.x = 2, .y = 1},
+        },
+        {
+            // #
+            // ##
+            //  #
+            {.x = 0, .y = 0},
+            {.x = 0, .y = 1},
+            {.x = 1, .y = 1},
+            {.x = 1, .y = 2},
+        },
+    },
+    {
+        // Z
+        {
+            // ##
+            //  ##
+            //
+            {.x = 0, .y = 0},
+            {.x = 1, .y = 0},
+            {.x = 1, .y = 1},
+            {.x = 2, .y = 1},
+        },
+        {
+            //   #
+            //  ##
+            //  #
+            {.x = 2, .y = 0},
+            {.x = 2, .y = 1},
+            {.x = 1, .y = 1},
+            {.x = 1, .y = 2},
+        },
+        {
+            //
+            // ##
+            //  ##
+            {.x = 0, .y = 1},
+            {.x = 1, .y = 1},
+            {.x = 1, .y = 2},
+            {.x = 2, .y = 2},
+        },
+        {
+            //  #
+            // ##
+            // #
+            {.x = 1, .y = 0},
+            {.x = 1, .y = 1},
+            {.x = 0, .y = 1},
+            {.x = 0, .y = 2},
+        },
+    },
+};
 
 bool player_collides_with_cell(PLAYER *p)
 {
@@ -136,7 +350,7 @@ ALLEGRO_COLOR player_get_default_colour(PIECE piece)
 void player_init()
 {
     player.piece = (PIECE)(rand() % PIECE_MAX);
-    player.x = FIELD_W / 2 - 1;
+    player.x = (FIELD_W - 4) / 2;
     player.y = -1;
     player.rotation = 0;
 
@@ -156,7 +370,7 @@ bool player_is_in_bounds(PLAYER *p)
         int x = p->x + rotations[p->piece][p->rotation][i].x;
         int y = p->y + rotations[p->piece][p->rotation][i].y;
 
-        if (x < 0 || x >= FIELD_W || y < 0 || y >= FIELD_H)
+        if (x < 0 || x >= FIELD_W || y < -1 || y >= FIELD_H)
             return false;
     }
     return true;
@@ -179,7 +393,7 @@ void player_move_down(PLAYER *p)
 
 void player_rotate_cw(PLAYER *p)
 {
-    p->rotation = (p->rotation + 3) % 4;
+    p->rotation = (p->rotation + 1) % 4;
 
     if (p == &player)
         audio_play_sfx(SFX_ROTATE_CW);
@@ -187,7 +401,7 @@ void player_rotate_cw(PLAYER *p)
 
 void player_rotate_ccw(PLAYER *p)
 {
-    p->rotation = (p->rotation + 1) % 4;
+    p->rotation = (p->rotation + 3) % 4;
 
     if (p == &player)
         audio_play_sfx(SFX_ROTATE_CCW);
@@ -301,7 +515,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
 
     if (event->type == ALLEGRO_EVENT_KEY_DOWN)
     {
-        if (keyboard_is_just_pressed(ALLEGRO_KEY_Z))
+        if (keyboard_is_just_pressed(ALLEGRO_KEY_X))
         {
             if (player_can_rotate_cw())
             {
@@ -309,7 +523,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
             }
         }
 
-        if (keyboard_is_just_pressed(ALLEGRO_KEY_X))
+        if (keyboard_is_just_pressed(ALLEGRO_KEY_Z))
         {
             if (player_can_rotate_ccw())
             {

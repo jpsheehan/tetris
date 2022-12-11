@@ -7,6 +7,11 @@ typedef enum PIECE
 {
     O,
     T,
+    I,
+    J,
+    L,
+    S,
+    Z,
     PIECE_MAX
 } PIECE;
 
