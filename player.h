@@ -3,17 +3,7 @@
 
 #include <allegro5/allegro.h>
 
-typedef enum PIECE
-{
-    O,
-    T,
-    I,
-    J,
-    L,
-    S,
-    Z,
-    PIECE_MAX
-} PIECE;
+#include "mino.h"
 
 typedef struct PLAYER
 {

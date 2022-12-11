@@ -1,4 +1,6 @@
 #include "randomiser.h"
+#include "display.h"
+#include "mino.h"
 
 #define RANDOMISER_BUFFER_MAX 14
 
@@ -49,5 +51,25 @@ PIECE randomiser_next(void)
 
 void randomiser_peek(int* n, PIECE* buffer)
 {
-    *n = 0;
+    for (int i = 0; i < 6; i++) {
+        buffer[i] = bag_pieces[(i + bag_idx) % RANDOMISER_BUFFER_MAX];
+    }
+    *n = 6;
 }
+
+// void randomiser_draw(void)
+// {
+//     int offset_x = BUFFER_W - 30;
+//     int offset_y = 10;
+
+//     for (int j = 0; j < 6; j++)
+//     {
+//         PIECE piece = bag_pieces[(j + bag_idx) % RANDOMISER_BUFFER_MAX];
+//         for (int i = 0; i < 4; i++)
+//         {
+//             int x = offset_x + rotations[piece][0][i].x * CELL_W;
+//             int y = offset_y + rotations[piece][0][i].y * CELL_H;
+//             field_draw_cell_raw(x, y, player_get_default_colour(piece));
+//         }
+//     }
+// }

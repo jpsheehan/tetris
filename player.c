@@ -7,322 +7,9 @@
 #include "audio.h"
 #include "randomiser.h"
 
-#define ASSERT_RANGE(x, min, max, name)                                         \
-    do                                                                          \
-    {                                                                           \
-        if ((x) < (min) || (x) >= (max))                                        \
-        {                                                                       \
-            char __message[100] = {0};                                          \
-            snprintf(__message, 100, "invalid %s in %s", (name), __FUNCTION__); \
-            safe_exit(__message, 1);                                            \
-        }                                                                       \
-    } while (0)
-
-#define ASSERT_PIECE(piece) ASSERT_RANGE(piece, 0, PIECE_MAX, "piece")
-#define ASSERT_ROTATION(rot) ASSERT_RANGE(rot, 0, 4, "rotation")
-
 static PLAYER player;
 static PIECE held_piece;
 static bool can_swap_with_held_piece;
-
-typedef struct POINT
-{
-    int x, y;
-} POINT;
-
-typedef struct ROTATION
-{
-    POINT ps[4];
-} ROTATION;
-
-static unsigned char colours[PIECE_MAX][3] = {
-    {0xEF, 0xE7, 0x10}, // O
-    {0xc2, 0x2d, 0xd2}, // T
-    {0x1e, 0xcb, 0xe1}, // I
-    {0x16, 0x0b, 0xf4}, // J
-    {0xff, 0xc2, 0x00}, // L
-    {0x41, 0xff, 0x00}, // S
-    {0xe7, 0x18, 0x23}, // Z
-};
-
-static POINT rotations[PIECE_MAX][4][4] = {
-    {
-        // O
-        {
-            //  ##
-            //  ##
-            //
-            {.x = 1, .y = 0},
-            {.x = 2, .y = 0},
-            {.x = 1, .y = 1},
-            {.x = 2, .y = 1},
-        },
-        {
-            //  ##
-            //  ##
-            //
-            {.x = 1, .y = 0},
-            {.x = 2, .y = 0},
-            {.x = 1, .y = 1},
-            {.x = 2, .y = 1},
-        },
-        {
-            //  ##
-            //  ##
-            //
-            {.x = 1, .y = 0},
-            {.x = 2, .y = 0},
-            {.x = 1, .y = 1},
-            {.x = 2, .y = 1},
-        },
-        {
-            //  ##
-            //  ##
-            //
-            {.x = 1, .y = 0},
-            {.x = 2, .y = 0},
-            {.x = 1, .y = 1},
-            {.x = 2, .y = 1},
-        },
-    },
-    {
-        // T
-        {
-            //  #
-            // ###
-            {.x = 1, .y = 0},
-            {.x = 0, .y = 1},
-            {.x = 1, .y = 1},
-            {.x = 2, .y = 1},
-        },
-        {
-            //  #
-            //  ##
-            //  #
-            {.x = 1, .y = 0},
-            {.x = 1, .y = 1},
-            {.x = 1, .y = 2},
-            {.x = 2, .y = 1},
-        },
-        {
-            //
-            // ###
-            //  #
-            {.x = 1, .y = 2},
-            {.x = 0, .y = 1},
-            {.x = 1, .y = 1},
-            {.x = 2, .y = 1},
-        },
-        {
-            //  #
-            // ##
-            //  #
-            {.x = 1, .y = 0},
-            {.x = 1, .y = 1},
-            {.x = 1, .y = 2},
-            {.x = 0, .y = 1},
-        },
-    },
-    {
-        // I
-        {
-            //
-            // ####
-            //
-            //
-            {.x = 0, .y = 1},
-            {.x = 1, .y = 1},
-            {.x = 2, .y = 1},
-            {.x = 3, .y = 1},
-        },
-        {
-            //   #
-            //   #
-            //   #
-            //   #
-            {.x = 2, .y = 0},
-            {.x = 2, .y = 1},
-            {.x = 2, .y = 2},
-            {.x = 2, .y = 3},
-        },
-        {
-            //
-            //
-            // ####
-            //
-            {.x = 0, .y = 2},
-            {.x = 1, .y = 2},
-            {.x = 2, .y = 2},
-            {.x = 3, .y = 2},
-        },
-        {
-            //  #
-            //  #
-            //  #
-            //  #
-            {.x = 1, .y = 0},
-            {.x = 1, .y = 1},
-            {.x = 1, .y = 2},
-            {.x = 1, .y = 3},
-        },
-    },
-    {
-        // J
-        {
-            // #
-            // ###
-            //
-            {.x = 0, .y = 0},
-            {.x = 0, .y = 1},
-            {.x = 1, .y = 1},
-            {.x = 2, .y = 1},
-        },
-        {
-            //  ##
-            //  #
-            //  #
-            {.x = 1, .y = 0},
-            {.x = 1, .y = 1},
-            {.x = 1, .y = 2},
-            {.x = 2, .y = 0},
-        },
-        {
-            //
-            // ###
-            //   #
-            {.x = 2, .y = 2},
-            {.x = 0, .y = 1},
-            {.x = 1, .y = 1},
-            {.x = 2, .y = 1},
-        },
-        {
-            //  #
-            //  #
-            // ##
-            {.x = 1, .y = 0},
-            {.x = 1, .y = 1},
-            {.x = 1, .y = 2},
-            {.x = 0, .y = 2},
-        },
-    },
-    {
-        // L
-        {
-            //   #
-            // ###
-            //
-            {.x = 2, .y = 0},
-            {.x = 0, .y = 1},
-            {.x = 1, .y = 1},
-            {.x = 2, .y = 1},
-        },
-        {
-            //  #
-            //  #
-            //  ##
-            {.x = 1, .y = 0},
-            {.x = 1, .y = 1},
-            {.x = 1, .y = 2},
-            {.x = 2, .y = 2},
-        },
-        {
-            //
-            // ###
-            // #
-            {.x = 0, .y = 2},
-            {.x = 0, .y = 1},
-            {.x = 1, .y = 1},
-            {.x = 2, .y = 1},
-        },
-        {
-            // ##
-            //  #
-            //  #
-            {.x = 1, .y = 0},
-            {.x = 1, .y = 1},
-            {.x = 1, .y = 2},
-            {.x = 0, .y = 0},
-        },
-    },
-    {
-        // S
-        {
-            //  ##
-            // ##
-            //
-            {.x = 0, .y = 1},
-            {.x = 1, .y = 1},
-            {.x = 1, .y = 0},
-            {.x = 2, .y = 0},
-        },
-        {
-            //  #
-            //  ##
-            //   #
-            {.x = 1, .y = 0},
-            {.x = 1, .y = 1},
-            {.x = 2, .y = 1},
-            {.x = 2, .y = 2},
-        },
-        {
-            //
-            //  ##
-            // ##
-            {.x = 0, .y = 2},
-            {.x = 1, .y = 2},
-            {.x = 1, .y = 1},
-            {.x = 2, .y = 1},
-        },
-        {
-            // #
-            // ##
-            //  #
-            {.x = 0, .y = 0},
-            {.x = 0, .y = 1},
-            {.x = 1, .y = 1},
-            {.x = 1, .y = 2},
-        },
-    },
-    {
-        // Z
-        {
-            // ##
-            //  ##
-            //
-            {.x = 0, .y = 0},
-            {.x = 1, .y = 0},
-            {.x = 1, .y = 1},
-            {.x = 2, .y = 1},
-        },
-        {
-            //   #
-            //  ##
-            //  #
-            {.x = 2, .y = 0},
-            {.x = 2, .y = 1},
-            {.x = 1, .y = 1},
-            {.x = 1, .y = 2},
-        },
-        {
-            //
-            // ##
-            //  ##
-            {.x = 0, .y = 1},
-            {.x = 1, .y = 1},
-            {.x = 1, .y = 2},
-            {.x = 2, .y = 2},
-        },
-        {
-            //  #
-            // ##
-            // #
-            {.x = 1, .y = 0},
-            {.x = 1, .y = 1},
-            {.x = 0, .y = 1},
-            {.x = 0, .y = 2},
-        },
-    },
-};
 
 bool player_collides_with_cell(PLAYER *p)
 {
@@ -331,24 +18,15 @@ bool player_collides_with_cell(PLAYER *p)
 
     for (int i = 0; i < 4; i++)
     {
-        int x = p->x + rotations[p->piece][p->rotation][i].x;
-        int y = p->y + rotations[p->piece][p->rotation][i].y;
+        int x, y;
+        mino_unmap_xy_offsets(p->piece, p->rotation, i, &x, &y);
+        x += p->x;
+        y += p->y;
 
         if (field_get_used_or_default(x, y, false))
             return true;
     }
     return false;
-}
-
-ALLEGRO_COLOR player_get_default_colour(PIECE piece)
-{
-    ASSERT_PIECE(piece);
-
-    unsigned char r = colours[piece][0];
-    unsigned char g = colours[piece][1];
-    unsigned char b = colours[piece][2];
-
-    return al_map_rgb(r, g, b);
 }
 
 void dispense_specific_piece(PIECE piece)
@@ -357,7 +35,7 @@ void dispense_specific_piece(PIECE piece)
     player.x = (FIELD_W - 4) / 2;
     player.y = -1;
     player.rotation = 0;
-    player.c = player_get_default_colour(player.piece);
+    player.c = mino_get_default_colour(player.piece);
 
     if (player_collides_with_cell(&player))
         safe_exit("game over", 0);
@@ -382,8 +60,10 @@ bool player_is_in_bounds(PLAYER *p)
 
     for (int i = 0; i < 4; i++)
     {
-        int x = p->x + rotations[p->piece][p->rotation][i].x;
-        int y = p->y + rotations[p->piece][p->rotation][i].y;
+        int x, y;
+        mino_unmap_xy_offsets(p->piece, p->rotation, i, &x, &y);
+        x += p->x;
+        y += p->y;
 
         if (x < 0 || x >= FIELD_W || y < -1 || y >= FIELD_H)
             return false;
@@ -469,8 +149,10 @@ void player_lock_down()
 
     for (int i = 0; i < 4; i++)
     {
-        int x = player.x + rotations[player.piece][player.rotation][i].x;
-        int y = player.y + rotations[player.piece][player.rotation][i].y;
+        int x, y;
+        mino_unmap_xy_offsets(player.piece, player.rotation, i, &x, &y);
+        x += player.x;
+        y += player.y;
 
         field_set_used_safely(x, y, player.c);
     }
@@ -587,8 +269,10 @@ void draw_ghost_piece()
 
     for (int i = 0; i < 4; i++)
     {
-        int x = ghost.x + rotations[ghost.piece][ghost.rotation][i].x;
-        int y = ghost.y + rotations[ghost.piece][ghost.rotation][i].y;
+        int x, y;
+        mino_unmap_xy_offsets(ghost.piece, ghost.rotation, i, &x, &y);
+        x += ghost.x;
+        y += ghost.y;
 
         field_draw_cell(x, y, al_map_rgba_f(0.5, 0.5, 0.5, 0.3));
     }
@@ -604,19 +288,25 @@ void player_draw()
     // draw player
     for (int i = 0; i < 4; i++)
     {
-        int x = player.x + rotations[player.piece][player.rotation][i].x;
-        int y = player.y + rotations[player.piece][player.rotation][i].y;
+        int x, y;
+        mino_unmap_xy_offsets(player.piece, player.rotation, i, &x, &y);
+        x += player.x;
+        y += player.y;
         field_draw_cell(x, y, player.c);
     }
 
     // draw held piece
+    int held_piece_ui_offset_x = 20;
+    int held_piece_ui_offset_y = 40;
     if (held_piece >= 0 && held_piece < PIECE_MAX)
     {
         for (int i = 0; i < 4; i++)
         {
-            int x = 20 + rotations[held_piece][0][i].x * CELL_W;
-            int y = 40 + rotations[held_piece][0][i].y * CELL_H;
-            field_draw_cell_raw(x, y, player_get_default_colour(held_piece));
+            int x, y;
+            mino_unmap_xy_offsets(held_piece, 0, i, &x, &y);
+            x = held_piece_ui_offset_x + x * CELL_W;
+            y = held_piece_ui_offset_y + y * CELL_H;
+            field_draw_cell_raw(x, y, mino_get_default_colour(held_piece));
         }
     }
 }
