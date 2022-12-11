@@ -1,6 +1,9 @@
 CFLAGS=-g -Werror -Wall `pkg-config allegro-5 allegro_primitives-5 allegro_audio-5 allegro_acodec-5  --cflags`
 LFLAGS=`pkg-config allegro-5 allegro_font-5 allegro_primitives-5 allegro_audio-5 allegro_acodec-5 --libs` -lm
 CC=gcc
+SRC=src
+OBJ=obj
+OUT=tetris
 
 all: tetris
 
@@ -9,35 +12,35 @@ clean:
 
 .PHONE: all clean
 
-tetris: tetris.c utils.o display.o keyboard.o field.o player.o score.o audio.o randomiser.o mino.o hud.o
+$(OUT): $(SRC)/tetris.c $(OBJ)/utils.o $(OBJ)/display.o $(OBJ)/keyboard.o $(OBJ)/field.o $(OBJ)/player.o $(OBJ)/score.o $(OBJ)/audio.o $(OBJ)/randomiser.o $(OBJ)/mino.o $(OBJ)/hud.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LFLAGS)
 
-utils.o: utils.c utils.h
+$(OBJ)/utils.o: $(SRC)/utils.c $(SRC)/utils.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-display.o: display.c display.h
+$(OBJ)/display.o: $(SRC)/display.c $(SRC)/display.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-keyboard.o: keyboard.c keyboard.h
+$(OBJ)/keyboard.o: $(SRC)/keyboard.c $(SRC)/keyboard.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-field.o: field.c field.h
+$(OBJ)/field.o: $(SRC)/field.c $(SRC)/field.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-player.o: player.c player.h
+$(OBJ)/player.o: $(SRC)/player.c $(SRC)/player.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-score.o: score.c score.h
+$(OBJ)/score.o: $(SRC)/score.c $(SRC)/score.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-audio.o: audio.c audio.h
+$(OBJ)/audio.o: $(SRC)/audio.c $(SRC)/audio.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-randomiser.o: randomiser_7bag.c randomiser.h
+$(OBJ)/randomiser.o: $(SRC)/randomiser_7bag.c $(SRC)/randomiser.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-mino.o: mino.c mino.h
+$(OBJ)/mino.o: $(SRC)/mino.c $(SRC)/mino.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-hud.o: hud.c hud.h
+$(OBJ)/hud.o: $(SRC)/hud.c $(SRC)/hud.h
 	$(CC) -c -o $@ $< $(CFLAGS)
