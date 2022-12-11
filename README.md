@@ -4,6 +4,18 @@ A simple implementation of the popular falling block game.
 
 ![a screenshot of tetris](./docs/screenshot.png)
 
+## Prerequisites
+
+### Debian
+
+```bash
+sudo apt install liballegro5-dev make
+```
+
+### Windows
+
+- Visual Studio. All dependencies should be automatically restored as needed by NuGet.
+
 ## Tasks
 
 - [x] Restore the "remaining lines" text
