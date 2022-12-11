@@ -8,6 +8,7 @@
 #include "keyboard.h"
 #include "audio.h"
 #include "randomiser.h"
+#include "score.h"
 
 static PLAYER player;
 static PIECE held_piece;
@@ -173,7 +174,7 @@ void player_lock_down()
 
 void player_update(ALLEGRO_EVENT *event, int frames)
 {
-    if (frames % FPS == 0) // each second
+    if (frames % (int)((double)FPS * gravity_get()) == 0) // each second
     {
         if (player_can_move_down(&player))
         {

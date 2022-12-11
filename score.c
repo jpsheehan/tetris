@@ -1,4 +1,5 @@
 #include "score.h"
+#include <math.h>
 
 static long score;
 static int total_lines;
@@ -12,21 +13,22 @@ void score_init(void)
 void score_add_cleared_lines(int lines_cleared)
 {
     // https://tetris.fandom.com/wiki/Scoring#Guideline_scoring_system
-    switch (lines_cleared) {
-        case 1:
-            score += lines_cleared * 100;
-            break;
-        case 2:
-            score += lines_cleared * 300;
-            break;
-        case 3:
-            score += lines_cleared * 500;
-            break;
-        case 4:
-            score += lines_cleared * 800;
-            break;
-        default:
-            return;
+    switch (lines_cleared)
+    {
+    case 1:
+        score += lines_cleared * 100;
+        break;
+    case 2:
+        score += lines_cleared * 300;
+        break;
+    case 3:
+        score += lines_cleared * 500;
+        break;
+    case 4:
+        score += lines_cleared * 800;
+        break;
+    default:
+        return;
     }
 
     total_lines += lines_cleared;
@@ -50,4 +52,10 @@ int lines_cleared_get(void)
 int lines_until_next_level(void)
 {
     return level_get() * 10 - total_lines;
+}
+
+double gravity_get(void)
+{
+    // https://tetris.fandom.com/wiki/Tetris_Worlds#Gravity
+    return pow(0.8 - ((double)(level_get() - 1) * 0.007), (double)(level_get() - 1));
 }
