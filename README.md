@@ -7,6 +7,7 @@ A simple implementation of the popular falling block game.
 ## Tasks
 
 - [x] Restore the "remaining lines" text
+- [x] Add a "lines cleared" text
 - [ ] Add a locking delay for soft locking
 - [ ] Add some background graphics (maybe this could be based on the level?)
 - [ ] Add a sound effect for when rotation fails
@@ -19,6 +20,7 @@ A simple implementation of the popular falling block game.
 - [ ] Add a countdown before starting
 - [ ] Fix up the input (it doesn't feel right)
 - [ ] Add a sprint, marathon, ultra, and endless modes.
+- [ ] Add highscores for each mode
 - [ ] Add a menu system
 - [ ] Add a way to pause the game
 - [ ] Add support for joystick (with haptic feedback)

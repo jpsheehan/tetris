@@ -15,6 +15,8 @@
 #define SECOND_X (BUFFER_W - 70)
 #define SECOND_Y 40
 
+#define THIRD_Y (BUFFER_H - 70)
+
 static ALLEGRO_FONT *font = NULL;
 static long score_display;
 
@@ -23,6 +25,7 @@ void draw_randomiser(void);
 void draw_held_piece(void);
 void draw_level(void);
 void draw_remaining_lines(void);
+void draw_lines_cleared(void);
 
 void hud_init(void)
 {
@@ -56,6 +59,7 @@ void hud_draw(void)
     draw_held_piece();
     draw_level();
     draw_remaining_lines();
+    draw_lines_cleared();
 }
 
 void draw_score(void)
@@ -102,6 +106,7 @@ void draw_remaining_lines(void)
     al_draw_textf(font, al_map_rgb_f(1, 1, 1), FIRST_X, BUFFER_H - 15, 0, "%d lines until next level", lines_until_next_level());
 }
 
-
-#undef FIRST_Y
-#undef SECOND_Y
+void draw_lines_cleared(void)
+{
+    al_draw_textf(font, al_map_rgb_f(1, 1, 1), FIRST_X, THIRD_Y, 0, "%d lines", lines_cleared_get());
+}
