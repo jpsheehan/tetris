@@ -6,7 +6,7 @@
 typedef enum PIECE
 {
     O,
-    //T,
+    T,
     PIECE_MAX
 } PIECE;
 

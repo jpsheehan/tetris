@@ -3,6 +3,21 @@
 #include "utils.h"
 #include "keyboard.h"
 #include "audio.h"
+#include <stdio.h>
+
+#define ASSERT_RANGE(x, min, max, name)                                         \
+    do                                                                          \
+    {                                                                           \
+        if ((x) < (min) || (x) >= (max))                                        \
+        {                                                                       \
+            char __message[100] = {0};                                          \
+            snprintf(__message, 100, "invalid %s in %s", (name), __FUNCTION__); \
+            safe_exit(__message, 1);                                            \
+        }                                                                       \
+    } while (0)
+
+#define ASSERT_PIECE(piece) ASSERT_RANGE(piece, 0, PIECE_MAX, "piece")
+#define ASSERT_ROTATION(rot) ASSERT_RANGE(rot, 0, 4, "rotation")
 
 static PLAYER player;
 
@@ -15,6 +30,11 @@ typedef struct ROTATION
 {
     POINT ps[4];
 } ROTATION;
+
+static unsigned char colours[PIECE_MAX][3] = {
+    {0xEF, 0xE7, 0x10}, // O
+    {0xc2, 0x2d, 0xd2}, // T
+};
 
 static POINT rotations[PIECE_MAX][4][4] = {
     {// O
@@ -49,14 +69,47 @@ static POINT rotations[PIECE_MAX][4][4] = {
          {.x = 1, .y = 0},
          {.x = 0, .y = 1},
          {.x = 1, .y = 1},
+     }},
+    {// T
+     {
+         //  #
+         // ###
+         {.x = 1, .y = 0},
+         {.x = 0, .y = 1},
+         {.x = 1, .y = 1},
+         {.x = 2, .y = 1},
+     },
+     {
+         // #
+         // ##
+         // #
+         {.x = 0, .y = 0},
+         {.x = 0, .y = 1},
+         {.x = 0, .y = 2},
+         {.x = 1, .y = 1},
+     },
+     {
+         // ###
+         //  #
+         {.x = 1, .y = 1},
+         {.x = 0, .y = 0},
+         {.x = 1, .y = 0},
+         {.x = 2, .y = 0},
+     },
+     {
+         //  #
+         // ##
+         //  #
+         {.x = 1, .y = 0},
+         {.x = 1, .y = 1},
+         {.x = 1, .y = 2},
+         {.x = 0, .y = 1},
      }}};
 
 bool player_collides_with_cell(PLAYER *p)
 {
-    if (p->piece < 0 || p->piece >= PIECE_MAX)
-        safe_exit("invalid piece in player_collides_with_cell()", 1);
-    if (p->rotation < 0 || p->rotation >= 4)
-        safe_exit("invalid rotation in player_collides_with_cell()", 1);
+    ASSERT_PIECE(p->piece);
+    ASSERT_ROTATION(p->rotation);
 
     for (int i = 0; i < 4; i++)
     {
@@ -71,16 +124,13 @@ bool player_collides_with_cell(PLAYER *p)
 
 ALLEGRO_COLOR player_get_default_colour(PIECE piece)
 {
-    switch (piece)
-    {
-    case O:
-        return al_map_rgb(0xEF, 0xE7, 0x10);
-    // case T:
-    //     return al_map_rgb(0xc2, 0x2d, 0xd2);
-    default:
-        safe_exit("invalid piece in player_get_default_colour()", 1);
-        return al_map_rgb(0, 0, 0);
-    }
+    ASSERT_PIECE(piece);
+
+    unsigned char r = colours[piece][0];
+    unsigned char g = colours[piece][1];
+    unsigned char b = colours[piece][2];
+
+    return al_map_rgb(r, g, b);
 }
 
 void player_init()
@@ -98,10 +148,8 @@ void player_init()
 
 bool player_is_in_bounds(PLAYER *p)
 {
-    if (p->piece < 0 || p->piece >= PIECE_MAX)
-        safe_exit("piece is invalid in player_is_in_bounds()", 1);
-    if (p->rotation < 0 || p->rotation >= 4)
-        safe_exit("rotation is invalid in player_is_in_bounds()", 1);
+    ASSERT_PIECE(p->piece);
+    ASSERT_ROTATION(p->rotation);
 
     for (int i = 0; i < 4; i++)
     {
@@ -131,15 +179,7 @@ void player_move_down(PLAYER *p)
 
 void player_rotate_cw(PLAYER *p)
 {
-    switch (p->piece)
-    {
-    case O:
-        p->rotation = (p->rotation + 1) % 4;
-        break;
-    default:
-        safe_exit("invalid piece in player_rotate_cw()", 1);
-        break;
-    }
+    p->rotation = (p->rotation + 3) % 4;
 
     if (p == &player)
         audio_play_sfx(SFX_ROTATE_CW);
@@ -147,15 +187,7 @@ void player_rotate_cw(PLAYER *p)
 
 void player_rotate_ccw(PLAYER *p)
 {
-    switch (p->piece)
-    {
-    case O:
-        p->rotation = (p->rotation + 3) % 4;
-        break;
-    default:
-        safe_exit("invalid piece in player_rotate_ccw()", 1);
-        break;
-    }
+    p->rotation = (p->rotation + 1) % 4;
 
     if (p == &player)
         audio_play_sfx(SFX_ROTATE_CCW);
@@ -203,10 +235,8 @@ bool player_can_rotate_ccw()
 
 void player_lock_down()
 {
-    if (player.piece < 0 || player.piece >= PIECE_MAX)
-        safe_exit("piece is invalid in player_lock_down()", 1);
-    if (player.rotation < 0 || player.rotation >= 4)
-        safe_exit("rotation is invalid in player_lock_down()", 1);
+    ASSERT_PIECE(player.piece);
+    ASSERT_ROTATION(player.rotation);
 
     for (int i = 0; i < 4; i++)
     {
@@ -303,8 +333,8 @@ void player_update(ALLEGRO_EVENT *event, int frames)
 
 void player_draw()
 {
-    if (player.piece < 0 || player.piece >= PIECE_MAX || player.rotation < 0 || player.rotation >= 4)
-        safe_exit("invalid piece or rotation in player_draw()", 1);
+    ASSERT_PIECE(player.piece);
+    ASSERT_ROTATION(player.rotation);
 
     for (int i = 0; i < 4; i++)
     {
