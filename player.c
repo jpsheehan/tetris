@@ -420,41 +420,41 @@ void player_rotate_ccw(PLAYER *p)
         audio_play_sfx(SFX_ROTATE_CCW);
 }
 
-bool player_can_move_down()
+bool player_can_move_down(PLAYER *p)
 {
-    PLAYER new_player = player;
+    PLAYER new_player = *p;
     player_move_down(&new_player);
 
     return player_is_in_bounds(&new_player) && !player_collides_with_cell(&new_player);
 }
 
-bool player_can_move_right()
+bool player_can_move_right(PLAYER *p)
 {
-    PLAYER new_player = player;
+    PLAYER new_player = *p;
     player_move_right(&new_player);
 
     return player_is_in_bounds(&new_player) && !player_collides_with_cell(&new_player);
 }
 
-bool player_can_move_left()
+bool player_can_move_left(PLAYER *p)
 {
-    PLAYER new_player = player;
+    PLAYER new_player = *p;
     player_move_left(&new_player);
 
     return player_is_in_bounds(&new_player) && !player_collides_with_cell(&new_player);
 }
 
-bool player_can_rotate_cw()
+bool player_can_rotate_cw(PLAYER *p)
 {
-    PLAYER new_player = player;
+    PLAYER new_player = *p;
     player_rotate_cw(&new_player);
 
     return player_is_in_bounds(&new_player) && !player_collides_with_cell(&new_player);
 }
 
-bool player_can_rotate_ccw()
+bool player_can_rotate_ccw(PLAYER *p)
 {
-    PLAYER new_player = player;
+    PLAYER new_player = *p;
     player_rotate_ccw(&new_player);
 
     return player_is_in_bounds(&new_player) && !player_collides_with_cell(&new_player);
@@ -478,7 +478,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
 {
     if (frames % FPS == 0) // each second
     {
-        if (player_can_move_down())
+        if (player_can_move_down(&player))
         {
             player_move_down(&player);
         }
@@ -495,7 +495,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         // MOVE LEFT
         if (keyboard_is_pressed(ALLEGRO_KEY_LEFT))
         {
-            if (player_can_move_left())
+            if (player_can_move_left(&player))
             {
                 player_move_left(&player);
             }
@@ -504,7 +504,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         // MOVE RIGHT
         if (keyboard_is_pressed(ALLEGRO_KEY_RIGHT))
         {
-            if (player_can_move_right())
+            if (player_can_move_right(&player))
             {
                 player_move_right(&player);
             }
@@ -513,7 +513,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         // SOFT DROP
         if (keyboard_is_pressed(ALLEGRO_KEY_DOWN))
         {
-            if (player_can_move_down())
+            if (player_can_move_down(&player))
             {
                 player_move_down(&player);
             }
@@ -531,19 +531,19 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         switch (event->keyboard.keycode)
         {
         case ALLEGRO_KEY_X:
-            if (player_can_rotate_cw())
+            if (player_can_rotate_cw(&player))
             {
                 player_rotate_cw(&player);
             };
             break;
         case ALLEGRO_KEY_Z:
-            if (player_can_rotate_ccw())
+            if (player_can_rotate_ccw(&player))
             {
                 player_rotate_ccw(&player);
             }
             break;
         case ALLEGRO_KEY_UP: // HARD DROP
-            while (player_can_move_down())
+            while (player_can_move_down(&player))
             {
                 player_move_down(&player);
             }
@@ -572,11 +572,34 @@ void player_update(ALLEGRO_EVENT *event, int frames)
     }
 }
 
+void draw_ghost_piece()
+{
+    if (!player_can_move_down(&player))
+        return;
+
+    PLAYER ghost = player;
+    while (player_can_move_down(&ghost))
+    {
+        player_move_down(&ghost);
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+        int x = ghost.x + rotations[ghost.piece][ghost.rotation][i].x;
+        int y = ghost.y + rotations[ghost.piece][ghost.rotation][i].y;
+
+        field_draw_cell(x, y, al_map_rgba_f(1, 1, 1, 0.3));
+    }
+}
+
 void player_draw()
 {
     ASSERT_PIECE(player.piece);
     ASSERT_ROTATION(player.rotation);
 
+    draw_ghost_piece();
+
+    // draw player
     for (int i = 0; i < 4; i++)
     {
         int x = player.x + rotations[player.piece][player.rotation][i].x;
@@ -584,6 +607,7 @@ void player_draw()
         field_draw_cell(x, y, player.c);
     }
 
+    // draw held piece
     if (held_piece >= 0 && held_piece < PIECE_MAX)
     {
         for (int i = 0; i < 4; i++)
