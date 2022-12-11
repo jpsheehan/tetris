@@ -9,7 +9,10 @@
 #include "randomiser.h"
 #include "player.h"
 
+#define FIRST_X 10
 #define FIRST_Y 10
+
+#define SECOND_X (BUFFER_W - 70)
 #define SECOND_Y 40
 
 static ALLEGRO_FONT *font = NULL;
@@ -18,6 +21,7 @@ static long score_display;
 void draw_score(void);
 void draw_randomiser(void);
 void draw_held_piece(void);
+void draw_level(void);
 
 void hud_init(void)
 {
@@ -47,6 +51,7 @@ void hud_draw(void)
     draw_score();
     draw_randomiser();
     draw_held_piece();
+    draw_level();
 }
 
 void draw_score(void)
@@ -56,9 +61,7 @@ void draw_score(void)
 
 void draw_randomiser(void)
 {
-    int offset_x = BUFFER_W - 60;
-
-    al_draw_text(font, al_map_rgb_f(1, 1, 1), offset_x, SECOND_Y, 0, "Next");
+    al_draw_text(font, al_map_rgb_f(1, 1, 1), SECOND_X, SECOND_Y, 0, "Next");
 
     int gap_y = 20;
     PIECE bag[6];
@@ -68,13 +71,13 @@ void draw_randomiser(void)
 
     for (int i = 0; i < num_read; i++)
     {
-        mino_draw(bag[i], 0, offset_x, SECOND_Y + (i + 0.5) * (MINO_H + gap_y), mino_get_default_colour(bag[i]), 1.0);
+        mino_draw(bag[i], 0, SECOND_X, SECOND_Y + (i + 0.5) * (MINO_H + gap_y), mino_get_default_colour(bag[i]), 1.0);
     }
 }
 
 void draw_held_piece(void)
 {
-    int offset_x = 20;
+    int offset_x = FIRST_X + 10;
     al_draw_textf(font, al_map_rgb_f(1, 1, 1), offset_x, SECOND_Y, 0, "Hold");
 
     PIECE held_piece = player_get_held_piece();
@@ -84,3 +87,11 @@ void draw_held_piece(void)
         mino_draw(held_piece, 0, offset_x, SECOND_Y + 15, mino_get_default_colour(held_piece), 1.0);
     }
 }
+
+void draw_level(void)
+{
+    al_draw_textf(font, al_map_rgb_f(1, 1, 1), SECOND_X, FIRST_Y, 0, "Level %d", level_get());
+}
+
+#undef FIRST_Y
+#undef SECOND_Y
