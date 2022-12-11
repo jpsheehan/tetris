@@ -12,6 +12,7 @@
 #include "score.h"
 #include "audio.h"
 #include "randomiser.h"
+#include "hud.h"
 
 int main()
 {
@@ -43,6 +44,7 @@ int main()
     player_init();
     field_init();
     score_init();
+    hud_init();
 
     al_start_timer(timer);
 
@@ -72,7 +74,7 @@ int main()
         keyboard_update(&event);
         player_update(&event, frames);
         field_update();
-        score_update(frames);
+        hud_update();
 
         if (redraw && al_is_event_queue_empty(queue))
         {
@@ -81,14 +83,15 @@ int main()
 
             field_draw();
             player_draw();
-            score_draw();
+            hud_draw();
 
             disp_post_draw();
             redraw = false;
         }
     }
 
-    score_deinit();
+    player_deinit();
+    hud_deinit();
     audio_deinit();
     disp_deinit();
     randomiser_deinit();

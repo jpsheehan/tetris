@@ -292,14 +292,9 @@ void player_draw()
 
     // draw player
     field_draw_mino(player.piece, player.rotation, player.x, player.y, player.c);
+}
 
-    // draw held piece
-    int held_piece_ui_offset_x = 20;
-    int held_piece_ui_offset_y = 40;
-    al_draw_textf(font, al_map_rgb_f(1,1,1), held_piece_ui_offset_x, held_piece_ui_offset_y, 0, "Hold");
-    
-    if (held_piece >= 0 && held_piece < PIECE_MAX)
-    {
-        mino_draw(held_piece, 0, held_piece_ui_offset_x, held_piece_ui_offset_y + 10, mino_get_default_colour(held_piece), 0.7);
-    }
+PIECE player_get_held_piece(void)
+{
+    return held_piece;
 }

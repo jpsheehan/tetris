@@ -18,6 +18,4 @@ PIECE randomiser_next(void);
 */
 void randomiser_peek(int* n, PIECE* buffer);
 
-void randomiser_draw(void);
-
 #endif
