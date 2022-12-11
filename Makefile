@@ -9,7 +9,7 @@ clean:
 
 .PHONE: all clean
 
-tetris: tetris.c utils.o display.o keyboard.o field.o player.o score.o audio.o
+tetris: tetris.c utils.o display.o keyboard.o field.o player.o score.o audio.o randomiser.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LFLAGS)
 
 utils.o: utils.c utils.h
@@ -31,4 +31,7 @@ score.o: score.c score.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 audio.o: audio.c audio.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+randomiser.o: randomiser_7bag.c randomiser.h
 	$(CC) -c -o $@ $< $(CFLAGS)

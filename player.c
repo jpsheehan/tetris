@@ -1,9 +1,11 @@
+#include <stdio.h>
+
 #include "player.h"
 #include "field.h"
 #include "utils.h"
 #include "keyboard.h"
 #include "audio.h"
-#include <stdio.h>
+#include "randomiser.h"
 
 #define ASSERT_RANGE(x, min, max, name)                                         \
     do                                                                          \
@@ -363,7 +365,7 @@ void dispense_specific_piece(PIECE piece)
 
 void dispense_next_piece()
 {
-    dispense_specific_piece((PIECE)(rand() % PIECE_MAX));
+    dispense_specific_piece(randomiser_next());
     can_swap_with_held_piece = true;
 }
 

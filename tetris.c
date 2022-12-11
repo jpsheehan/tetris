@@ -11,6 +11,7 @@
 #include "player.h"
 #include "score.h"
 #include "audio.h"
+#include "randomiser.h"
 
 int main()
 {
@@ -38,6 +39,7 @@ int main()
     ALLEGRO_EVENT event;
     int frames = 0;
 
+    randomiser_init();
     player_init();
     field_init();
     score_init();
@@ -89,6 +91,7 @@ int main()
     score_deinit();
     audio_deinit();
     disp_deinit();
+    randomiser_deinit();
     al_destroy_timer(timer);
     al_destroy_event_queue(queue);
 
