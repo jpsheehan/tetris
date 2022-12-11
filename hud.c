@@ -22,6 +22,7 @@ void draw_score(void);
 void draw_randomiser(void);
 void draw_held_piece(void);
 void draw_level(void);
+void draw_remaining_lines(void);
 
 void hud_init(void)
 {
@@ -40,9 +41,11 @@ void hud_deinit(void)
 
 void hud_update(void)
 {
-    if (score_get() != score_display)
+    if (score_display < score_get())
     {
-        score_display += 2;
+        score_display += 25;
+        if (score_display > score_get())
+            score_display = score_get();
     }
 }
 
@@ -52,6 +55,7 @@ void hud_draw(void)
     draw_randomiser();
     draw_held_piece();
     draw_level();
+    draw_remaining_lines();
 }
 
 void draw_score(void)
@@ -92,6 +96,12 @@ void draw_level(void)
 {
     al_draw_textf(font, al_map_rgb_f(1, 1, 1), SECOND_X, FIRST_Y, 0, "Level %d", level_get());
 }
+
+void draw_remaining_lines(void)
+{
+    al_draw_textf(font, al_map_rgb_f(1, 1, 1), FIRST_X, BUFFER_H - 15, 0, "%d lines until next level", lines_until_next_level());
+}
+
 
 #undef FIRST_Y
 #undef SECOND_Y

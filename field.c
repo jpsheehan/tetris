@@ -38,11 +38,6 @@ void field_init(void)
         }
 }
 
-int get_points_for_clearing_rows(int num_rows)
-{
-    return num_rows * 100;
-}
-
 void shift_upper_rows_down(int j)
 {
     for (int y = j - 1; y >= 0; y--)
@@ -87,8 +82,7 @@ void field_update(void)
 
     if (num_rows_cleared > 0)
     {
-        int points = get_points_for_clearing_rows(num_rows_cleared);
-        score_increase(points);
+        score_add_cleared_lines(num_rows_cleared);
         audio_play_sfx(SFX_LINE_CLEAR);
     }
 }

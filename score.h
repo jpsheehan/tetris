@@ -3,8 +3,11 @@
 
 void score_init(void);
 void score_deinit(void);
-void score_increase(int points);
+void score_add_cleared_lines(int lines_cleared);
+
 long score_get(void);
 int level_get(void);
+int lines_cleared_get(void);
+int lines_until_next_level(void);
 
 #endif
