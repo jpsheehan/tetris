@@ -57,19 +57,14 @@ void randomiser_peek(int* n, PIECE* buffer)
     *n = 6;
 }
 
-// void randomiser_draw(void)
-// {
-//     int offset_x = BUFFER_W - 30;
-//     int offset_y = 10;
+void randomiser_draw(void)
+{
+    int offset_x = BUFFER_W - 30;
+    int offset_y = 10;
 
-//     for (int j = 0; j < 6; j++)
-//     {
-//         PIECE piece = bag_pieces[(j + bag_idx) % RANDOMISER_BUFFER_MAX];
-//         for (int i = 0; i < 4; i++)
-//         {
-//             int x = offset_x + rotations[piece][0][i].x * CELL_W;
-//             int y = offset_y + rotations[piece][0][i].y * CELL_H;
-//             field_draw_cell_raw(x, y, player_get_default_colour(piece));
-//         }
-//     }
-// }
+    for (int j = 0; j < 6; j++)
+    {
+        PIECE piece = bag_pieces[(j + bag_idx) % RANDOMISER_BUFFER_MAX];
+        mino_draw(piece, 0, offset_x, offset_y + j * MINO_H, mino_get_default_colour(piece), 1.0);
+    }
+}

@@ -1,5 +1,8 @@
+#include <allegro5/allegro_primitives.h>
+
 #include "mino.h"
 #include "utils.h"
+#include "field.h"
 
 typedef struct POINT
 {
@@ -295,7 +298,6 @@ static POINT rotations[PIECE_MAX][4][4] = {
     },
 };
 
-
 ALLEGRO_COLOR mino_get_default_colour(PIECE piece)
 {
     ASSERT_PIECE(piece);
@@ -307,12 +309,33 @@ ALLEGRO_COLOR mino_get_default_colour(PIECE piece)
     return al_map_rgb(r, g, b);
 }
 
-void mino_unmap_xy_offsets(PIECE piece, int rotation, int idx, int* x, int* y)
+void mino_unmap_xy_offsets(PIECE piece, int rotation, int idx, int *x, int *y)
 {
     ASSERT_PIECE(piece);
     ASSERT_ROTATION(rotation);
     ASSERT_RANGE(idx, 0, 4, "mino offset");
 
-    * x = rotations[piece][rotation][idx].x;
-    * y = rotations[piece][rotation][idx].y;
+    *x = rotations[piece][rotation][idx].x;
+    *y = rotations[piece][rotation][idx].y;
+}
+
+void mino_draw(PIECE piece, int rotation, int offset_x, int offset_y, ALLEGRO_COLOR c, float scale)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        int x = offset_x + rotations[piece][rotation][i].x * MINO_W * scale;
+        int y = offset_y + rotations[piece][rotation][i].y * MINO_H * scale;
+        mino_draw_cell(x, y, c, scale);
+    }
+}
+
+void mino_draw_cell(int x, int y, ALLEGRO_COLOR c, float scale)
+{
+    al_draw_filled_rectangle(x, y, x + MINO_W * scale, y + MINO_H * scale, c);
+    float r, g, b;
+    al_unmap_rgb_f(c, &r, &g, &b);
+    r *= 0.7;
+    g *= 0.7;
+    b *= 0.7;
+    al_draw_rectangle(x, y, x + MINO_W * scale, y + MINO_H * scale, al_map_rgb_f(r, g, b), 1);
 }

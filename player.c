@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_font.h>
 
 #include "player.h"
 #include "field.h"
@@ -10,6 +12,7 @@
 static PLAYER player;
 static PIECE held_piece;
 static bool can_swap_with_held_piece;
+static ALLEGRO_FONT *font;
 
 bool player_collides_with_cell(PLAYER *p)
 {
@@ -49,8 +52,18 @@ void dispense_next_piece()
 
 void player_init()
 {
+    font = al_create_builtin_font();
     held_piece = PIECE_MAX;
     dispense_next_piece();
+}
+
+void player_deinit()
+{
+    if (font != NULL)
+    {
+        al_destroy_font(font);
+        font = NULL;
+    }
 }
 
 bool player_is_in_bounds(PLAYER *p)
@@ -267,15 +280,7 @@ void draw_ghost_piece()
         player_move_down(&ghost);
     }
 
-    for (int i = 0; i < 4; i++)
-    {
-        int x, y;
-        mino_unmap_xy_offsets(ghost.piece, ghost.rotation, i, &x, &y);
-        x += ghost.x;
-        y += ghost.y;
-
-        field_draw_cell(x, y, al_map_rgba_f(0.5, 0.5, 0.5, 0.3));
-    }
+    field_draw_mino(ghost.piece, ghost.rotation, ghost.x, ghost.y, al_map_rgba_f(0.5, 0.5, 0.5, 0.3));
 }
 
 void player_draw()
@@ -286,27 +291,15 @@ void player_draw()
     draw_ghost_piece();
 
     // draw player
-    for (int i = 0; i < 4; i++)
-    {
-        int x, y;
-        mino_unmap_xy_offsets(player.piece, player.rotation, i, &x, &y);
-        x += player.x;
-        y += player.y;
-        field_draw_cell(x, y, player.c);
-    }
+    field_draw_mino(player.piece, player.rotation, player.x, player.y, player.c);
 
     // draw held piece
     int held_piece_ui_offset_x = 20;
     int held_piece_ui_offset_y = 40;
+    al_draw_textf(font, al_map_rgb_f(1,1,1), held_piece_ui_offset_x, held_piece_ui_offset_y, 0, "Hold");
+    
     if (held_piece >= 0 && held_piece < PIECE_MAX)
     {
-        for (int i = 0; i < 4; i++)
-        {
-            int x, y;
-            mino_unmap_xy_offsets(held_piece, 0, i, &x, &y);
-            x = held_piece_ui_offset_x + x * CELL_W;
-            y = held_piece_ui_offset_y + y * CELL_H;
-            field_draw_cell_raw(x, y, mino_get_default_colour(held_piece));
-        }
+        mino_draw(held_piece, 0, held_piece_ui_offset_x, held_piece_ui_offset_y + 10, mino_get_default_colour(held_piece), 0.7);
     }
 }

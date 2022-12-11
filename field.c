@@ -6,28 +6,26 @@
 
 static CELL field[FIELD_H][FIELD_W];
 
-void field_draw_cell_raw(int x, int y, ALLEGRO_COLOR c)
-{
-    al_draw_filled_rectangle(x, y, x + CELL_W, y + CELL_H, c);
-
-    float r, g, b;
-    al_unmap_rgb_f(c, &r, &g, &b);
-    r *= 0.7;
-    g *= 0.7;
-    b *= 0.7;
-    al_draw_rectangle(x, y, x + CELL_W, y + CELL_H, al_map_rgb_f(r, g, b), 1);
-
-}
-
 void field_draw_cell(int x, int y, ALLEGRO_COLOR c)
 {
     if (x < 0 || x >= FIELD_W || y < 0 || y >= FIELD_H)
         return;
 
-    int buffer_x = FIELD_MARGIN_X + x * CELL_W;
-    int buffer_y = FIELD_MARGIN_Y + y * CELL_H;
+    int buffer_x = FIELD_MARGIN_X + x * MINO_W;
+    int buffer_y = FIELD_MARGIN_Y + y * MINO_H;
 
-    field_draw_cell_raw(buffer_x, buffer_y, c);
+    mino_draw_cell(buffer_x, buffer_y, c, 1);
+}
+
+void field_draw_mino(PIECE piece, int rotation, int x, int y, ALLEGRO_COLOR c)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        int cell_x, cell_y;
+        mino_unmap_xy_offsets(piece, rotation, i, &cell_x, &cell_y);
+
+        field_draw_cell(x + cell_x, y + cell_y, c);
+    }
 }
 
 void field_init(void)
@@ -100,7 +98,7 @@ void field_draw(void)
     int border_w = 1;
     ALLEGRO_COLOR border_c = al_map_rgb(0x98, 0x00, 0xff);
 
-    al_draw_rectangle(FIELD_MARGIN_X, FIELD_MARGIN_Y - border_w, FIELD_MARGIN_X + FIELD_W * CELL_W + border_w, FIELD_MARGIN_Y + FIELD_H * CELL_H, border_c, border_w);
+    al_draw_rectangle(FIELD_MARGIN_X, FIELD_MARGIN_Y - border_w, FIELD_MARGIN_X + FIELD_W * MINO_W + border_w, FIELD_MARGIN_Y + FIELD_H * MINO_H, border_c, border_w);
 
     for (int j = 0; j < FIELD_H; j++)
         for (int i = 0; i < FIELD_W; i++)
