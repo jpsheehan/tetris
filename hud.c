@@ -99,8 +99,7 @@ void draw_level(void)
 
 void draw_remaining_lines(void)
 {
-    //al_draw_textf(font, al_map_rgb_f(1, 1, 1), FIRST_X, BUFFER_H - 15, 0, "%d lines until next level", lines_until_next_level());
-    al_draw_textf(font, al_map_rgb_f(1, 1, 1), FIRST_X, BUFFER_H - 15, 0, "G: %0.4f", gravity_get());
+    al_draw_textf(font, al_map_rgb_f(1, 1, 1), FIRST_X, BUFFER_H - 15, 0, "%d lines until next level", lines_until_next_level());
 }
 
 

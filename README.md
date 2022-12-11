@@ -6,7 +6,7 @@ A simple implementation of the popular falling block game.
 
 ## Tasks
 
-- [ ] Restore the "remaining lines" text
+- [x] Restore the "remaining lines" text
 - [ ] Add a locking delay for soft locking
 - [ ] Add some background graphics (maybe this could be based on the level?)
 - [ ] Add a sound effect for when rotation fails
