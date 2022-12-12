@@ -79,7 +79,8 @@ void reset_lock_delay(void)
 {
     if (lock_delay != NULL)
     {
-        al_stop_timer(lock_delay);
+        if (al_get_timer_started(lock_delay))
+            al_stop_timer(lock_delay);
         al_set_timer_count(lock_delay, 0);
         al_start_timer(lock_delay);
     }
@@ -263,6 +264,9 @@ void player_update(ALLEGRO_EVENT *event, int frames)
             if (player_can_move_left(&player))
             {
                 player_move_left(&player);
+                if (al_get_timer_started(lock_delay)) {
+                    reset_lock_delay();
+                }
             }
         }
 
@@ -272,6 +276,9 @@ void player_update(ALLEGRO_EVENT *event, int frames)
             if (player_can_move_right(&player))
             {
                 player_move_right(&player);
+                if (al_get_timer_started(lock_delay)) {
+                    reset_lock_delay();
+                }
             }
         }
 
@@ -298,12 +305,20 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         switch (event->keyboard.keycode)
         {
         case ALLEGRO_KEY_X:
-            if (player_rotate_cw(&player))
+            if (player_rotate_cw(&player)) {
+                if (al_get_timer_started(lock_delay)) {
+                    reset_lock_delay();
+                }
                 audio_play_sfx(SFX_ROTATE_CW);
+            }
             break;
         case ALLEGRO_KEY_Z:
-            if (player_rotate_ccw(&player))
+            if (player_rotate_ccw(&player)) {
+                if (al_get_timer_started(lock_delay)) {
+                    reset_lock_delay();
+                }
                 audio_play_sfx(SFX_ROTATE_CCW);
+            }
             break;
         case ALLEGRO_KEY_UP: // HARD DROP
             while (player_can_move_down(&player))

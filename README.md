@@ -20,7 +20,7 @@ sudo apt install liballegro5-dev make
 
 - [x] Restore the "remaining lines" text
 - [x] Add a "lines cleared" text
-- [ ] Add a locking delay for soft locking
+- [x] Add a locking delay for soft locking
 - [ ] Add some background graphics (maybe this could be based on the level?)
 - [ ] Add a sound effect for when rotation fails
 - [ ] Add a sound effect for leveling up
