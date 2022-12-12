@@ -44,9 +44,9 @@ jobs:
     
     - name: Copy artifacts to directory
       run: |
-        cp x64\Release\*.dll artifacts\
-        cp x64\Release\*.exe artifacts\
-        cp resources\ artifacts\
+        copy x64\Release\*.dll artifacts\
+        copy x64\Release\*.exe artifacts\
+        copy resources\ artifacts\
     
     - name: Package Build Artifacts
       uses: actions/upload-artifact@v3
