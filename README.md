@@ -42,3 +42,7 @@ sudo apt install liballegro5-dev make
 - [ ] Add a menu system
 - [ ] Add a sprint, marathon, ultra, and endless modes.
 - [ ] Add highscores for each mode
+
+### CI/CD
+
+- [ ] Get GitHub Actions creating build artifacts for download.
