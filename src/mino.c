@@ -8,7 +8,7 @@ static unsigned char colours[PIECE_MAX][3] = {
     {0xEF, 0xE7, 0x10}, // O
     {0xc2, 0x2d, 0xd2}, // T
     {0x1e, 0xcb, 0xe1}, // I
-    {0x16, 0x0b, 0xf4}, // J
+    {0x66, 0x44, 0xff}, // J
     {0xff, 0xc2, 0x00}, // L
     {0x41, 0xff, 0x00}, // S
     {0xe7, 0x18, 0x23}, // Z
@@ -494,11 +494,28 @@ void mino_draw(PIECE piece, int rotation, int offset_x, int offset_y, ALLEGRO_CO
 
 void mino_draw_cell(int x, int y, ALLEGRO_COLOR c, float scale)
 {
-    al_draw_filled_rectangle(x, y, x + MINO_W * scale, y + MINO_H * scale, c);
     float r, g, b;
+
     al_unmap_rgb_f(c, &r, &g, &b);
     r *= 0.7;
     g *= 0.7;
     b *= 0.7;
-    al_draw_rectangle(x, y, x + MINO_W * scale, y + MINO_H * scale, al_map_rgb_f(r, g, b), 1);
+    ALLEGRO_COLOR lighter = al_map_rgb_f(r, g, b);
+
+    ALLEGRO_VERTEX v[] = {
+        { .x = x, .y = y, .z = 0, .color = c },
+        { .x = x + MINO_W * scale, .y = y, .z = 0, .color = lighter },
+        { .x = x, .y = y + MINO_W * scale, .z = 0, .color = lighter },
+        { .x = x + MINO_W * scale, .y = y + MINO_W * scale, .z = 0, .color = c },
+    };
+    // al_draw_filled_rectangle(x, y, x + MINO_W * scale, y + MINO_H * scale, c);
+    al_draw_prim(v, NULL, NULL, 0, 4, ALLEGRO_PRIM_TRIANGLE_STRIP);
+
+    al_unmap_rgb_f(c, &r, &g, &b);
+    r *= 0.7;
+    g *= 0.7;
+    b *= 0.7;
+    ALLEGRO_COLOR darker = al_map_rgb_f(r, g, b);
+    
+    al_draw_rectangle(x, y, x + MINO_W * scale, y + MINO_H * scale, darker, 1);
 }
