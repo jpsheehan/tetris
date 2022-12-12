@@ -39,11 +39,17 @@ jobs:
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
     
+    - name: Create artifact directory
+      run: mkdir artifact
+    
+    - name: Copy artifacts to directory
+      run: |
+        cp x64\Release\*.dll artifacts\
+        cp x64\Release\*.exe artifacts\
+        cp resources\ artifacts\
+    
     - name: Package Build Artifacts
       uses: actions/upload-artifact@v3
       with:
         name: Tetris (x64)
-        path: |
-          x64\Release\*.dll
-          x64\Release\*.exe
-          resources\
+        path: artifacts
