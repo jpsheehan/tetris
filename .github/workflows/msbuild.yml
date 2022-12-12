@@ -1,10 +1,11 @@
 name: MSBuild
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  #push:
+  #  branches: [ "main" ]
+  #pull_request:
+  #  branches: [ "main" ]
+  workflow_dispatch
 
 env:
   # Path to the solution file relative to the root of the project.
@@ -43,5 +44,5 @@ jobs:
       with:
         name: Tetris (x64)
         path: |
-          ${{env.GITHUB_WORKSPACE}}\x64\Release\*
-          ${{env.GITHUB_WORKSPACE}}\resources\
+          x64\Release\*
+          resources\
