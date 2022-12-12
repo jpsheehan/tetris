@@ -23,6 +23,8 @@
 #define ASSERT_PIECE(piece) ASSERT_RANGE(piece, 0, PIECE_MAX, "piece")
 #define ASSERT_ROTATION(rot) ASSERT_RANGE(rot, 0, 4, "rotation")
 
+#define min(x, y) ((x) < (y) ? (x) : (y))
+
 void must_init(bool test, const char *description);
 void safe_exit(const char* description, int code);
 
