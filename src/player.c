@@ -42,8 +42,10 @@ void dispense_specific_piece(PIECE piece)
     player.rotation = 0;
     player.c = mino_get_default_colour(player.piece);
 
-    if (player_collides_with_cell(&player))
-        safe_exit("game over", 0);
+    if (player_collides_with_cell(&player)) {
+        // BLOCK OUT, GAME OVER
+        safe_exit("block out, game over", 0);
+    }
 }
 
 void dispense_next_piece()
@@ -225,6 +227,7 @@ bool player_lock_down(bool hard_lock)
     if (al_get_timer_started(lock_delay))
         al_stop_timer(lock_delay);
 
+    int max_y = -10;
     for (int i = 0; i < 4; i++)
     {
         int x, y;
@@ -232,7 +235,14 @@ bool player_lock_down(bool hard_lock)
         x += player.x;
         y += player.y;
 
+        max_y = max(y, max_y);
+
         field_set_used_safely(x, y, player.c);
+    }
+
+    if (max_y < 0) {
+        // LOCK OUT, GAME OVER
+        safe_exit("lock out, game over", 0);
     }
 
     return true;
