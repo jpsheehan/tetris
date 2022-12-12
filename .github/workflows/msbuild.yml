@@ -44,5 +44,6 @@ jobs:
       with:
         name: Tetris (x64)
         path: |
-          x64\Release\*
+          x64\Release\*.dll
+          x64\Release\*.exe
           resources\
