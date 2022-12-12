@@ -8,7 +8,7 @@ OUT=tetris
 all: tetris
 
 clean:
-	rm -f *.o tetris
+	rm -f $(OBJ)/*.o $(OUT)
 
 .PHONE: all clean
 
