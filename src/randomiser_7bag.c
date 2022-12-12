@@ -1,3 +1,5 @@
+#include <time.h>
+
 #include "randomiser.h"
 #include "display.h"
 #include "mino.h"
@@ -27,6 +29,7 @@ void fill_bag(int offset)
 
 void randomiser_init(void)
 {
+    srand(time(NULL));
     bag_idx = 0;
     fill_bag(0);
     fill_bag(7);

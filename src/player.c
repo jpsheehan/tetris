@@ -239,7 +239,7 @@ bool player_lock_down(bool hard_lock)
 
 void player_update(ALLEGRO_EVENT *event, int frames)
 {
-    if (frames % (int)((double)FPS * gravity_get()) == 0) // each second
+    if (frames % max((int)((double)FPS * gravity_get()), 1) == 0) // each second
     {
         if (player_can_move_down(&player))
         {
@@ -255,7 +255,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         }
     }
 
-    if (frames % (FPS / 20) == 0) // 20 times per second
+    if (frames % (FPS / 15) == 0)
     {
         // MOVE LEFT
         if (keyboard_is_pressed(ALLEGRO_KEY_LEFT))
