@@ -40,13 +40,15 @@ jobs:
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
     
     - name: Create artifact directory
-      run: mkdir artifacts
+      run: |
+        mkdir artifacts
+        mkdir artifacts\resources
     
     - name: Copy artifacts to directory
       run: |
         copy x64\Release\*.dll artifacts\
         copy x64\Release\*.exe artifacts\
-        copy resources\ artifacts\
+        xcopy resources\ artifacts\resources\ /S
     
     - name: Package Build Artifacts
       uses: actions/upload-artifact@v3
