@@ -12,7 +12,7 @@ clean:
 
 .PHONE: all clean
 
-$(OUT): $(SRC)/tetris.c $(OBJ)/utils.o $(OBJ)/display.o $(OBJ)/keyboard.o $(OBJ)/field.o $(OBJ)/player.o $(OBJ)/score.o $(OBJ)/audio.o $(OBJ)/randomiser.o $(OBJ)/mino.o $(OBJ)/hud.o
+$(OUT): $(SRC)/tetris.c $(OBJ)/utils.o $(OBJ)/display.o $(OBJ)/keyboard.o $(OBJ)/field.o $(OBJ)/player.o $(OBJ)/score.o $(OBJ)/audio.o $(OBJ)/randomiser.o $(OBJ)/mino.o $(OBJ)/hud.o $(OBJ)/game.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LFLAGS)
 
 $(OBJ)/utils.o: $(SRC)/utils.c $(SRC)/utils.h
@@ -43,4 +43,7 @@ $(OBJ)/mino.o: $(SRC)/mino.c $(SRC)/mino.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(OBJ)/hud.o: $(SRC)/hud.c $(SRC)/hud.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+$(OBJ)/game.o: $(SRC)/game.c $(SRC)/game.h
 	$(CC) -c -o $@ $< $(CFLAGS)

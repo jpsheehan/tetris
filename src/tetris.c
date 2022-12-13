@@ -7,12 +7,8 @@
 #include "utils.h"
 #include "display.h"
 #include "keyboard.h"
-#include "field.h"
-#include "player.h"
-#include "score.h"
 #include "audio.h"
-#include "randomiser.h"
-#include "hud.h"
+#include "game.h"
 
 int main()
 {
@@ -40,11 +36,7 @@ int main()
     ALLEGRO_EVENT event;
     int frames = 0;
 
-    randomiser_init();
-    player_init();
-    field_init();
-    score_init();
-    hud_init();
+    game_init();
 
     al_start_timer(timer);
 
@@ -72,29 +64,24 @@ int main()
             break;
 
         keyboard_update(&event);
-        player_update(&event, frames);
-        field_update();
-        hud_update();
+
+        game_update(&event, frames);
 
         if (redraw && al_is_event_queue_empty(queue))
         {
             disp_pre_draw();
             al_clear_to_color(al_map_rgb(0, 0, 0));
 
-            field_draw();
-            player_draw();
-            hud_draw();
+            game_draw();
 
             disp_post_draw();
             redraw = false;
         }
     }
 
-    player_deinit();
-    hud_deinit();
+    game_deinit();
     audio_deinit();
     disp_deinit();
-    randomiser_deinit();
     al_destroy_timer(timer);
     al_destroy_event_queue(queue);
 

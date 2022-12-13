@@ -28,6 +28,8 @@ sudo apt install liballegro5-dev make
 - [ ] Detect combos for scoring
 - [x] Detect lock-out (locking down above the play area)
 - [ ] Fix up the input (it doesn't feel right)
+  - I think it needs to accept your first input, then wait a little bit before being sensitive
+  - At the moment it is just sensitive
 - [ ] Add a way to pause the game (think about blurring the stack)
 
 ### Fluff
