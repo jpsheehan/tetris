@@ -48,3 +48,11 @@ sudo apt install liballegro5-dev make
 ### CI/CD
 
 - [ ] Get GitHub Actions creating build artifacts for download.
+
+
+## Credits
+
+### Audio
+
+- Sounds Effects: https://freesound.org/people/deadrobotmusic/packs/37032/
+- Melody loop 128 bpm: https://freesound.org/people/DaveJf/sounds/663759/

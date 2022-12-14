@@ -5,12 +5,18 @@
 #include "utils.h"
 
 static ALLEGRO_SAMPLE* samples[SFX_MAX];
+static ALLEGRO_AUDIO_STREAM* music = NULL;
 
 void audio_init(void)
 {
     must_init(al_install_audio(), "install audio");
     must_init(al_init_acodec_addon(), "init audio codec");
     must_init(al_reserve_samples(16), "reserve samples");
+
+    music = al_load_audio_stream("./resources/audio/track_01.opus", 2, 2048);
+    must_init(music, "audio stream");
+    al_set_audio_stream_playmode(music, ALLEGRO_PLAYMODE_LOOP);
+    al_attach_audio_stream_to_mixer(music, al_get_default_mixer());
 
     char* filenames[SFX_MAX] = {
         "./resources/audio/sfx_rotate_cw.ogg",
@@ -28,6 +34,12 @@ void audio_init(void)
 
 void audio_deinit(void)
 {
+    if (music != NULL)
+    {
+        al_destroy_audio_stream(music);
+        music = NULL;
+    }
+
     for (int i = 0; i < SFX_MAX; i++)
     {
         if (samples[i] != NULL) {
@@ -45,4 +57,9 @@ void audio_play_sfx(SFX sfx)
     if (sfx < 0 || sfx >= SFX_MAX)
         return;
     al_play_sample(samples[sfx], 0.2, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+}
+
+void audio_play_music(void)
+{
+
 }
