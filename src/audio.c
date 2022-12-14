@@ -16,7 +16,7 @@ void audio_init(void)
     music = al_load_audio_stream("./resources/audio/track_01.opus", 2, 2048);
     must_init(music, "audio stream");
     al_set_audio_stream_playmode(music, ALLEGRO_PLAYMODE_LOOP);
-    al_set_audio_stream_gain(music, 0.2);
+    audio_turn_music_down();
     al_attach_audio_stream_to_mixer(music, al_get_default_mixer());
 
     char* filenames[SFX_MAX] = {
@@ -67,5 +67,15 @@ void audio_play_sfx(SFX sfx)
         return;
     if (samples[sfx] == NULL)
         return;
-    al_play_sample(samples[sfx], 0.2, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+    al_play_sample(samples[sfx], 0.4, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+}
+
+void audio_turn_music_down(void)
+{
+    al_set_audio_stream_gain(music, 0.05);
+}
+
+void audio_turn_music_up(void)
+{
+    al_set_audio_stream_gain(music, 0.15);
 }

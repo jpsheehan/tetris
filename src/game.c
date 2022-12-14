@@ -104,12 +104,14 @@ void game_update(ALLEGRO_EVENT *event, int frames)
     else if (al_get_timer_count(preroll) >= 400)
     {
       state = PLAYING;
+      audio_turn_music_up();
     }
     break;
   case PLAYING:
     if (event->type == ALLEGRO_EVENT_KEY_DOWN && event->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
     {
       state = PAUSED;
+      audio_turn_music_down();
     }
     else
     {
