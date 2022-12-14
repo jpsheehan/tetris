@@ -48,8 +48,8 @@ int main()
         {
         case ALLEGRO_EVENT_TIMER:
 
-            if (keyboard_is_pressed(ALLEGRO_KEY_ESCAPE))
-                done = true;
+            // if (keyboard_is_pressed(ALLEGRO_KEY_ESCAPE))
+            //     done = true;
 
             redraw = true;
             frames++;

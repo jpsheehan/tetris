@@ -52,11 +52,13 @@ void hud_update(void)
     }
 }
 
-void hud_draw(void)
+void hud_draw(bool show_minos)
 {
     draw_score();
-    draw_randomiser();
-    draw_held_piece();
+    if (show_minos) {
+        draw_randomiser();
+        draw_held_piece();
+    }
     draw_level();
     draw_remaining_lines();
     draw_lines_cleared();

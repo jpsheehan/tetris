@@ -1,17 +1,24 @@
+#include <stdbool.h>
+#include <allegro5/allegro_primitives.h>
+
 #include "game.h"
 #include "randomiser.h"
 #include "player.h"
 #include "field.h"
 #include "score.h"
 #include "hud.h"
+#include "display.h"
+
+static bool paused;
 
 void game_init(void)
 {
-    randomiser_init();
-    player_init();
-    field_init();
-    score_init();
-    hud_init();
+  paused = false;
+  randomiser_init();
+  player_init();
+  field_init();
+  score_init();
+  hud_init();
 }
 
 void game_deinit(void)
@@ -21,16 +28,48 @@ void game_deinit(void)
   hud_deinit();
 }
 
-void game_update(ALLEGRO_EVENT* event, int frames)
+void game_update(ALLEGRO_EVENT *event, int frames)
 {
-  player_update(event, frames);
-  field_update();
+  if (!paused)
+  {
+    if (event->type == ALLEGRO_EVENT_KEY_DOWN && event->type == ALLEGRO_KEY_ESCAPE)
+    {
+      paused = true;
+    }
+    else
+    {
+      player_update(event, frames);
+      field_update();
+    }
+  }
+  else
+  {
+    // handle pause menu events
+    if (event->type == ALLEGRO_EVENT_KEY_DOWN && event->type == ALLEGRO_KEY_ESCAPE)
+    {
+      paused = false;
+    }
+  }
   hud_update();
 }
 
 void game_draw()
 {
-  field_draw();
-  player_draw();
-  hud_draw();
+  if (!paused)
+  {
+    field_draw(true);
+    player_draw();
+    hud_draw(true);
+  }
+  else
+  {
+    field_draw(false);
+    hud_draw(false);
+
+    // wash out the screen
+    al_draw_filled_rectangle(0, 0, BUFFER_W, BUFFER_H, al_map_rgba_f(0, 0, 0, 0.5));
+
+    // draw menu
+    // TODO
+  }
 }

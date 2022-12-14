@@ -87,13 +87,16 @@ void field_update(void)
     }
 }
 
-void field_draw(void)
+void field_draw(bool show_stack)
 {
     int border_w = 1;
     ALLEGRO_COLOR border_c = al_map_rgb(0x98, 0x00, 0xff);
 
     al_draw_rectangle(FIELD_MARGIN_X, FIELD_MARGIN_Y - border_w, FIELD_MARGIN_X + FIELD_W * MINO_W + border_w, FIELD_MARGIN_Y + FIELD_H * MINO_H, border_c, border_w);
 
+    if (!show_stack)
+        return;
+        
     for (int j = 0; j < FIELD_H; j++)
         for (int i = 0; i < FIELD_W; i++)
         {
