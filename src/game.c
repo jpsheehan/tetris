@@ -9,12 +9,27 @@
 #include "score.h"
 #include "hud.h"
 #include "display.h"
+#include "menu.h"
+#include "utils.h"
+
+void pause_menu_callback(int option);
 
 static bool paused;
+static MENU pause_menu = {
+    .title = "Pause",
+    .n_opts = 2,
+    .x = 100,
+    .y = 20,
+    .opts = {
+        "Continue",
+        "Exit"},
+    .idx = 0,
+    .callback = &pause_menu_callback};
 
 void game_init(void)
 {
   paused = false;
+  menu_init();
   randomiser_init();
   player_init();
   field_init();
@@ -35,7 +50,6 @@ void game_update(ALLEGRO_EVENT *event, int frames)
   {
     if (event->type == ALLEGRO_EVENT_KEY_DOWN && event->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
     {
-      printf("Paused\n");
       paused = true;
     }
     else
@@ -50,6 +64,10 @@ void game_update(ALLEGRO_EVENT *event, int frames)
     if (event->type == ALLEGRO_EVENT_KEY_DOWN && event->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
     {
       paused = false;
+    }
+    else
+    {
+      menu_update(&pause_menu, event);
     }
   }
   hud_update();
@@ -72,6 +90,22 @@ void game_draw()
     al_draw_filled_rectangle(0, 0, BUFFER_W, BUFFER_H, al_map_rgba_f(0, 0, 0, 0.5));
 
     // draw menu
-    // TODO
+    menu_draw(&pause_menu);
+  }
+}
+
+void pause_menu_callback(int option)
+{
+  switch (option)
+  {
+  case 0:  // continue
+  case -1: // cancel
+    paused = false;
+    pause_menu.idx = 0;
+    break;
+  case 1: // quit
+    // TODO: signal proper exit
+    safe_exit("Cancelled via menu", 0);
+    break;
   }
 }
