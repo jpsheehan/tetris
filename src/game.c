@@ -16,10 +16,10 @@ void pause_menu_callback(int option);
 
 static bool paused;
 static MENU pause_menu = {
-    .title = "Pause",
+    .title = "Paused",
     .n_opts = 2,
-    .x = 100,
-    .y = 20,
+    .x = BUFFER_W / 2,
+    .y = 30,
     .opts = {
         "Continue",
         "Exit"},
