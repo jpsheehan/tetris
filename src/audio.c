@@ -4,7 +4,7 @@
 #include "audio.h"
 #include "utils.h"
 
-static ALLEGRO_SAMPLE* samples[SFX_MAX];
+static ALLEGRO_SAMPLE* samples[SFX_MAX] = { 0 };
 
 void audio_init(void)
 {
@@ -18,9 +18,17 @@ void audio_init(void)
         "./resources/audio/sfx_lock_down.ogg",
         "./resources/audio/sfx_hard_drop.ogg",
         "./resources/audio/sfx_line_clear.ogg",
+        NULL,
+        "./resources/audio/sfx_three.ogg",
+        "./resources/audio/sfx_two.ogg",
+        "./resources/audio/sfx_one.ogg",
+        "./resources/audio/sfx_go.ogg",
     };
 
     for (int i = 0; i < SFX_MAX; i++) {
+        if (filenames[i] == NULL) {
+            continue;
+        }
         samples[i] = al_load_sample(filenames[i]);
         must_init(samples[i], filenames[i]);
     }
@@ -43,6 +51,8 @@ void audio_deinit(void)
 void audio_play_sfx(SFX sfx)
 {
     if (sfx < 0 || sfx >= SFX_MAX)
+        return;
+    if (samples[sfx] == NULL)
         return;
     al_play_sample(samples[sfx], 0.2, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 }
