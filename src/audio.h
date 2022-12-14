@@ -7,6 +7,11 @@ typedef enum SFX {
     SFX_LOCK_DOWN,
     SFX_HARD_DROP,
     SFX_LINE_CLEAR,
+    SFX_PAUSE,
+    SFX_THREE,
+    SFX_TWO,
+    SFX_ONE,
+    SFX_GO,
     SFX_MAX
 } SFX;
 
