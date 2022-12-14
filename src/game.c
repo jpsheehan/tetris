@@ -74,6 +74,8 @@ void game_deinit(void)
 void game_update(ALLEGRO_EVENT *event, int frames)
 {
 
+  int preroll_count;
+
   switch (state)
   {
   case INIT:
@@ -84,7 +86,7 @@ void game_update(ALLEGRO_EVENT *event, int frames)
     break;
   case PREROLL:
     // has countdown ended?
-    int preroll_count = al_get_timer_count(preroll);
+    preroll_count = al_get_timer_count(preroll);
     if (preroll_count == 30)
     {
       audio_play_sfx(SFX_THREE);
