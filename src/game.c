@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdio.h>
 #include <allegro5/allegro_primitives.h>
 
 #include "game.h"
@@ -32,8 +33,9 @@ void game_update(ALLEGRO_EVENT *event, int frames)
 {
   if (!paused)
   {
-    if (event->type == ALLEGRO_EVENT_KEY_DOWN && event->type == ALLEGRO_KEY_ESCAPE)
+    if (event->type == ALLEGRO_EVENT_KEY_DOWN && event->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
     {
+      printf("Paused\n");
       paused = true;
     }
     else
@@ -45,7 +47,7 @@ void game_update(ALLEGRO_EVENT *event, int frames)
   else
   {
     // handle pause menu events
-    if (event->type == ALLEGRO_EVENT_KEY_DOWN && event->type == ALLEGRO_KEY_ESCAPE)
+    if (event->type == ALLEGRO_EVENT_KEY_DOWN && event->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
     {
       paused = false;
     }
