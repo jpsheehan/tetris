@@ -113,8 +113,10 @@
     <ClCompile Include="src\audio.c" />
     <ClCompile Include="src\display.c" />
     <ClCompile Include="src\field.c" />
+    <ClCompile Include="src\game.c" />
     <ClCompile Include="src\hud.c" />
     <ClCompile Include="src\keyboard.c" />
+    <ClCompile Include="src\menu.c" />
     <ClCompile Include="src\mino.c" />
     <ClCompile Include="src\player.c" />
     <ClCompile Include="src\randomiser_7bag.c" />
@@ -126,8 +128,10 @@
     <ClInclude Include="src\audio.h" />
     <ClInclude Include="src\display.h" />
     <ClInclude Include="src\field.h" />
+    <ClInclude Include="src\game.h" />
     <ClInclude Include="src\hud.h" />
     <ClInclude Include="src\keyboard.h" />
+    <ClInclude Include="src\menu.h" />
     <ClInclude Include="src\mino.h" />
     <ClInclude Include="src\player.h" />
     <ClInclude Include="src\randomiser.h" />
