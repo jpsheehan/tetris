@@ -36,7 +36,7 @@ $(OBJ)/score.o: $(SRC)/score.c $(SRC)/score.h
 $(OBJ)/audio.o: $(SRC)/audio.c $(SRC)/audio.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-$(OBJ)/randomiser.o: $(SRC)/randomiser_7bag.c $(SRC)/randomiser.h
+$(OBJ)/randomiser.o: $(SRC)/randomiser.c $(SRC)/randomiser.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(OBJ)/mino.o: $(SRC)/mino.c $(SRC)/mino.h

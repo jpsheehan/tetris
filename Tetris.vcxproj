@@ -119,7 +119,7 @@
     <ClCompile Include="src\menu.c" />
     <ClCompile Include="src\mino.c" />
     <ClCompile Include="src\player.c" />
-    <ClCompile Include="src\randomiser_7bag.c" />
+    <ClCompile Include="src\randomiser.c" />
     <ClCompile Include="src\score.c" />
     <ClCompile Include="src\tetris.c" />
     <ClCompile Include="src\utils.c" />

@@ -18,6 +18,9 @@
     <ClCompile Include="src\audio.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\asset_loader.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\display.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -36,7 +39,7 @@
     <ClCompile Include="src\player.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\randomiser_7bag.c">
+    <ClCompile Include="src\randomiser.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\score.c">
@@ -57,6 +60,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\audio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\asset_loader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\display.h">
