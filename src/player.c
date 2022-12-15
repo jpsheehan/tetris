@@ -9,6 +9,7 @@
 #include "audio.h"
 #include "randomiser.h"
 #include "score.h"
+#include "asset_loader.h"
 
 static PLAYER player;
 static PIECE held_piece;
@@ -54,27 +55,21 @@ void dispense_next_piece()
     can_swap_with_held_piece = true;
 }
 
-void player_init()
+static ALLEGRO_TIMER* create_lock_delay_timer(void)
 {
-    font = al_create_builtin_font();
-    lock_delay = al_create_timer(0.5);
-    held_piece = PIECE_MAX;
-    dispense_next_piece();
+    return al_create_timer(0.5);
 }
 
-void player_deinit()
+void player_init()
 {
-    if (font != NULL)
-    {
-        al_destroy_font(font);
-        font = NULL;
-    }
+    font = asset_loader_load(A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
+    must_init(font, "player font");
 
-    if (lock_delay != NULL)
-    {
-        al_destroy_timer(lock_delay);
-        lock_delay = NULL;
-    }
+    lock_delay = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_lock_delay_timer);
+    must_init(lock_delay, "lock delay timer");
+
+    held_piece = PIECE_MAX;
+    dispense_next_piece();
 }
 
 void reset_lock_delay(void)

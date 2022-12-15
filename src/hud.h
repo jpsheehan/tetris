@@ -4,7 +4,6 @@
 #include <stdbool.h>
 
 void hud_init(void);
-void hud_deinit(void);
 void hud_update(void);
 void hud_draw(bool show_minos);
 

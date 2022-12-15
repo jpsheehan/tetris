@@ -33,5 +33,6 @@
 
 void must_init(bool test, const char *description);
 void safe_exit(const char* description, int code);
+void unsafe_exit(const char* description, int code);
 
 #endif

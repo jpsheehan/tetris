@@ -3,6 +3,7 @@
         "allegro.h": "c",
         "keyboard.h": "c",
         "mino.h": "c",
-        "allegro_primitives.h": "c"
+        "allegro_primitives.h": "c",
+        "allegro5.h": "c"
     }
 }

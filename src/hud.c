@@ -8,6 +8,8 @@
 #include "mino.h"
 #include "randomiser.h"
 #include "player.h"
+#include "utils.h"
+#include "asset_loader.h"
 
 #define FIRST_X 10
 #define FIRST_Y 10
@@ -29,17 +31,10 @@ void draw_lines_cleared(void);
 
 void hud_init(void)
 {
-    font = al_create_builtin_font();
-    score_display = 0;
-}
+    font = asset_loader_load(A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
+    must_init(font, "hud font");
 
-void hud_deinit(void)
-{
-    if (font != NULL)
-    {
-        al_destroy_font(font);
-        font = NULL;
-    }
+    score_display = 0;
 }
 
 void hud_update(void)

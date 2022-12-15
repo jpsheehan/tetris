@@ -3,6 +3,7 @@
 
 #include "menu.h"
 #include "utils.h"
+#include "asset_loader.h"
 
 ALLEGRO_FONT *font = NULL;
 
@@ -10,7 +11,8 @@ void menu_init(void)
 {
     if (font == NULL)
     {
-        font = al_create_builtin_font();
+        font = asset_loader_load(A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
+        must_init(font, "menu font");
     }
 }
 

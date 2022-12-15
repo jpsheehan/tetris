@@ -6,8 +6,6 @@
 
 void randomiser_init(void);
 
-void randomiser_deinit(void);
-
 /**
  * Advances the randomiser, returning the next piece.
 */

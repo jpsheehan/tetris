@@ -11,7 +11,7 @@
 #define DISP_H (BUFFER_H * DISP_SCALE)
 
 void disp_init();
-void disp_deinit();
+// void disp_deinit();
 void disp_pre_draw();
 void disp_post_draw();
 void disp_register_event_source(ALLEGRO_EVENT_QUEUE* queue);

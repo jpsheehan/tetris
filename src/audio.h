@@ -16,7 +16,7 @@ typedef enum SFX {
 } SFX;
 
 void audio_init(void);
-void audio_deinit(void);
+// void audio_deinit(void);
 void audio_play_sfx(SFX sfx);
 void audio_turn_music_up(void);
 void audio_turn_music_down(void);

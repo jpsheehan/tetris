@@ -13,6 +13,7 @@
 #include "menu.h"
 #include "utils.h"
 #include "audio.h"
+#include "asset_loader.h"
 
 void pause_menu_callback(int option);
 void draw_preroll(void);
@@ -39,36 +40,27 @@ static MENU pause_menu = {
     .idx = 0,
     .callback = &pause_menu_callback};
 
+static ALLEGRO_TIMER* create_preroll_timer(void)
+{
+  return al_create_timer(0.01);
+}
+
 void game_init(void)
 {
   state = INIT;
-  preroll = al_create_timer(0.01);
-  font = al_create_builtin_font();
+
+  preroll = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_preroll_timer);
+  must_init(preroll, "preroll timer");
+
+  font = asset_loader_load(A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
+  must_init(font, "game font");
+
   menu_init();
   randomiser_init();
   player_init();
   field_init();
   score_init();
   hud_init();
-}
-
-void game_deinit(void)
-{
-  player_deinit();
-  randomiser_deinit();
-  hud_deinit();
-
-  if (preroll != NULL)
-  {
-    al_destroy_timer(preroll);
-    preroll = NULL;
-  }
-
-  if (font != NULL)
-  {
-    al_destroy_font(font);
-    font = NULL;
-  }
 }
 
 void game_update(ALLEGRO_EVENT *event, int frames)

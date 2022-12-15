@@ -35,10 +35,6 @@ void randomiser_init(void)
     fill_bag(7);
 }
 
-void randomiser_deinit(void)
-{
-}
-
 PIECE randomiser_next(void)
 {
     if (bag_idx == 7) {

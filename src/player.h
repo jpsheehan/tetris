@@ -14,7 +14,6 @@ typedef struct PLAYER
 } PLAYER;
 
 void player_init();
-void player_deinit();
 void player_update(ALLEGRO_EVENT *event, int frames);
 void player_draw();
 PIECE player_get_held_piece(void);

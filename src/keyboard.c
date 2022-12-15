@@ -7,7 +7,6 @@ unsigned char key[ALLEGRO_KEY_MAX];
 
 void keyboard_init()
 {
-    must_init(al_install_keyboard(), "keyboard");
     memset(key, 0, sizeof(key));
 }
 

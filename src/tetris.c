@@ -9,19 +9,29 @@
 #include "keyboard.h"
 #include "audio.h"
 #include "game.h"
+#include "asset_loader.h"
+
+ALLEGRO_TIMER *create_frame_timer(void)
+{
+    return al_create_timer(1.0 / (float)FPS);
+}
 
 int main()
 {
     must_init(al_init(), "allegro");
 
-    ALLEGRO_TIMER *timer = al_create_timer(1.0 / (float)FPS);
+    asset_loader_init();
+
+    ALLEGRO_TIMER *timer = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_frame_timer);
     must_init(timer, "timer");
 
-    ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
+    ALLEGRO_EVENT_QUEUE *queue = asset_loader_load(A_EVENT_QUEUE, (AssetLoaderCallback)&al_create_event_queue);
     must_init(queue, "queue");
 
     disp_init();
     keyboard_init();
+    must_init(al_install_keyboard(), "keyboard");
+
     audio_init();
 
     must_init(al_init_primitives_addon(), "primitives");
@@ -47,7 +57,7 @@ int main()
         switch (event.type)
         {
         case ALLEGRO_EVENT_TIMER:
-        
+
             redraw = true;
             frames++;
             break;
@@ -76,11 +86,7 @@ int main()
         }
     }
 
-    game_deinit();
-    audio_deinit();
-    disp_deinit();
-    al_destroy_timer(timer);
-    al_destroy_event_queue(queue);
+    safe_exit("Done", 0);
 
     return 0;
 }
