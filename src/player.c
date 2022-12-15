@@ -45,7 +45,6 @@ void dispense_specific_piece(PIECE piece)
     player.c = mino_get_default_colour(player.piece);
 
     if (player_collides_with_cell(&player)) {
-        // BLOCK OUT, GAME OVER
         callback();
     }
 }
@@ -245,7 +244,6 @@ bool player_lock_down(bool hard_lock)
     }
 
     if (max_y < 0) {
-        // LOCK OUT, GAME OVER
         callback();
     }
 
@@ -334,7 +332,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
                 audio_play_sfx(SFX_ROTATE_CCW);
             }
             break;
-        case ALLEGRO_KEY_UP: // HARD DROP
+        case ALLEGRO_KEY_UP: // SONIC DROP
             while (player_can_move_down(&player))
             {
                 player_move_down(&player);

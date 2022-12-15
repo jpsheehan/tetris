@@ -72,7 +72,7 @@ void audio_play_sfx(SFX sfx)
         return;
     }
     float gain = 0.4;
-    if (sfx >= SFX_THREE && sfx <= SFX_GO) gain = 0.8;
+    if (sfx >= SFX_THREE && sfx <= SFX_GO) gain = 0.5;
     al_play_sample(samples[sfx], gain, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 }
 

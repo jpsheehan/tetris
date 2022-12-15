@@ -1,5 +1,4 @@
 #include <stdbool.h>
-#include <stdio.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
 
@@ -15,9 +14,6 @@
 #include "audio.h"
 #include "asset_loader.h"
 
-void pause_menu_callback(int option);
-void draw_preroll(void);
-
 #define PREROLL_STEPS 20
 #define PREROLL_RESOLUTION (1.0 / PREROLL_STEPS)
 
@@ -26,9 +22,28 @@ typedef enum GAME_STATE
   INIT,
   PREROLL,
   PLAYING,
-  PAUSED
+  PAUSED,
+  RETRY,
 } GAME_STATE;
 
+typedef enum MODE
+{
+  MARATHON,
+  SPRINT,
+  ULTRA,
+  ENDLESS,
+} MODE;
+
+static void pause_menu_callback(int option);
+static void retry_menu_callback(int option);
+static void draw_preroll(void);
+static void player_callback(void);
+static ALLEGRO_TIMER *create_preroll_timer(void);
+static void reset_game_state(MODE newMode);
+
+static MODE mode;
+static void (*callback)(void) = NULL;
+static int sfx_played = 0b0000;
 static ALLEGRO_TIMER *preroll = NULL;
 static ALLEGRO_FONT *font = NULL;
 static GAME_STATE state = INIT;
@@ -41,20 +56,22 @@ static MENU pause_menu = {
         "Continue",
         "Abandon"},
     .idx = 0,
-    .callback = &pause_menu_callback};
-
-static ALLEGRO_TIMER *create_preroll_timer(void)
-{
-  return al_create_timer(PREROLL_RESOLUTION);
-}
-
-static void (*callback)(void) = NULL;
-static void player_callback(void);
+    .callback = &pause_menu_callback,
+};
+static MENU retry_menu = {
+    .title = "Retry?",
+    .n_opts = 2,
+    .x = BUFFER_W / 2,
+    .y = 50,
+    .opts = {
+        "Yes",
+        "No"},
+    .idx = 0,
+    .callback = &retry_menu_callback,
+};
 
 void game_init(void)
 {
-  state = INIT;
-
   if (preroll == NULL)
   {
     preroll = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_preroll_timer);
@@ -66,39 +83,37 @@ void game_init(void)
     font = asset_loader_load(A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
     must_init(font, "game font");
   }
-
-  menu_init();
-  randomiser_init();
-  player_init(&player_callback);
-  field_init();
-  score_init();
-  hud_init();
 }
 
 void game_init_marathon(void (*cb)(void))
 {
   callback = cb;
   game_init();
+  reset_game_state(MARATHON);
 }
+
 void game_init_sprint(void (*cb)(void))
 {
   callback = cb;
   game_init();
+  reset_game_state(SPRINT);
 }
+
 void game_init_ultra(void (*cb)(void))
 {
   callback = cb;
   game_init();
+  reset_game_state(ULTRA);
 }
+
 void game_init_endless(void (*cb)(void))
 {
   callback = cb;
   game_init();
+  reset_game_state(ENDLESS);
 }
 
-static int sfx_played = 0b0000;
-
-void game_update(ALLEGRO_EVENT *event, int frames)
+void game_update(ALLEGRO_EVENT *pEvent, int frames)
 {
   int preroll_count;
 
@@ -138,7 +153,7 @@ void game_update(ALLEGRO_EVENT *event, int frames)
       state = PLAYING;
       audio_turn_music_up();
     }
-    else if (event->type == ALLEGRO_EVENT_KEY_DOWN && event->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+    else if (pEvent->type == ALLEGRO_EVENT_KEY_DOWN && pEvent->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
     {
       al_stop_timer(preroll);
       state = PAUSED;
@@ -146,19 +161,25 @@ void game_update(ALLEGRO_EVENT *event, int frames)
     }
     break;
   case PLAYING:
-    if (event->type == ALLEGRO_EVENT_KEY_DOWN && event->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+    if (pEvent->type == ALLEGRO_EVENT_KEY_DOWN && pEvent->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
     {
       state = PAUSED;
       audio_turn_music_down();
     }
     else
     {
-      player_update(event, frames);
+      player_update(pEvent, frames);
       field_update();
     }
     break;
   case PAUSED:
-    menu_update(&pause_menu, event);
+    menu_update(&pause_menu, pEvent);
+    break;
+  case RETRY:
+    menu_update(&retry_menu, pEvent);
+    break;
+  default:
+    safe_exit("Invalid game state", 1);
     break;
   }
 
@@ -189,10 +210,16 @@ void game_draw(void)
     al_draw_filled_rectangle(0, 0, BUFFER_W, BUFFER_H, al_map_rgba_f(0, 0, 0, 0.5));
     menu_draw(&pause_menu);
     break;
+  case RETRY:
+    field_draw(true);
+    hud_draw(true);
+    al_draw_filled_rectangle(0, 0, BUFFER_W, BUFFER_H, al_map_rgba_f(0, 0, 0, 0.5));
+    menu_draw(&retry_menu);
+    break;
   }
 }
 
-void pause_menu_callback(int option)
+static void pause_menu_callback(int option)
 {
   switch (option)
   {
@@ -204,15 +231,42 @@ void pause_menu_callback(int option)
   case 1: // abandon game
     callback();
     break;
+  default:
+    safe_exit("Invalid pause menu option", 1);
+    break;
   }
 }
 
 static void player_callback(void)
 {
-  callback();
+  state = RETRY;
 }
 
-void draw_preroll(void)
+static void retry_menu_callback(int option)
+{
+  switch (option)
+  {
+  case -1:
+  case 1: // NO
+    retry_menu.idx = 0;
+    callback();
+    break;
+  case 0: // YES
+    retry_menu.idx = 0;
+    reset_game_state(mode);
+    break;
+  default:
+    safe_exit("Invalid retry menu option", 1);
+    break;
+  }
+}
+
+static ALLEGRO_TIMER *create_preroll_timer(void)
+{
+  return al_create_timer(PREROLL_RESOLUTION);
+}
+
+static void draw_preroll(void)
 {
   int countdown = 3 - al_get_timer_count(preroll) / PREROLL_STEPS;
   int t = al_get_timer_count(preroll) % PREROLL_STEPS;
@@ -222,4 +276,16 @@ void draw_preroll(void)
     al_draw_textf(font, al_map_rgb_f(1, 1, 1), BUFFER_W / 2, y, ALLEGRO_ALIGN_CENTER, "%d!", countdown);
   else
     al_draw_text(font, al_map_rgb_f(1, 1, 1), BUFFER_W / 2, y, ALLEGRO_ALIGN_CENTER, "GO!");
+}
+
+static void reset_game_state(MODE newMode)
+{
+  state = INIT;
+  mode = newMode;
+
+  randomiser_init();
+  score_init();
+  field_init();
+  hud_init();
+  player_init(&player_callback);
 }
