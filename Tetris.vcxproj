@@ -110,6 +110,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\asset_loader.c" />
     <ClCompile Include="src\audio.c" />
     <ClCompile Include="src\display.c" />
     <ClCompile Include="src\field.c" />
@@ -126,6 +127,7 @@
     <ClCompile Include="src\utils.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\asset_loader.h" />
     <ClInclude Include="src\audio.h" />
     <ClInclude Include="src\display.h" />
     <ClInclude Include="src\field.h" />
