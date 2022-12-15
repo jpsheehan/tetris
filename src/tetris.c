@@ -96,6 +96,9 @@ int main()
         case GAME:
             game_update(&event, frames);
             break;
+        default:
+            safe_exit("Invalid state", 1);
+            break;
         }
 
         if (redraw && al_is_event_queue_empty(queue))

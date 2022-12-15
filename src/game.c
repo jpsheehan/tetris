@@ -18,6 +18,9 @@
 void pause_menu_callback(int option);
 void draw_preroll(void);
 
+#define PREROLL_STEPS 20
+#define PREROLL_RESOLUTION (1.0 / PREROLL_STEPS)
+
 typedef enum GAME_STATE
 {
   INIT,
@@ -42,7 +45,7 @@ static MENU pause_menu = {
 
 static ALLEGRO_TIMER *create_preroll_timer(void)
 {
-  return al_create_timer(0.01);
+  return al_create_timer(PREROLL_RESOLUTION);
 }
 
 static void (*callback)(void) = NULL;
@@ -93,6 +96,8 @@ void game_init_endless(void (*cb)(void))
   game_init();
 }
 
+static int sfx_played = 0b0000;
+
 void game_update(ALLEGRO_EVENT *event, int frames)
 {
   int preroll_count;
@@ -103,31 +108,37 @@ void game_update(ALLEGRO_EVENT *event, int frames)
     al_set_timer_count(preroll, 0);
     al_start_timer(preroll);
     state = PREROLL;
+    sfx_played = 0b0000;
     break;
   case PREROLL:
     preroll_count = al_get_timer_count(preroll);
-    if (preroll_count == 30)
+    if (preroll_count == (int)(0.3 / PREROLL_RESOLUTION) && !(sfx_played & 0b0001))
     {
       audio_play_sfx(SFX_THREE);
+      sfx_played |= 0b0001;
     }
-    else if (preroll_count == 130)
+    else if (preroll_count == (int)(1.3 / PREROLL_RESOLUTION) && !(sfx_played & 0b0010))
     {
       audio_play_sfx(SFX_TWO);
+      sfx_played |= 0b0010;
     }
-    else if (preroll_count == 230)
+    else if (preroll_count == (int)(2.3 / PREROLL_RESOLUTION) && !(sfx_played & 0b0100))
     {
       audio_play_sfx(SFX_ONE);
+      sfx_played |= 0b0100;
     }
-    else if (preroll_count == 330)
+    else if (preroll_count == (int)(3.3 / PREROLL_RESOLUTION) && !(sfx_played & 0b1000))
     {
       audio_play_sfx(SFX_GO);
+      sfx_played |= 0b1000;
     }
-    else if (al_get_timer_count(preroll) >= 400)
+    else if (al_get_timer_count(preroll) >= (int)(4.0 / PREROLL_RESOLUTION))
     {
       al_stop_timer(preroll);
       state = PLAYING;
       audio_turn_music_up();
-    } else if (event->type == ALLEGRO_EVENT_KEY_DOWN && event->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+    }
+    else if (event->type == ALLEGRO_EVENT_KEY_DOWN && event->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
     {
       al_stop_timer(preroll);
       state = PAUSED;
@@ -203,9 +214,9 @@ static void player_callback(void)
 
 void draw_preroll(void)
 {
-  int countdown = 3 - al_get_timer_count(preroll) / 100;
-  int t = al_get_timer_count(preroll) % 100;
-  int y = t < 30 ? (t * BUFFER_H / 60) : (t < 70 ? BUFFER_H / 2 : (t - 40) * BUFFER_H / 60);
+  int countdown = 3 - al_get_timer_count(preroll) / PREROLL_STEPS;
+  int t = al_get_timer_count(preroll) % PREROLL_STEPS;
+  int y = t < 0.3 * PREROLL_STEPS ? (t * BUFFER_H / (0.6 * PREROLL_STEPS)) : (t < (0.7 * PREROLL_STEPS) ? BUFFER_H / 2 : (t - 0.4 * PREROLL_STEPS) * BUFFER_H / (0.6 * PREROLL_STEPS));
 
   if (countdown > 0)
     al_draw_textf(font, al_map_rgb_f(1, 1, 1), BUFFER_W / 2, y, ALLEGRO_ALIGN_CENTER, "%d!", countdown);

@@ -25,15 +25,15 @@ ALLEGRO_SAMPLE *create_sample(void)
 
 void audio_init(void)
 {
-    if (music == NULL)
-    {
-        music = asset_loader_load(A_AUDIO_STREAM, (AssetLoaderCallback)&create_music);
-        must_init(music, "audio stream");
+    // if (music == NULL)
+    // {
+    //     music = asset_loader_load(A_AUDIO_STREAM, (AssetLoaderCallback)&create_music);
+    //     must_init(music, "audio stream");
 
-        al_set_audio_stream_playmode(music, ALLEGRO_PLAYMODE_LOOP);
-        audio_turn_music_down();
-        al_attach_audio_stream_to_mixer(music, al_get_default_mixer());
-    }
+    //     al_set_audio_stream_playmode(music, ALLEGRO_PLAYMODE_LOOP);
+    //     audio_turn_music_down();
+    //     al_attach_audio_stream_to_mixer(music, al_get_default_mixer());
+    // }
 
     char *filenames[SFX_MAX] = {
         "./resources/audio/sfx_rotate_cw.ogg",
@@ -62,11 +62,18 @@ void audio_init(void)
 
 void audio_play_sfx(SFX sfx)
 {
-    if (sfx < 0 || sfx >= SFX_MAX)
+    // printf("Play %d\n", (int)sfx);
+    if (sfx < 0 || sfx >= SFX_MAX){
+        safe_exit("SFX is out of range", 1);
         return;
-    if (samples[sfx] == NULL)
+    }
+    if (samples[sfx] == NULL) {
+        safe_exit("Sample is null", 1);
         return;
-    al_play_sample(samples[sfx], 0.4, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+    }
+    float gain = 0.4;
+    if (sfx >= SFX_THREE && sfx <= SFX_GO) gain = 0.8;
+    al_play_sample(samples[sfx], gain, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 }
 
 void audio_turn_music_down(void)

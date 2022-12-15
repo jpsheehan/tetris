@@ -53,7 +53,8 @@ sudo apt install liballegro5-dev make
 
 ### Bugs
 
-- [ ] Fix sounds dropping out from preroll... sometimes??? Usually after pausing.
+- [x] Fix sounds dropping out from preroll... sometimes??? Usually after pausing.
+  - The preroll timer was being skipped because it was counting too fast in some instances.
 - [ ] We appear to do too much in the input loop for the game
 
 ### CI/CD
