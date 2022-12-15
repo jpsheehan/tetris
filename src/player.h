@@ -13,7 +13,7 @@ typedef struct PLAYER
     PIECE piece;
 } PLAYER;
 
-void player_init();
+void player_init(void(*cb)(void));
 void player_update(ALLEGRO_EVENT *event, int frames);
 void player_draw();
 PIECE player_get_held_piece(void);

@@ -45,6 +45,9 @@ static ALLEGRO_TIMER *create_preroll_timer(void)
   return al_create_timer(0.01);
 }
 
+static void (*callback)(void) = NULL;
+static void player_callback(void);
+
 void game_init(void)
 {
   state = INIT;
@@ -63,10 +66,31 @@ void game_init(void)
 
   menu_init();
   randomiser_init();
-  player_init();
+  player_init(&player_callback);
   field_init();
   score_init();
   hud_init();
+}
+
+void game_init_marathon(void (*cb)(void))
+{
+  callback = cb;
+  game_init();
+}
+void game_init_sprint(void (*cb)(void))
+{
+  callback = cb;
+  game_init();
+}
+void game_init_ultra(void (*cb)(void))
+{
+  callback = cb;
+  game_init();
+}
+void game_init_endless(void (*cb)(void))
+{
+  callback = cb;
+  game_init();
 }
 
 void game_update(ALLEGRO_EVENT *event, int frames)
@@ -76,13 +100,11 @@ void game_update(ALLEGRO_EVENT *event, int frames)
   switch (state)
   {
   case INIT:
-    // enter PREROLL state
     al_set_timer_count(preroll, 0);
     al_start_timer(preroll);
     state = PREROLL;
     break;
   case PREROLL:
-    // has countdown ended?
     preroll_count = al_get_timer_count(preroll);
     if (preroll_count == 30)
     {
@@ -169,10 +191,14 @@ void pause_menu_callback(int option)
     pause_menu.idx = 0;
     break;
   case 1: // quit
-    // TODO: signal proper exit
-    safe_exit("Cancelled via menu", 0);
+    callback();
     break;
   }
+}
+
+static void player_callback(void)
+{
+  callback();
 }
 
 void draw_preroll(void)

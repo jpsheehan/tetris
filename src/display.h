@@ -10,10 +10,9 @@
 #define DISP_W (BUFFER_W * DISP_SCALE)
 #define DISP_H (BUFFER_H * DISP_SCALE)
 
-void disp_init();
-// void disp_deinit();
-void disp_pre_draw();
-void disp_post_draw();
+void disp_init(void);
+void disp_pre_draw(void);
+void disp_post_draw(void);
 void disp_register_event_source(ALLEGRO_EVENT_QUEUE* queue);
 ALLEGRO_BITMAP* disp_get_buffer(void);
 

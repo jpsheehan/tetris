@@ -12,11 +12,21 @@
 #include "audio.h"
 #include "game.h"
 #include "asset_loader.h"
+#include "main_menu.h"
 
-ALLEGRO_TIMER *create_frame_timer(void)
+typedef enum STATE
 {
-    return al_create_timer(1.0 / (float)FPS);
-}
+    MENU,
+    GAME,
+} STATE;
+
+static ALLEGRO_TIMER *create_frame_timer(void);
+
+static void menu_callback(CHOICE idx);
+static void game_callback(void);
+
+static bool done = false;
+static STATE state = MENU;
 
 int main()
 {
@@ -46,12 +56,13 @@ int main()
     disp_register_event_source(queue);
     al_register_event_source(queue, al_get_timer_event_source(timer));
 
-    bool done = false;
+    done = false;
     bool redraw = true;
     ALLEGRO_EVENT event;
     int frames = 0;
+    state = MENU;
 
-    game_init();
+    main_menu_init(menu_callback);
 
     al_start_timer(timer);
 
@@ -77,21 +88,76 @@ int main()
 
         keyboard_update(&event);
 
-        game_update(&event, frames);
+        switch (state)
+        {
+        case MENU:
+            main_menu_update(&event);
+            break;
+        case GAME:
+            game_update(&event, frames);
+            break;
+        }
 
         if (redraw && al_is_event_queue_empty(queue))
         {
             disp_pre_draw();
             al_clear_to_color(al_map_rgb(0, 0, 0));
 
-            game_draw();
+            switch (state)
+            {
+            case MENU:
+                main_menu_draw();
+                break;
+            case GAME:
+                game_draw();
+                break;
+            default:
+                safe_exit("Invalid state", 1);
+                break;
+            }
 
             disp_post_draw();
             redraw = false;
         }
     }
 
-    safe_exit("Done", 0);
+    safe_exit(NULL, 0);
 
     return 0;
+}
+
+static ALLEGRO_TIMER *create_frame_timer(void)
+{
+    return al_create_timer(1.0 / (float)FPS);
+}
+
+static void game_callback(void)
+{
+    state = MENU;
+}
+
+static void menu_callback(CHOICE mode)
+{
+    switch (mode)
+    {
+    case CHOICE_EXIT:
+        done = true;
+        break;
+    case CHOICE_MARATHON:
+        state = GAME;
+        game_init_marathon(&game_callback);
+        break;
+    case CHOICE_SPRINT:
+        state = GAME;
+        game_init_sprint(&game_callback);
+        break;
+    case CHOICE_ULTRA:
+        state = GAME;
+        game_init_ultra(&game_callback);
+        break;
+    case CHOICE_ENDLESS:
+        state = GAME;
+        game_init_endless(&game_callback);
+        break;
+    }
 }

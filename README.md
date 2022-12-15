@@ -30,10 +30,10 @@ sudo apt install liballegro5-dev make
 - [ ] Fix up the input (it doesn't feel right)
   - I think it needs to accept your first input, then wait a little bit before being sensitive
   - At the moment it is just sensitive
-- [ ] Add a way to pause the game (think about blurring the stack)
+- [x] Add a way to pause the game (think about blurring the stack)
 
 ### Fluff
-- [ ] Add a countdown before starting
+- [x] Add a countdown before starting
 - [ ] Add some background graphics (maybe this could be based on the level?)
 - [ ] Add a sound effect for when rotation fails
 - [ ] Add a sound effect for leveling up
@@ -47,7 +47,8 @@ sudo apt install liballegro5-dev make
 
 ### CI/CD
 
-- [ ] Get GitHub Actions creating build artifacts for download.
+- [x] Get GitHub Actions creating build artifacts for download.
+- [ ] Investigate using CMake instead. I might be able to get it compiling for all three major operating systems using GHA that way.
 
 
 ## Credits

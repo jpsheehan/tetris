@@ -16,6 +16,7 @@ static PIECE held_piece;
 static bool can_swap_with_held_piece;
 static ALLEGRO_FONT *font = NULL;
 static ALLEGRO_TIMER *lock_delay = NULL;
+static void(*callback)(void);
 
 bool player_collides_with_cell(PLAYER *p)
 {
@@ -45,7 +46,7 @@ void dispense_specific_piece(PIECE piece)
 
     if (player_collides_with_cell(&player)) {
         // BLOCK OUT, GAME OVER
-        safe_exit("block out, game over", 0);
+        callback();
     }
 }
 
@@ -60,8 +61,10 @@ static ALLEGRO_TIMER* create_lock_delay_timer(void)
     return al_create_timer(0.5);
 }
 
-void player_init()
+void player_init(void(*cb)(void))
 {
+    callback = cb;
+
     if (font == NULL)
     {
         font = asset_loader_load(A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
@@ -243,7 +246,7 @@ bool player_lock_down(bool hard_lock)
 
     if (max_y < 0) {
         // LOCK OUT, GAME OVER
-        safe_exit("lock out, game over", 0);
+        callback();
     }
 
     return true;

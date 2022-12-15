@@ -51,6 +51,11 @@ void menu_update(MENU *menu, ALLEGRO_EVENT *event)
                 safe_exit("Menu callback cannot be NULL", 1);
             menu->callback(menu->idx);
             break;
+        case ALLEGRO_KEY_ESCAPE:
+            if (menu->callback == NULL)
+                safe_exit("Menu callback cannot be NULL", 1);
+            menu->callback(-1);
+            break;
         }
     }
 }
