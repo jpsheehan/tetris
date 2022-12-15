@@ -28,7 +28,7 @@ typedef enum GAME_STATE
 
 static ALLEGRO_TIMER *preroll = NULL;
 static ALLEGRO_FONT *font = NULL;
-static GAME_STATE state;
+static GAME_STATE state = INIT;
 static MENU pause_menu = {
     .title = "Paused",
     .n_opts = 2,
@@ -40,7 +40,7 @@ static MENU pause_menu = {
     .idx = 0,
     .callback = &pause_menu_callback};
 
-static ALLEGRO_TIMER* create_preroll_timer(void)
+static ALLEGRO_TIMER *create_preroll_timer(void)
 {
   return al_create_timer(0.01);
 }
@@ -49,11 +49,17 @@ void game_init(void)
 {
   state = INIT;
 
-  preroll = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_preroll_timer);
-  must_init(preroll, "preroll timer");
+  if (preroll == NULL)
+  {
+    preroll = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_preroll_timer);
+    must_init(preroll, "preroll timer");
+  }
 
-  font = asset_loader_load(A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
-  must_init(font, "game font");
+  if (font == NULL)
+  {
+    font = asset_loader_load(A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
+    must_init(font, "game font");
+  }
 
   menu_init();
   randomiser_init();
@@ -65,7 +71,6 @@ void game_init(void)
 
 void game_update(ALLEGRO_EVENT *event, int frames)
 {
-
   int preroll_count;
 
   switch (state)
@@ -128,7 +133,7 @@ void game_update(ALLEGRO_EVENT *event, int frames)
   hud_update();
 }
 
-void game_draw()
+void game_draw(void)
 {
   switch (state)
   {
@@ -149,11 +154,7 @@ void game_draw()
   case PAUSED:
     field_draw(false);
     hud_draw(false);
-
-    // wash out the screen
     al_draw_filled_rectangle(0, 0, BUFFER_W, BUFFER_H, al_map_rgba_f(0, 0, 0, 0.5));
-
-    // draw menu
     menu_draw(&pause_menu);
     break;
   }

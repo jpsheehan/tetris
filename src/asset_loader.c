@@ -15,8 +15,8 @@ typedef struct ASSET
   void *p;
 } ASSET;
 
-static int next_asset_idx;
-static ASSET assets[MAX_ASSETS];
+static int next_asset_idx = 0;
+static ASSET assets[MAX_ASSETS] = { 0 };
 
 void unload_asset(ASSET *asset);
 

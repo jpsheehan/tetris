@@ -4,6 +4,7 @@
         "keyboard.h": "c",
         "mino.h": "c",
         "allegro_primitives.h": "c",
-        "allegro5.h": "c"
+        "allegro5.h": "c",
+        "utils.h": "c"
     }
 }

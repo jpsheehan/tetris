@@ -31,8 +31,11 @@ void draw_lines_cleared(void);
 
 void hud_init(void)
 {
-    font = asset_loader_load(A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
-    must_init(font, "hud font");
+    if (font == NULL)
+    {
+        font = asset_loader_load(A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
+        must_init(font, "hud font");
+    }
 
     score_display = 0;
 }
@@ -50,7 +53,8 @@ void hud_update(void)
 void hud_draw(bool show_minos)
 {
     draw_score();
-    if (show_minos) {
+    if (show_minos)
+    {
         draw_randomiser();
         draw_held_piece();
     }

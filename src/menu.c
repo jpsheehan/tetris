@@ -23,7 +23,7 @@ void menu_draw(MENU *menu)
 
     for (int i = 0; i < menu->n_opts; i++)
     {
-        char* option = menu->opts[i];
+        char *option = menu->opts[i];
         ALLEGRO_COLOR color = i == menu->idx ? al_map_rgb_f(1, 0, 0) : al_map_rgb_f(1, 1, 1);
         x = menu->x - al_get_text_width(font, option) / 2;
 

@@ -3,6 +3,8 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 
 #include "utils.h"
 #include "display.h"
@@ -19,14 +21,11 @@ ALLEGRO_TIMER *create_frame_timer(void)
 int main()
 {
     must_init(al_init(), "allegro");
+    must_init(al_install_audio(), "install audio");
+    must_init(al_init_acodec_addon(), "init audio codec");
+    must_init(al_reserve_samples(16), "reserve samples");
 
     asset_loader_init();
-
-    ALLEGRO_TIMER *timer = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_frame_timer);
-    must_init(timer, "timer");
-
-    ALLEGRO_EVENT_QUEUE *queue = asset_loader_load(A_EVENT_QUEUE, (AssetLoaderCallback)&al_create_event_queue);
-    must_init(queue, "queue");
 
     disp_init();
     keyboard_init();
@@ -36,6 +35,12 @@ int main()
 
     must_init(al_init_primitives_addon(), "primitives");
     must_init(al_init_font_addon(), "font");
+
+    ALLEGRO_TIMER *timer = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_frame_timer);
+    must_init(timer, "timer");
+
+    ALLEGRO_EVENT_QUEUE *queue = asset_loader_load(A_EVENT_QUEUE, (AssetLoaderCallback)&al_create_event_queue);
+    must_init(queue, "queue");
 
     keyboard_register_event_source(queue);
     disp_register_event_source(queue);

@@ -14,8 +14,8 @@
 static PLAYER player;
 static PIECE held_piece;
 static bool can_swap_with_held_piece;
-static ALLEGRO_FONT *font;
-static ALLEGRO_TIMER *lock_delay;
+static ALLEGRO_FONT *font = NULL;
+static ALLEGRO_TIMER *lock_delay = NULL;
 
 bool player_collides_with_cell(PLAYER *p)
 {
@@ -62,11 +62,17 @@ static ALLEGRO_TIMER* create_lock_delay_timer(void)
 
 void player_init()
 {
-    font = asset_loader_load(A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
-    must_init(font, "player font");
+    if (font == NULL)
+    {
+        font = asset_loader_load(A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
+        must_init(font, "player font");
+    }
 
-    lock_delay = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_lock_delay_timer);
-    must_init(lock_delay, "lock delay timer");
+    if (lock_delay == NULL)
+    {
+        lock_delay = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_lock_delay_timer);
+        must_init(lock_delay, "lock delay timer");
+    }
 
     held_piece = PIECE_MAX;
     dispense_next_piece();

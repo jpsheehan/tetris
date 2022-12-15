@@ -1,10 +1,11 @@
+#include <stdbool.h>
 #include <allegro5/allegro_primitives.h>
 
 #include "field.h"
 #include "score.h"
 #include "audio.h"
 
-static CELL field[FIELD_H][FIELD_W];
+static CELL field[FIELD_H][FIELD_W] = {0};
 
 void field_draw_cell(int x, int y, ALLEGRO_COLOR c)
 {
@@ -96,7 +97,7 @@ void field_draw(bool show_stack)
 
     if (!show_stack)
         return;
-        
+
     for (int j = 0; j < FIELD_H; j++)
         for (int i = 0; i < FIELD_W; i++)
         {
