@@ -33,10 +33,10 @@ static MENU pause_menu = {
     .title = "Paused",
     .n_opts = 2,
     .x = BUFFER_W / 2,
-    .y = 30,
+    .y = 50,
     .opts = {
         "Continue",
-        "Exit"},
+        "Abandon"},
     .idx = 0,
     .callback = &pause_menu_callback};
 
@@ -124,8 +124,14 @@ void game_update(ALLEGRO_EVENT *event, int frames)
     }
     else if (al_get_timer_count(preroll) >= 400)
     {
+      al_stop_timer(preroll);
       state = PLAYING;
       audio_turn_music_up();
+    } else if (event->type == ALLEGRO_EVENT_KEY_DOWN && event->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+    {
+      al_stop_timer(preroll);
+      state = PAUSED;
+      audio_turn_music_down();
     }
     break;
   case PLAYING:
@@ -141,14 +147,7 @@ void game_update(ALLEGRO_EVENT *event, int frames)
     }
     break;
   case PAUSED:
-    if (event->type == ALLEGRO_EVENT_KEY_DOWN && event->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
-    {
-      state = INIT;
-    }
-    else
-    {
-      menu_update(&pause_menu, event);
-    }
+    menu_update(&pause_menu, event);
     break;
   }
 
@@ -186,11 +185,12 @@ void pause_menu_callback(int option)
 {
   switch (option)
   {
+  case -1:
   case 0: // continue
     state = INIT;
     pause_menu.idx = 0;
     break;
-  case 1: // quit
+  case 1: // abandon game
     callback();
     break;
   }

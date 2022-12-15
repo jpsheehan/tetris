@@ -31,6 +31,7 @@ sudo apt install liballegro5-dev make
   - I think it needs to accept your first input, then wait a little bit before being sensitive
   - At the moment it is just sensitive
 - [x] Add a way to pause the game (think about blurring the stack)
+- [ ] Display a Win/Lose screen with the final score. Offer to let the user type their initials here.
 
 ### Fluff
 - [x] Add a countdown before starting
@@ -49,6 +50,11 @@ sudo apt install liballegro5-dev make
   - [ ] endless
 - [ ] Add highscores for each mode
 - [ ] Add options for muting sounds
+
+### Bugs
+
+- [ ] Fix sounds dropping out from preroll... sometimes??? Usually after pausing.
+- [ ] We appear to do too much in the input loop for the game
 
 ### CI/CD
 
