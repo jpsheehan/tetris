@@ -50,6 +50,7 @@ sudo apt install liballegro5-dev make
   - [ ] endless
 - [ ] Add highscores for each mode
 - [ ] Add options for muting sounds
+- [x] Add a retry menu after finishing the game
 
 ### Bugs
 
