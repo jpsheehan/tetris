@@ -116,6 +116,7 @@
     <ClCompile Include="src\game.c" />
     <ClCompile Include="src\hud.c" />
     <ClCompile Include="src\keyboard.c" />
+    <ClCompile Include="src\main_menu.c" />
     <ClCompile Include="src\menu.c" />
     <ClCompile Include="src\mino.c" />
     <ClCompile Include="src\player.c" />
@@ -131,6 +132,7 @@
     <ClInclude Include="src\game.h" />
     <ClInclude Include="src\hud.h" />
     <ClInclude Include="src\keyboard.h" />
+    <ClInclude Include="src\main_menu.h" />
     <ClInclude Include="src\menu.h" />
     <ClInclude Include="src\mino.h" />
     <ClInclude Include="src\player.h" />

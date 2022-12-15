@@ -41,9 +41,14 @@ sudo apt install liballegro5-dev make
 
 ### Menu Stuff
 
-- [ ] Add a menu system
-- [ ] Add a sprint, marathon, ultra, and endless modes.
+- [x] Add a menu system
+- [ ] Add more modes:
+  - [ ] sprint
+  - [ ] marathon
+  - [ ] ultra
+  - [ ] endless
 - [ ] Add highscores for each mode
+- [ ] Add options for muting sounds
 
 ### CI/CD
 

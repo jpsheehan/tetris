@@ -54,6 +54,9 @@
     <ClCompile Include="src\game.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\main_menu.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\menu.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -96,6 +99,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\main_menu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
