@@ -16,7 +16,7 @@ static PIECE held_piece;
 static bool can_swap_with_held_piece;
 static ALLEGRO_FONT *font = NULL;
 static ALLEGRO_TIMER *lock_delay = NULL;
-static void(*callback)(void);
+static void (*callback)(void);
 
 bool player_collides_with_cell(PLAYER *p)
 {
@@ -44,23 +44,25 @@ void dispense_specific_piece(PIECE piece)
     player.rotation = 0;
     player.c = mino_get_default_colour(player.piece);
 
-    if (player_collides_with_cell(&player)) {
+    if (player_collides_with_cell(&player))
+    {
         callback();
     }
 }
 
 void dispense_next_piece()
 {
+    al_stop_timer(lock_delay);
     dispense_specific_piece(randomiser_next());
     can_swap_with_held_piece = true;
 }
 
-static ALLEGRO_TIMER* create_lock_delay_timer(void)
+static ALLEGRO_TIMER *create_lock_delay_timer(void)
 {
     return al_create_timer(0.5);
 }
 
-void player_init(void(*cb)(void))
+void player_init(void (*cb)(void))
 {
     callback = cb;
 
@@ -243,7 +245,8 @@ bool player_lock_down(bool hard_lock)
         field_set_used_safely(x, y, player.c);
     }
 
-    if (max_y < 0) {
+    if (max_y < 0)
+    {
         callback();
     }
 
@@ -276,7 +279,8 @@ void player_update(ALLEGRO_EVENT *event, int frames)
             if (player_can_move_left(&player))
             {
                 player_move_left(&player);
-                if (al_get_timer_started(lock_delay)) {
+                if (al_get_timer_started(lock_delay))
+                {
                     reset_lock_delay();
                 }
             }
@@ -288,7 +292,8 @@ void player_update(ALLEGRO_EVENT *event, int frames)
             if (player_can_move_right(&player))
             {
                 player_move_right(&player);
-                if (al_get_timer_started(lock_delay)) {
+                if (al_get_timer_started(lock_delay))
+                {
                     reset_lock_delay();
                 }
             }
@@ -305,6 +310,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
             {
                 if (player_lock_down(true))
                 {
+                    keyboard_reset_key(ALLEGRO_KEY_DOWN);
                     dispense_next_piece();
                     audio_play_sfx(SFX_LOCK_DOWN);
                 }
@@ -317,16 +323,20 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         switch (event->keyboard.keycode)
         {
         case ALLEGRO_KEY_X:
-            if (player_rotate_cw(&player)) {
-                if (al_get_timer_started(lock_delay)) {
+            if (player_rotate_cw(&player))
+            {
+                if (al_get_timer_started(lock_delay))
+                {
                     reset_lock_delay();
                 }
                 audio_play_sfx(SFX_ROTATE_CW);
             }
             break;
         case ALLEGRO_KEY_Z:
-            if (player_rotate_ccw(&player)) {
-                if (al_get_timer_started(lock_delay)) {
+            if (player_rotate_ccw(&player))
+            {
+                if (al_get_timer_started(lock_delay))
+                {
                     reset_lock_delay();
                 }
                 audio_play_sfx(SFX_ROTATE_CCW);

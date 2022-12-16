@@ -3,6 +3,8 @@
 
 #define KEY_SEEN 1
 #define KEY_RELEASED 2
+#define ASSERT_KEYCODE(keycode) ASSERT_RANGE(keycode, 0, ALLEGRO_KEY_MAX, "keycode");
+
 unsigned char key[ALLEGRO_KEY_MAX];
 
 void keyboard_init()
@@ -34,17 +36,22 @@ void keyboard_register_event_source(ALLEGRO_EVENT_QUEUE* queue)
 
 bool keyboard_is_pressed(int keycode)
 {
-    if (keycode <= 0 || keycode >= ALLEGRO_KEY_MAX)
-        return false;
+    ASSERT_KEYCODE(keycode);
     return key[keycode] == KEY_SEEN;
 }
 
 bool keyboard_is_just_pressed(int keycode)
 {
-    if (keycode <= 0 || keycode >= ALLEGRO_KEY_MAX)
-        return false;
+    ASSERT_KEYCODE(keycode);
     return key[keycode] == (KEY_SEEN | KEY_RELEASED);
+}
+
+void keyboard_reset_key(int keycode)
+{
+    ASSERT_KEYCODE(keycode);
+    key[keycode] &= KEY_RELEASED;
 }
 
 #undef KEY_SEEN
 #undef KEY_RELEASED
+#undef ASSERT_KEYCODE
