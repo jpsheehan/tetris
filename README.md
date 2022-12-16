@@ -27,7 +27,7 @@ sudo apt install liballegro5-dev make
 - [ ] Detect T-Spins for scoring
 - [ ] Detect combos for scoring
 - [x] Detect lock-out (locking down above the play area)
-- [ ] Fix up the input (it doesn't feel right)
+- [x] Fix up the input (it doesn't feel right)
   - I think it needs to accept your first input, then wait a little bit before being sensitive
   - At the moment it is just sensitive
 - [x] Add a way to pause the game (think about blurring the stack)
@@ -47,11 +47,11 @@ sudo apt install liballegro5-dev make
 ### Menu Stuff
 
 - [x] Add a menu system
-- [ ] Add more modes:
-  - [ ] sprint (40 lines, leaderboard is time-based)
-  - [ ] marathon (complete level 15, 150 lines, leaderboard is score based)
-  - [ ] ultra (2 minute timed, leaderboard is score based)
-  - [ ] endless (leaderboard is score based)
+- [x] Add more modes:
+  - [x] sprint (40 lines, leaderboard is time-based)
+  - [x] marathon (complete level 15, 150 lines, leaderboard is score based)
+  - [x] ultra (2 minute timed, leaderboard is score based)
+  - [x] endless (leaderboard is score based)
 - [ ] Add highscores for each mode
 - [ ] Add options for muting sounds
 - [x] Add a retry menu after finishing the game
