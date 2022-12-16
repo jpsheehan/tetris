@@ -40,6 +40,11 @@ static ALLEGRO_TIMER *create_ultra_timer(void);
 static ALLEGRO_TIMER *create_bonus_timer(void);
 static void reset_game_state(MODE newMode);
 static void check_win_conditions(void);
+static void enter_state_playing(void);
+static void enter_state_paused(void);
+#if !DISABLE_PREROLL
+static void enter_state_preroll(void);
+#endif
 
 static BONUS current_bonus = BONUS_MAX;
 static ALLEGRO_TIMER *bonus_timer = NULL;
@@ -162,10 +167,11 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
   switch (state)
   {
   case INIT:
-    al_set_timer_count(preroll, 0);
-    al_start_timer(preroll);
-    state = PREROLL;
-    sfx_played = 0b0000;
+#if DISABLE_PREROLL
+    enter_state_playing();
+#else
+    enter_state_preroll();
+#endif
     break;
   case PREROLL:
     preroll_count = al_get_timer_count(preroll);
@@ -191,31 +197,17 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
     }
     else if (al_get_timer_count(preroll) >= (int)(4.0 / PREROLL_RESOLUTION))
     {
-      al_stop_timer(preroll);
-      state = PLAYING;
-      audio_turn_music_up();
-      al_start_timer(timer);
-      if (current_bonus != BONUS_MAX)
-      {
-        al_start_timer(bonus_timer);
-      }
+      enter_state_playing();
     }
     else if (pEvent->type == ALLEGRO_EVENT_KEY_DOWN && pEvent->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
     {
-      al_stop_timer(preroll);
-      al_stop_timer(timer);
-      al_stop_timer(bonus_timer);
-      state = PAUSED;
-      audio_turn_music_down();
+      enter_state_paused();
     }
     break;
   case PLAYING:
     if (pEvent->type == ALLEGRO_EVENT_KEY_DOWN && pEvent->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
     {
-      al_stop_timer(timer);
-      al_stop_timer(bonus_timer);
-      state = PAUSED;
-      audio_turn_music_down();
+      enter_state_paused();
     }
     else
     {
@@ -457,4 +449,35 @@ static void check_win_conditions(void)
     safe_exit("Invalid game state", 1);
     break;
   }
+}
+
+#if !DISABLE_PREROLL
+static void enter_state_preroll(void)
+{
+  al_set_timer_count(preroll, 0);
+  al_start_timer(preroll);
+  state = PREROLL;
+  sfx_played = 0b0000;
+}
+#endif
+
+static void enter_state_playing(void)
+{
+  al_stop_timer(preroll);
+  state = PLAYING;
+  audio_turn_music_up();
+  al_start_timer(timer);
+  if (current_bonus != BONUS_MAX)
+  {
+    al_start_timer(bonus_timer);
+  }
+}
+
+static void enter_state_paused(void)
+{
+  al_stop_timer(preroll);
+  al_stop_timer(timer);
+  al_stop_timer(bonus_timer);
+  state = PAUSED;
+  audio_turn_music_down();
 }
