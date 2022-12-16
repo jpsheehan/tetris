@@ -42,7 +42,7 @@ $(OBJ)/score.o: $(SRC)/score.c $(SRC)/score.h
 $(OBJ)/audio.o: $(SRC)/audio.c $(SRC)/audio.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-$(OBJ)/randomiser.o: $(SRC)/randomiser.c $(SRC)/randomiser.h
+$(OBJ)/randomiser.o: $(SRC)/randomiser.c $(SRC)/randomiser.h $(SRC)/tetris.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(OBJ)/mino.o: $(SRC)/mino.c $(SRC)/mino.h
@@ -51,7 +51,7 @@ $(OBJ)/mino.o: $(SRC)/mino.c $(SRC)/mino.h
 $(OBJ)/hud.o: $(SRC)/hud.c $(SRC)/hud.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-$(OBJ)/game.o: $(SRC)/game.c $(SRC)/game.h
+$(OBJ)/game.o: $(SRC)/game.c $(SRC)/game.h $(SRC)/tetris.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(OBJ)/menu.o: $(SRC)/menu.c $(SRC)/menu.h
@@ -60,5 +60,5 @@ $(OBJ)/menu.o: $(SRC)/menu.c $(SRC)/menu.h
 $(OBJ)/asset_loader.o: $(SRC)/asset_loader.c $(SRC)/asset_loader.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-$(OBJ)/main_menu.o: $(SRC)/main_menu.c $(SRC)/main_menu.h
+$(OBJ)/main_menu.o: $(SRC)/main_menu.c $(SRC)/main_menu.h $(SRC)/tetris.h
 	$(CC) -c -o $@ $< $(CFLAGS)
