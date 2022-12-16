@@ -24,6 +24,8 @@ typedef enum GAME_STATE
   PLAYING,
   PAUSED,
   RETRY,
+  WIN,
+  DEFEAT,
 } GAME_STATE;
 
 typedef enum MODE
@@ -34,12 +36,14 @@ typedef enum MODE
   ENDLESS,
 } MODE;
 
+static void win_menu_callback(int option);
 static void pause_menu_callback(int option);
 static void retry_menu_callback(int option);
 static void draw_preroll(void);
 static void player_callback(void);
 static ALLEGRO_TIMER *create_preroll_timer(void);
 static void reset_game_state(MODE newMode);
+static void check_win_conditions(void);
 
 static MODE mode;
 static void (*callback)(void) = NULL;
@@ -68,6 +72,17 @@ static MENU retry_menu = {
         "No"},
     .idx = 0,
     .callback = &retry_menu_callback,
+};
+static MENU win_menu = {
+    .title = "Win!",
+    .n_opts = 1,
+    .x = BUFFER_W / 2,
+    .y = 50,
+    .opts = {
+        "OK",
+    },
+    .idx = 0,
+    .callback = &win_menu_callback,
 };
 
 void game_init(void)
@@ -170,6 +185,7 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
     {
       player_update(pEvent, frames);
       field_update();
+      check_win_conditions();
     }
     break;
   case PAUSED:
@@ -177,6 +193,9 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
     break;
   case RETRY:
     menu_update(&retry_menu, pEvent);
+    break;
+  case WIN:
+    menu_update(&win_menu, pEvent);
     break;
   default:
     safe_exit("Invalid game state", 1);
@@ -215,6 +234,15 @@ void game_draw(void)
     hud_draw(true);
     al_draw_filled_rectangle(0, 0, BUFFER_W, BUFFER_H, al_map_rgba_f(0, 0, 0, 0.5));
     menu_draw(&retry_menu);
+    break;
+  case WIN:
+    field_draw(true);
+    hud_draw(true);
+    al_draw_filled_rectangle(0, 0, BUFFER_W, BUFFER_H, al_map_rgba_f(0, 0, 0, 0.5));
+    menu_draw(&win_menu);
+    break;
+  default:
+    safe_exit("Invalid game state", 1);
     break;
   }
 }
@@ -261,6 +289,21 @@ static void retry_menu_callback(int option)
   }
 }
 
+static void win_menu_callback(int option)
+{
+  // TODO: Show initials entry menu instead
+  switch (option)
+  {
+  case -1:
+  case 0: // OK
+    state = RETRY;
+    break;
+  default:
+    safe_exit("Invalid menu index", 1);
+    break;
+  }
+}
+
 static ALLEGRO_TIMER *create_preroll_timer(void)
 {
   return al_create_timer(PREROLL_RESOLUTION);
@@ -288,4 +331,31 @@ static void reset_game_state(MODE newMode)
   field_init();
   hud_init();
   player_init(&player_callback);
+}
+
+static void check_win_conditions(void)
+{
+  if (state != PLAYING)
+    return;
+
+  switch (mode)
+  {
+  case MARATHON:
+    if (level_get() >= 15)
+      state = WIN;
+    break;
+  case SPRINT:
+    if (lines_cleared_get() >= 40)
+      state = WIN;
+    break;
+  case ULTRA:
+    // TODO: add check for ultra timer
+    break;
+  case ENDLESS:
+    // no win conditions
+    break;
+  default:
+    safe_exit("Invalid game state", 1);
+    break;
+  }
 }

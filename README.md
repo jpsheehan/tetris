@@ -37,6 +37,9 @@ sudo apt install liballegro5-dev make
 - [x] Add a countdown before starting
 - [x] Smooth out the preroll (we have 60 fps, let's use it!)
 - [ ] Add some background graphics (maybe this could be based on the level?)
+- [ ] Add a program icon (and window icon)
+- [ ] Add a fullscreen mode
+- [ ] Scale the app window when resized
 - [ ] Add a sound effect for when rotation fails
 - [ ] Add a sound effect for leveling up
 - [ ] Add some special effects for when lines are cleared (perhaps even animate the lines clearing)
