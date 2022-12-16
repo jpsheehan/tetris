@@ -9,6 +9,20 @@
 static ALLEGRO_AUDIO_STREAM *music = NULL;
 static ALLEGRO_SAMPLE *samples[SFX_MAX] = {0};
 
+static char *filenames[SFX_MAX] = {
+    "./resources/audio/sfx_rotate_cw.ogg",
+    "./resources/audio/sfx_rotate_ccw.ogg",
+    "./resources/audio/sfx_lock_down.ogg",
+    "./resources/audio/sfx_hard_drop.ogg",
+    "./resources/audio/sfx_line_clear.ogg",
+    NULL,
+    NULL,
+    "./resources/audio/sfx_three.ogg",
+    "./resources/audio/sfx_two.ogg",
+    "./resources/audio/sfx_one.ogg",
+    "./resources/audio/sfx_go.ogg",
+};
+
 ALLEGRO_AUDIO_STREAM *create_music(void)
 {
     return al_load_audio_stream("./resources/audio/track_01.opus", 2, 2048);
@@ -35,20 +49,6 @@ void audio_init(void)
     //     al_attach_audio_stream_to_mixer(music, al_get_default_mixer());
     // }
 
-    char *filenames[SFX_MAX] = {
-        "./resources/audio/sfx_rotate_cw.ogg",
-        "./resources/audio/sfx_rotate_ccw.ogg",
-        "./resources/audio/sfx_lock_down.ogg",
-        "./resources/audio/sfx_hard_drop.ogg",
-        "./resources/audio/sfx_line_clear.ogg",
-        NULL,
-        NULL,
-        "./resources/audio/sfx_three.ogg",
-        "./resources/audio/sfx_two.ogg",
-        "./resources/audio/sfx_one.ogg",
-        "./resources/audio/sfx_go.ogg",
-    };
-
     for (int i = 0; i < SFX_MAX; i++)
     {
         if (filenames[i] == NULL || samples[i] != NULL)
@@ -64,16 +64,20 @@ void audio_init(void)
 void audio_play_sfx(SFX sfx)
 {
     // printf("Play %d\n", (int)sfx);
-    if (sfx < 0 || sfx >= SFX_MAX){
+    if (sfx < 0 || sfx >= SFX_MAX)
+    {
         safe_exit("SFX is out of range", 1);
         return;
     }
-    if (samples[sfx] == NULL) {
-        safe_exit("Sample is null", 1);
+    if (samples[sfx] == NULL)
+    {
+        if (filenames[sfx] != NULL)
+            safe_exit("Sample is null", 1);
         return;
     }
     float gain = 0.4;
-    if (sfx >= SFX_THREE && sfx <= SFX_GO) gain = 0.5;
+    if (sfx >= SFX_THREE && sfx <= SFX_GO)
+        gain = 0.5;
     al_play_sample(samples[sfx], gain, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 }
 

@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <allegro5/allegro.h>
+
 #include "display.h"
 #include "mino.h"
 

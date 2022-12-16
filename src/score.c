@@ -33,6 +33,18 @@ void score_add(BONUS bonus)
         score += level_get() * 800;
         total_lines += 4;
         break;
+    case PERFECT_CLEAR_SINGLE:
+        score += level_get() * 800;
+        break;
+    case PERFECT_CLEAR_DOUBLE:
+        score += level_get() * 1200;
+        break;
+    case PERFECT_CLEAR_TRIPLE:
+        score += level_get() * 1800;
+        break;
+    case PERFECT_CLEAR_TETRIS:
+        score += level_get() * 2000;
+        break;
     default:
         safe_exit("Invalid bonus", 1);
         break;

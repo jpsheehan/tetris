@@ -139,6 +139,22 @@ void game_init_endless(void (*cb)(void))
   reset_game_state(ENDLESS);
 }
 
+#if DEBUG_MENU
+void game_init_debug(void (*cb)(void))
+{
+  callback = cb;
+  game_init();
+
+  state = INIT;
+  mode = MARATHON;
+
+  score_init();
+  hud_init();
+  player_init(&player_callback);
+  al_set_timer_count(timer, 0);
+}
+#endif
+
 void game_update(ALLEGRO_EVENT *pEvent, int frames)
 {
   int preroll_count;
@@ -325,6 +341,9 @@ static void pause_menu_callback(int option)
     pause_menu.idx = 0;
     break;
   case 1: // abandon game
+    al_stop_timer(bonus_timer);
+    current_bonus = BONUS_MAX;
+    pause_menu.idx = 0;
     callback();
     break;
   default:

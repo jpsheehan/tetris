@@ -8,6 +8,8 @@
 
 static CELL field[FIELD_H][FIELD_W] = {0};
 
+static bool is_perfect_clear(void);
+
 void field_draw_cell(int x, int y, ALLEGRO_COLOR c)
 {
     if (x < 0 || x >= FIELD_W || y < 0 || y >= FIELD_H)
@@ -61,7 +63,6 @@ void clear_row(int j)
 void field_update(void)
 {
     int num_rows_cleared = 0;
-    bool is_perfect_clear = true;
 
     for (int j = 0; j < FIELD_H; j++)
     {
@@ -73,8 +74,6 @@ void field_update(void)
                 row_is_cleared = false;
                 break;
             }
-            else
-                is_perfect_clear = false;
         }
 
         if (row_is_cleared)
@@ -106,7 +105,7 @@ void field_update(void)
             break;
         }
 
-        if (is_perfect_clear)
+        if (is_perfect_clear())
         {
             switch (num_rows_cleared)
             {
@@ -169,4 +168,19 @@ void field_set_used_safely(int x, int y, ALLEGRO_COLOR c)
 
     field[y][x].used = true;
     field[y][x].c = c;
+}
+
+static bool is_perfect_clear(void)
+{
+    for (int j = 0; j < FIELD_H; j++)
+        for (int i = 0; i < FIELD_W; i++)
+        {
+            CELL *cell = &field[j][i];
+
+            if (cell->used)
+            {
+                return false;
+            }
+        }
+    return true;
 }

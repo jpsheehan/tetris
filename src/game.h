@@ -3,6 +3,8 @@
 
 #include <allegro5/allegro5.h>
 
+#include "tetris.h"
+
 #define MAX_MARATHON_LEVEL 15
 #define MAX_SPRINT_LINES 40
 #define MAX_ULTRA_SECONDS 120
@@ -43,5 +45,9 @@ void game_init_endless(void (*cb)(void));
 void game_update(ALLEGRO_EVENT *event, int frames);
 void game_draw(void);
 void game_show_bonus(BONUS bonus);
+
+#ifdef DEBUG_MENU
+void game_init_debug(void (*cb)(void));
+#endif
 
 #endif

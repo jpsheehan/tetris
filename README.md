@@ -26,6 +26,7 @@ sudo apt install liballegro5-dev make
 - [x] Add a timer to the HUD
 - [ ] Detect T-Spins for scoring
 - [ ] Detect combos for scoring
+- [x] Detect perfect clears for scoring
 - [x] Detect lock-out (locking down above the play area)
 - [x] Fix up the input (it doesn't feel right)
   - I think it needs to accept your first input, then wait a little bit before being sensitive
@@ -55,6 +56,11 @@ sudo apt install liballegro5-dev make
 - [ ] Add highscores for each mode
 - [ ] Add options for muting sounds
 - [x] Add a retry menu after finishing the game
+- [ ] Add a debug menu with setups for testing common patterns
+  - [x] Test line clears
+  - [x] Test perfect clears
+  - [ ] Test T-Spins
+  - [ ] Test T-Spin minis
 
 ### Bugs
 

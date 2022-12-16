@@ -55,3 +55,16 @@ void randomiser_peek(int* n, PIECE* buffer)
     }
     *n = 6;
 }
+
+#if DEBUG_MENU
+
+void randomiser_seed(int n, PIECE* buffer)
+{
+    randomiser_init();
+    for (int i = 0; i < n; i++)
+    {
+        bag_pieces[i] = buffer[i];
+    }
+}
+
+#endif

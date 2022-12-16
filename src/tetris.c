@@ -13,6 +13,7 @@
 #include "game.h"
 #include "asset_loader.h"
 #include "main_menu.h"
+#include "tetris.h"
 
 typedef enum STATE
 {
@@ -162,5 +163,11 @@ static void menu_callback(CHOICE mode)
         state = GAME;
         game_init_endless(&game_callback);
         break;
+#if DEBUG_MENU
+    case CHOICE_DEBUG:
+        state = GAME;
+        game_init_debug(&game_callback);
+        break;
+#endif
     }
 }

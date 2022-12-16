@@ -15,8 +15,11 @@ clean:
 
 .PHONY: all clean run
 
-$(OUT): $(SRC)/tetris.c $(OBJ)/utils.o $(OBJ)/display.o $(OBJ)/keyboard.o $(OBJ)/field.o $(OBJ)/player.o $(OBJ)/score.o $(OBJ)/audio.o $(OBJ)/randomiser.o $(OBJ)/mino.o $(OBJ)/hud.o $(OBJ)/game.o $(OBJ)/menu.o $(OBJ)/asset_loader.o $(OBJ)/main_menu.o
+$(OUT): $(OBJ)/tetris.o $(OBJ)/utils.o $(OBJ)/display.o $(OBJ)/keyboard.o $(OBJ)/field.o $(OBJ)/player.o $(OBJ)/score.o $(OBJ)/audio.o $(OBJ)/randomiser.o $(OBJ)/mino.o $(OBJ)/hud.o $(OBJ)/game.o $(OBJ)/menu.o $(OBJ)/asset_loader.o $(OBJ)/main_menu.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LFLAGS)
+
+$(OBJ)/tetris.o: $(SRC)/tetris.c $(SRC)/tetris.h
+	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(OBJ)/utils.o: $(SRC)/utils.c $(SRC)/utils.h
 	$(CC) -c -o $@ $< $(CFLAGS)

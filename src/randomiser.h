@@ -3,6 +3,7 @@
 
 #include "mino.h"
 #include "player.h"
+#include "tetris.h"
 
 void randomiser_init(void);
 
@@ -15,5 +16,11 @@ PIECE randomiser_next(void);
  * Peeks the next 1 - 6 pieces.
 */
 void randomiser_peek(int* n, PIECE* buffer);
+
+#if DEBUG_MENU
+
+void randomiser_seed(int n, PIECE* buffer);
+
+#endif
 
 #endif
