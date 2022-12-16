@@ -5,6 +5,9 @@
         "mino.h": "c",
         "allegro_primitives.h": "c",
         "allegro5.h": "c",
-        "utils.h": "c"
+        "utils.h": "c",
+        "score.h": "c",
+        "field.h": "c",
+        "stdbool.h": "c"
     }
 }

@@ -20,14 +20,16 @@
 #define THIRD_Y (BUFFER_H - 70)
 
 static ALLEGRO_FONT *font = NULL;
+static ALLEGRO_TIMER *flash_timer = NULL;
 static long score_display;
 
-void draw_score(void);
-void draw_randomiser(void);
-void draw_held_piece(void);
-void draw_level(void);
-void draw_remaining_lines(void);
-void draw_lines_cleared(void);
+static void draw_score(void);
+static void draw_randomiser(void);
+static void draw_held_piece(void);
+static void draw_level(void);
+static void draw_remaining_lines(void);
+static void draw_lines_cleared(void);
+static ALLEGRO_TIMER *create_flash_timer(void);
 
 void hud_init(void)
 {
@@ -37,7 +39,15 @@ void hud_init(void)
         must_init(font, "hud font");
     }
 
+    if (flash_timer == NULL)
+    {
+        flash_timer = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_flash_timer);
+        must_init(flash_timer, "flash timer");
+    }
+
     score_display = 0;
+    al_set_timer_count(flash_timer, 0);
+    al_start_timer(flash_timer);
 }
 
 void hud_update(void)
@@ -50,10 +60,10 @@ void hud_update(void)
     }
 }
 
-void hud_draw(bool show_minos)
+void hud_draw(HUD_UPDATE_DATA *pData)
 {
     draw_score();
-    if (show_minos)
+    if (pData->show_minos)
     {
         draw_randomiser();
         draw_held_piece();
@@ -61,14 +71,20 @@ void hud_draw(bool show_minos)
     draw_level();
     draw_remaining_lines();
     draw_lines_cleared();
+
+    if (pData->timer_running || (!pData->timer_running && al_get_timer_count(flash_timer) % 2 == 0))
+    {
+        int seconds_to_show = pData->mode == ULTRA ? MAX_ULTRA_SECONDS - pData->timer_count : pData->timer_count;
+        al_draw_textf(font, al_map_rgb_f(1, 1, 1), 30, 90, 0, "%02d:%02d", seconds_to_show / 60, seconds_to_show % 60);
+    }
 }
 
-void draw_score(void)
+static void draw_score(void)
 {
     al_draw_textf(font, al_map_rgb_f(1, 1, 1), 10, FIRST_Y, 0, "%06ld", score_display);
 }
 
-void draw_randomiser(void)
+static void draw_randomiser(void)
 {
     al_draw_text(font, al_map_rgb_f(1, 1, 1), SECOND_X, SECOND_Y, 0, "Next");
 
@@ -84,7 +100,7 @@ void draw_randomiser(void)
     }
 }
 
-void draw_held_piece(void)
+static void draw_held_piece(void)
 {
     int offset_x = FIRST_X + 10;
     al_draw_textf(font, al_map_rgb_f(1, 1, 1), offset_x, SECOND_Y, 0, "Hold");
@@ -97,17 +113,22 @@ void draw_held_piece(void)
     }
 }
 
-void draw_level(void)
+static void draw_level(void)
 {
     al_draw_textf(font, al_map_rgb_f(1, 1, 1), SECOND_X, FIRST_Y, 0, "Level %d", level_get());
 }
 
-void draw_remaining_lines(void)
+static void draw_remaining_lines(void)
 {
     al_draw_textf(font, al_map_rgb_f(1, 1, 1), FIRST_X, BUFFER_H - 15, 0, "%d lines until next level", lines_until_next_level());
 }
 
-void draw_lines_cleared(void)
+static void draw_lines_cleared(void)
 {
     al_draw_textf(font, al_map_rgb_f(1, 1, 1), FIRST_X, THIRD_Y, 0, "%d lines", lines_cleared_get());
+}
+
+static ALLEGRO_TIMER *create_flash_timer(void)
+{
+    return al_create_timer(0.5);
 }

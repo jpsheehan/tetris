@@ -28,20 +28,13 @@ typedef enum GAME_STATE
   DEFEAT,
 } GAME_STATE;
 
-typedef enum MODE
-{
-  MARATHON,
-  SPRINT,
-  ULTRA,
-  ENDLESS,
-} MODE;
-
 static void win_menu_callback(int option);
 static void pause_menu_callback(int option);
 static void retry_menu_callback(int option);
 static void draw_preroll(void);
 static void player_callback(void);
 static ALLEGRO_TIMER *create_preroll_timer(void);
+static ALLEGRO_TIMER *create_ultra_timer(void);
 static void reset_game_state(MODE newMode);
 static void check_win_conditions(void);
 
@@ -49,6 +42,7 @@ static MODE mode;
 static void (*callback)(void) = NULL;
 static int sfx_played = 0b0000;
 static ALLEGRO_TIMER *preroll = NULL;
+static ALLEGRO_TIMER *timer = NULL;
 static ALLEGRO_FONT *font = NULL;
 static GAME_STATE state = INIT;
 static MENU pause_menu = {
@@ -85,12 +79,18 @@ static MENU win_menu = {
     .callback = &win_menu_callback,
 };
 
-void game_init(void)
+static void game_init(void)
 {
   if (preroll == NULL)
   {
     preroll = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_preroll_timer);
     must_init(preroll, "preroll timer");
+  }
+
+  if (timer == NULL)
+  {
+    timer = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_ultra_timer);
+    must_init(timer, "ultra timer");
   }
 
   if (font == NULL)
@@ -167,10 +167,12 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
       al_stop_timer(preroll);
       state = PLAYING;
       audio_turn_music_up();
+      al_start_timer(timer);
     }
     else if (pEvent->type == ALLEGRO_EVENT_KEY_DOWN && pEvent->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
     {
       al_stop_timer(preroll);
+      al_stop_timer(timer);
       state = PAUSED;
       audio_turn_music_down();
     }
@@ -178,6 +180,7 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
   case PLAYING:
     if (pEvent->type == ALLEGRO_EVENT_KEY_DOWN && pEvent->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
     {
+      al_stop_timer(timer);
       state = PAUSED;
       audio_turn_music_down();
     }
@@ -192,9 +195,11 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
     menu_update(&pause_menu, pEvent);
     break;
   case RETRY:
+    al_stop_timer(timer);
     menu_update(&retry_menu, pEvent);
     break;
   case WIN:
+    al_stop_timer(timer);
     menu_update(&win_menu, pEvent);
     break;
   default:
@@ -207,37 +212,44 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
 
 void game_draw(void)
 {
+  HUD_UPDATE_DATA data = {
+      .mode = mode,
+      .timer_count = timer == NULL ? 0 : (int)al_get_timer_count(timer),
+      .show_minos = state == PLAYING || state == RETRY || state == WIN,
+      .timer_running = al_get_timer_started(timer),
+  };
+
   switch (state)
   {
   case INIT:
-    field_draw(false);
-    hud_draw(false);
+    field_draw(data.show_minos);
+    hud_draw(&data);
     break;
   case PREROLL:
-    field_draw(false);
-    hud_draw(false);
+    field_draw(data.show_minos);
+    hud_draw(&data);
     draw_preroll();
     break;
   case PLAYING:
-    field_draw(true);
+    field_draw(data.show_minos);
     player_draw();
-    hud_draw(true);
+    hud_draw(&data);
     break;
   case PAUSED:
-    field_draw(false);
-    hud_draw(false);
+    field_draw(data.show_minos);
+    hud_draw(&data);
     al_draw_filled_rectangle(0, 0, BUFFER_W, BUFFER_H, al_map_rgba_f(0, 0, 0, 0.5));
     menu_draw(&pause_menu);
     break;
   case RETRY:
-    field_draw(true);
-    hud_draw(true);
+    field_draw(data.show_minos);
+    hud_draw(&data);
     al_draw_filled_rectangle(0, 0, BUFFER_W, BUFFER_H, al_map_rgba_f(0, 0, 0, 0.5));
     menu_draw(&retry_menu);
     break;
   case WIN:
-    field_draw(true);
-    hud_draw(true);
+    field_draw(data.show_minos);
+    hud_draw(&data);
     al_draw_filled_rectangle(0, 0, BUFFER_W, BUFFER_H, al_map_rgba_f(0, 0, 0, 0.5));
     menu_draw(&win_menu);
     break;
@@ -309,6 +321,11 @@ static ALLEGRO_TIMER *create_preroll_timer(void)
   return al_create_timer(PREROLL_RESOLUTION);
 }
 
+static ALLEGRO_TIMER *create_ultra_timer(void)
+{
+  return al_create_timer(1.0);
+}
+
 static void draw_preroll(void)
 {
   int countdown = 3 - al_get_timer_count(preroll) / PREROLL_STEPS;
@@ -331,6 +348,7 @@ static void reset_game_state(MODE newMode)
   field_init();
   hud_init();
   player_init(&player_callback);
+  al_set_timer_count(timer, 0);
 }
 
 static void check_win_conditions(void)
@@ -341,15 +359,16 @@ static void check_win_conditions(void)
   switch (mode)
   {
   case MARATHON:
-    if (level_get() >= 15)
+    if (level_get() >= MAX_MARATHON_LEVEL)
       state = WIN;
     break;
   case SPRINT:
-    if (lines_cleared_get() >= 40)
+    if (lines_cleared_get() >= MAX_SPRINT_LINES)
       state = WIN;
     break;
   case ULTRA:
-    // TODO: add check for ultra timer
+    if (al_get_timer_count(timer) >= MAX_ULTRA_SECONDS)
+      state = WIN;
     break;
   case ENDLESS:
     // no win conditions

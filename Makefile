@@ -7,10 +7,13 @@ OUT=tetris
 
 all: tetris
 
+run: tetris
+	./tetris
+
 clean:
 	rm -f $(OBJ)/*.o $(OUT)
 
-.PHONE: all clean
+.PHONY: all clean run
 
 $(OUT): $(SRC)/tetris.c $(OBJ)/utils.o $(OBJ)/display.o $(OBJ)/keyboard.o $(OBJ)/field.o $(OBJ)/player.o $(OBJ)/score.o $(OBJ)/audio.o $(OBJ)/randomiser.o $(OBJ)/mino.o $(OBJ)/hud.o $(OBJ)/game.o $(OBJ)/menu.o $(OBJ)/asset_loader.o $(OBJ)/main_menu.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LFLAGS)
