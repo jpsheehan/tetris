@@ -304,7 +304,7 @@ void game_show_bonus(BONUS bonus)
   case PERFECT_CLEAR_DOUBLE:
   case PERFECT_CLEAR_TRIPLE:
   case PERFECT_CLEAR_TETRIS:
-    // audio_play_sfx(SFX_PERFECT_CLEAR);
+    audio_play_sfx(SFX_PERFECT_CLEAR);
     break;
   default:
     break;

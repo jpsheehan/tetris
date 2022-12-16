@@ -42,6 +42,7 @@ void audio_init(void)
         "./resources/audio/sfx_hard_drop.ogg",
         "./resources/audio/sfx_line_clear.ogg",
         NULL,
+        NULL,
         "./resources/audio/sfx_three.ogg",
         "./resources/audio/sfx_two.ogg",
         "./resources/audio/sfx_one.ogg",
