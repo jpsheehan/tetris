@@ -229,8 +229,7 @@ bool player_lock_down(bool hard_lock)
         }
     }
 
-    if (al_get_timer_started(lock_delay))
-        al_stop_timer(lock_delay);
+    al_stop_timer(lock_delay);
 
     int max_y = -10;
     for (int i = 0; i < 4; i++)
@@ -368,6 +367,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
                     dispense_next_piece();
                 }
                 can_swap_with_held_piece = false;
+                al_stop_timer(lock_delay);
             }
             break;
         }

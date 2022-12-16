@@ -31,7 +31,7 @@ sudo apt install liballegro5-dev make
   - I think it needs to accept your first input, then wait a little bit before being sensitive
   - At the moment it is just sensitive
 - [x] Add a way to pause the game (think about blurring the stack)
-- [ ] Display a Win/Lose screen with the final score. Offer to let the user type their initials here.
+- [ ] Display a Win/Lose screen with the final score. Offer to let the user type their initials here (for high score if neccessary).
 
 ### Fluff
 - [x] Add a countdown before starting
@@ -45,10 +45,10 @@ sudo apt install liballegro5-dev make
 
 - [x] Add a menu system
 - [ ] Add more modes:
-  - [ ] sprint
-  - [ ] marathon
-  - [ ] ultra
-  - [ ] endless
+  - [ ] sprint (40 lines, leaderboard is time-based)
+  - [ ] marathon (complete level 15, 150 lines, leaderboard is score based)
+  - [ ] ultra (2 minute timed, leaderboard is score based)
+  - [ ] endless (leaderboard is score based)
 - [ ] Add highscores for each mode
 - [ ] Add options for muting sounds
 - [x] Add a retry menu after finishing the game
@@ -57,7 +57,7 @@ sudo apt install liballegro5-dev make
 
 - [x] Fix sounds dropping out from preroll... sometimes??? Usually after pausing.
   - The preroll timer was being skipped because it was counting too fast in some instances.
-- [ ] We appear to do too much in the input loop for the game (MIGHT NOT BE AN ISSUE ANYMORE)
+- [x] We appear to do too much in the input loop for the game (MIGHT NOT BE AN ISSUE ANYMORE)
 
 ### CI/CD
 

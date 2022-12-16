@@ -43,6 +43,7 @@ long score_get(void)
 
 int level_get(void)
 {
+    return 20;
     return total_lines / 10 + 1;
 }
 
