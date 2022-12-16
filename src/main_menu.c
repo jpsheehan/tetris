@@ -130,7 +130,7 @@ static MENU debug_perfect_clear_menu = {
 };
 static MENU debug_tspin_menu = {
     .title = "Debug: T-Spin",
-    .n_opts = 5,
+    .n_opts = 4,
     .opts = {
         "T-Spin Single",
         "T-Spin Double",
@@ -144,10 +144,9 @@ static MENU debug_tspin_menu = {
 };
 static MENU debug_tspin_mini_menu = {
     .title = "Debug: T-Spin Mini",
-    .n_opts = 5,
+    .n_opts = 2,
     .opts = {
         "T-Spin Mini Single",
-        "T-Spin Mini Double",
         "Back",
     },
     .x = BUFFER_W / 2,
@@ -327,7 +326,6 @@ typedef enum DEBUG_TEST
     D_TSPIN_DOUBLE,
     D_TSPIN_TRIPLE,
     D_TSPIN_MINI_SINGLE,
-    D_TSPIN_MINI_DOUBLE,
 } DEBUG_TEST;
 
 static PIECE debug_bag[][7] = {
@@ -451,19 +449,9 @@ static PIECE debug_bag[][7] = {
         T,
         T,
     },
-    {
-        // T-Spin Mini Double
-        T,
-        T,
-        T,
-        T,
-        T,
-        T,
-        T,
-    },
 };
 
-/* NOTE: These fields are being described upside-down. */
+/* NOTE: These fields are being described upside-down and mirrored */
 static u_int16_t debug_fields[][20] = {
     {
         // line clear single
@@ -538,10 +526,7 @@ static u_int16_t debug_fields[][20] = {
         0b0011000100,
         0b0001100000,
     },
-    {
-        // T-Spin Mini Double
-        // TODO
-    }};
+};
 
 void debug_load_custom_level(DEBUG_TEST test)
 {
@@ -618,7 +603,7 @@ void debug_line_clear_callback(int idx)
         debug_load_custom_level(D_LINE_CLEAR_TETRIS);
         break;
     default:
-        safe_exit("Invalid debug menu index", 1);
+        safe_exit("Invalid debug line clear menu index", 1);
         break;
     }
 }
@@ -649,7 +634,7 @@ void debug_perfect_clear_callback(int idx)
         debug_load_custom_level(D_PERFECT_CLEAR_TETRIS);
         break;
     default:
-        safe_exit("Invalid debug menu index", 1);
+        safe_exit("Invalid debug perfect clear menu index", 1);
         break;
     }
 }
@@ -676,7 +661,7 @@ void debug_tspin_callback(int idx)
         debug_load_custom_level(D_TSPIN_TRIPLE);
         break;
     default:
-        safe_exit("Invalid debug menu index", 1);
+        safe_exit("Invalid debug tspin menu index", 1);
         break;
     }
 }
@@ -685,7 +670,7 @@ void debug_tspin_mini_callback(int idx)
 {
     switch (idx)
     {
-    case 2:
+    case 1:
     case -1:
         debug_tspin_mini_menu.idx = 0;
         state = DEBUG;
@@ -694,12 +679,8 @@ void debug_tspin_mini_callback(int idx)
         // single
         debug_load_custom_level(D_TSPIN_MINI_SINGLE);
         break;
-    case 1:
-        // double
-        debug_load_custom_level(D_TSPIN_MINI_DOUBLE);
-        break;
     default:
-        safe_exit("Invalid debug menu index", 1);
+        safe_exit("Invalid debug tspin-mini menu index", 1);
         break;
     }
 }

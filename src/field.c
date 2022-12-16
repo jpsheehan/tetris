@@ -156,9 +156,6 @@ void field_update(void)
             case 1:
                 game_show_bonus(TSPIN_MINI_SINGLE);
                 break;
-            case 2:
-                game_show_bonus(TSPIN_MINI_DOUBLE);
-                break;
             default:
                 safe_exit("Invalid number of lines cleared for tspin mini", 1);
                 break;

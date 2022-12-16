@@ -316,7 +316,6 @@ void game_show_bonus(BONUS bonus)
     break;
   case TSPIN_MINI_SINGLE_NO_LINES:
   case TSPIN_MINI_SINGLE:
-  case TSPIN_MINI_DOUBLE:
     audio_play_sfx(SFX_TSPIN_MINI);
     break;
   case TSPIN_SINGLE_NO_LINES:

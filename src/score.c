@@ -51,9 +51,6 @@ void score_add(BONUS bonus)
     case TSPIN_MINI_SINGLE:
         score += level_get() * 200;
         break;
-    case TSPIN_MINI_DOUBLE:
-        score += level_get() * 400;
-        break;
     case TSPIN_SINGLE_NO_LINES:
         score += level_get() * 400;
         break;
