@@ -11,6 +11,7 @@ typedef struct HUD_UPDATE_DATA
     int timer_count;
     bool timer_running;
     bool show_minos;
+    BONUS bonus;
 } HUD_UPDATE_DATA;
 
 void hud_init(void);

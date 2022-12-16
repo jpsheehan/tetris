@@ -1,7 +1,7 @@
+#include <math.h>
+
 #include "score.h"
 #include "utils.h"
-
-#include <math.h>
 
 static long score;
 static int total_lines;
@@ -12,28 +12,31 @@ void score_init(void)
     total_lines = 0;
 }
 
-void score_add_cleared_lines(int lines_cleared)
+void score_add(BONUS bonus)
 {
     // https://tetris.fandom.com/wiki/Scoring#Guideline_scoring_system
-    switch (lines_cleared)
+    switch (bonus)
     {
-    case 1:
-        score += lines_cleared * 100;
+    case SINGLE:
+        score += level_get() * 100;
+        total_lines += 1;
         break;
-    case 2:
-        score += lines_cleared * 300;
+    case DOUBLE:
+        score += level_get() * 300;
+        total_lines += 2;
         break;
-    case 3:
-        score += lines_cleared * 500;
+    case TRIPLE:
+        score += level_get() * 500;
+        total_lines += 3;
         break;
-    case 4:
-        score += lines_cleared * 800;
+    case TETRIS:
+        score += level_get() * 800;
+        total_lines += 4;
         break;
     default:
-        return;
+        safe_exit("Invalid bonus", 1);
+        break;
     }
-
-    total_lines += lines_cleared;
 }
 
 long score_get(void)

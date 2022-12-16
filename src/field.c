@@ -4,6 +4,7 @@
 #include "field.h"
 #include "score.h"
 #include "audio.h"
+#include "utils.h"
 
 static CELL field[FIELD_H][FIELD_W] = {0};
 
@@ -60,6 +61,7 @@ void clear_row(int j)
 void field_update(void)
 {
     int num_rows_cleared = 0;
+    bool is_perfect_clear = true;
 
     for (int j = 0; j < FIELD_H; j++)
     {
@@ -71,6 +73,8 @@ void field_update(void)
                 row_is_cleared = false;
                 break;
             }
+            else
+                is_perfect_clear = false;
         }
 
         if (row_is_cleared)
@@ -83,8 +87,46 @@ void field_update(void)
 
     if (num_rows_cleared > 0)
     {
-        score_add_cleared_lines(num_rows_cleared);
-        audio_play_sfx(SFX_LINE_CLEAR);
+        switch (num_rows_cleared)
+        {
+        case 1:
+            game_show_bonus(SINGLE);
+            break;
+        case 2:
+            game_show_bonus(DOUBLE);
+            break;
+        case 3:
+            game_show_bonus(TRIPLE);
+            break;
+        case 4:
+            game_show_bonus(TETRIS);
+            break;
+        default:
+            safe_exit("Invalid number of lines cleared", 1);
+            break;
+        }
+
+        if (is_perfect_clear)
+        {
+            switch (num_rows_cleared)
+            {
+            case 1:
+                game_show_bonus(PERFECT_CLEAR_SINGLE);
+                break;
+            case 2:
+                game_show_bonus(PERFECT_CLEAR_DOUBLE);
+                break;
+            case 3:
+                game_show_bonus(PERFECT_CLEAR_TRIPLE);
+                break;
+            case 4:
+                game_show_bonus(PERFECT_CLEAR_TETRIS);
+                break;
+            default:
+                safe_exit("Invalid number of lines cleared", 1);
+                break;
+            }
+        }
     }
 }
 

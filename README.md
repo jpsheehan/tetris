@@ -23,7 +23,7 @@ sudo apt install liballegro5-dev make
 - [x] Restore the "remaining lines" text
 - [x] Add a "lines cleared" text
 - [x] Add a locking delay for soft locking
-- [ ] Add a timer to the HUD
+- [x] Add a timer to the HUD
 - [ ] Detect T-Spins for scoring
 - [ ] Detect combos for scoring
 - [x] Detect lock-out (locking down above the play area)

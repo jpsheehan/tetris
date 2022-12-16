@@ -60,6 +60,17 @@ void hud_update(void)
     }
 }
 
+static char* bonus_words[] = {
+    "Single",
+    "Double",
+    "Triple",
+    "Tetris",
+    "Perfect Clear",
+    "Perfect Clear Double",
+    "Perfect Clear Triple",
+    "Perfect Clear Tetris"
+};
+
 void hud_draw(HUD_UPDATE_DATA *pData)
 {
     draw_score();
@@ -76,6 +87,12 @@ void hud_draw(HUD_UPDATE_DATA *pData)
     {
         int seconds_to_show = pData->mode == ULTRA ? MAX_ULTRA_SECONDS - pData->timer_count : pData->timer_count;
         al_draw_textf(font, al_map_rgb_f(1, 1, 1), 30, 90, 0, "%02d:%02d", seconds_to_show / 60, seconds_to_show % 60);
+    }
+
+    if (pData->bonus >= 0 && pData->bonus < BONUS_MAX)
+    {
+        char* bonus_text = bonus_words[pData->bonus];
+        al_draw_textf(font, al_map_rgb_f(1, 1, 1), 30, 110, 0, "%s!", bonus_text);
     }
 }
 

@@ -14,6 +14,8 @@
 #include "audio.h"
 #include "asset_loader.h"
 
+#define ASSERT_BONUS(bonus) ASSERT_RANGE(bonus, 0, BONUS_MAX, "bonus")
+
 #define PREROLL_STEPS 60
 #define PREROLL_RESOLUTION (1.0 / PREROLL_STEPS)
 
@@ -35,9 +37,12 @@ static void draw_preroll(void);
 static void player_callback(void);
 static ALLEGRO_TIMER *create_preroll_timer(void);
 static ALLEGRO_TIMER *create_ultra_timer(void);
+static ALLEGRO_TIMER *create_bonus_timer(void);
 static void reset_game_state(MODE newMode);
 static void check_win_conditions(void);
 
+static BONUS current_bonus = BONUS_MAX;
+static ALLEGRO_TIMER *bonus_timer = NULL;
 static MODE mode;
 static void (*callback)(void) = NULL;
 static int sfx_played = 0b0000;
@@ -91,6 +96,12 @@ static void game_init(void)
   {
     timer = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_ultra_timer);
     must_init(timer, "ultra timer");
+  }
+
+  if (bonus_timer == NULL)
+  {
+    bonus_timer = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_bonus_timer);
+    must_init(timer, "bonus timer");
   }
 
   if (font == NULL)
@@ -168,11 +179,16 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
       state = PLAYING;
       audio_turn_music_up();
       al_start_timer(timer);
+      if (current_bonus != BONUS_MAX)
+      {
+        al_start_timer(bonus_timer);
+      }
     }
     else if (pEvent->type == ALLEGRO_EVENT_KEY_DOWN && pEvent->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
     {
       al_stop_timer(preroll);
       al_stop_timer(timer);
+      al_stop_timer(bonus_timer);
       state = PAUSED;
       audio_turn_music_down();
     }
@@ -181,6 +197,7 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
     if (pEvent->type == ALLEGRO_EVENT_KEY_DOWN && pEvent->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
     {
       al_stop_timer(timer);
+      al_stop_timer(bonus_timer);
       state = PAUSED;
       audio_turn_music_down();
     }
@@ -196,15 +213,23 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
     break;
   case RETRY:
     al_stop_timer(timer);
+    al_stop_timer(bonus_timer);
     menu_update(&retry_menu, pEvent);
     break;
   case WIN:
     al_stop_timer(timer);
+    al_stop_timer(bonus_timer);
     menu_update(&win_menu, pEvent);
     break;
   default:
     safe_exit("Invalid game state", 1);
     break;
+  }
+
+  if (current_bonus != BONUS_MAX && al_get_timer_count(bonus_timer) >= 1 && al_get_timer_started(bonus_timer))
+  {
+    al_stop_timer(bonus_timer);
+    current_bonus = BONUS_MAX;
   }
 
   hud_update();
@@ -217,6 +242,7 @@ void game_draw(void)
       .timer_count = timer == NULL ? 0 : (int)al_get_timer_count(timer),
       .show_minos = state == PLAYING || state == RETRY || state == WIN,
       .timer_running = al_get_timer_started(timer),
+      .bonus = current_bonus,
   };
 
   switch (state)
@@ -257,6 +283,36 @@ void game_draw(void)
     safe_exit("Invalid game state", 1);
     break;
   }
+}
+
+void game_show_bonus(BONUS bonus)
+{
+  ASSERT_BONUS(bonus);
+
+  score_add(bonus);
+  current_bonus = bonus;
+
+  switch (bonus)
+  {
+  case SINGLE:
+  case DOUBLE:
+  case TRIPLE:
+  case TETRIS:
+    audio_play_sfx(SFX_LINE_CLEAR);
+    break;
+  case PERFECT_CLEAR_SINGLE:
+  case PERFECT_CLEAR_DOUBLE:
+  case PERFECT_CLEAR_TRIPLE:
+  case PERFECT_CLEAR_TETRIS:
+    // audio_play_sfx(SFX_PERFECT_CLEAR);
+    break;
+  default:
+    break;
+  }
+
+  al_stop_timer(bonus_timer);
+  al_set_timer_count(bonus_timer, 0);
+  al_start_timer(bonus_timer);
 }
 
 static void pause_menu_callback(int option)
@@ -324,6 +380,11 @@ static ALLEGRO_TIMER *create_preroll_timer(void)
 static ALLEGRO_TIMER *create_ultra_timer(void)
 {
   return al_create_timer(1.0);
+}
+
+static ALLEGRO_TIMER *create_bonus_timer(void)
+{
+  return al_create_timer(2.0);
 }
 
 static void draw_preroll(void)
