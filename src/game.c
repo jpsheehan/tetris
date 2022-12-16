@@ -28,11 +28,15 @@ typedef enum GAME_STATE
   RETRY,
   WIN,
   DEFEAT,
+  CONFIRM,
 } GAME_STATE;
 
 static void win_menu_callback(int option);
 static void pause_menu_callback(int option);
 static void retry_menu_callback(int option);
+static void confirm_menu_callback(int option);
+static void show_confirm_restart(void);
+static void show_confirm_abandon(void);
 static void draw_preroll(void);
 static void player_callback(void);
 static ALLEGRO_TIMER *create_preroll_timer(void);
@@ -55,13 +59,16 @@ static ALLEGRO_TIMER *preroll = NULL;
 static ALLEGRO_TIMER *timer = NULL;
 static ALLEGRO_FONT *font = NULL;
 static GAME_STATE state = INIT;
+static char *CONFIRM_RESTART = "Really restart this game?";
+static char *CONFIRM_ABANDON = "Really abandon this game?";
 static MENU pause_menu = {
     .title = "Paused",
-    .n_opts = 2,
+    .n_opts = 3,
     .x = BUFFER_W / 2,
     .y = 50,
     .opts = {
         "Continue",
+        "Restart",
         "Abandon"},
     .idx = 0,
     .callback = &pause_menu_callback,
@@ -87,6 +94,18 @@ static MENU win_menu = {
     },
     .idx = 0,
     .callback = &win_menu_callback,
+};
+static MENU confirm_menu = {
+    .title = NULL,
+    .n_opts = 2,
+    .x = BUFFER_W / 2,
+    .y = 50,
+    .opts = {
+        "Yes",
+        "No",
+    },
+    .idx = 1,
+    .callback = &confirm_menu_callback,
 };
 
 static void game_init(void)
@@ -229,6 +248,9 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
     al_stop_timer(bonus_timer);
     menu_update(&win_menu, pEvent);
     break;
+  case CONFIRM:
+    menu_update(&confirm_menu, pEvent);
+    break;
   default:
     safe_exit("Invalid game state", 1);
     break;
@@ -287,6 +309,12 @@ void game_draw(void)
     al_draw_filled_rectangle(0, 0, BUFFER_W, BUFFER_H, al_map_rgba_f(0, 0, 0, 0.5));
     menu_draw(&win_menu);
     break;
+  case CONFIRM:
+    field_draw(data.show_minos);
+    hud_draw(&data);
+    al_draw_filled_rectangle(0, 0, BUFFER_W, BUFFER_H, al_map_rgba_f(0, 0, 0, 0.5));
+    menu_draw(&confirm_menu);
+    break;
   default:
     safe_exit("Invalid game state", 1);
     break;
@@ -342,11 +370,11 @@ static void pause_menu_callback(int option)
     state = INIT;
     pause_menu.idx = 0;
     break;
-  case 1: // abandon game
-    al_stop_timer(bonus_timer);
-    current_bonus = BONUS_MAX;
-    pause_menu.idx = 0;
-    callback();
+  case 1:
+    show_confirm_restart();
+    break;
+  case 2:
+    show_confirm_abandon();
     break;
   default:
     safe_exit("Invalid pause menu option", 1);
@@ -424,6 +452,7 @@ static void reset_game_state(MODE newMode)
 {
   state = INIT;
   mode = newMode;
+  current_bonus = BONUS_MAX;
 
   randomiser_init();
   score_init();
@@ -490,4 +519,50 @@ static void enter_state_paused(void)
   al_stop_timer(bonus_timer);
   state = PAUSED;
   audio_turn_music_down();
+}
+
+static void confirm_menu_callback(int option)
+{
+  switch (option)
+  {
+  case 0: // YES
+    if (confirm_menu.title == CONFIRM_RESTART)
+    {
+      game_init();
+      reset_game_state(mode);
+    }
+    else if (confirm_menu.title == CONFIRM_ABANDON)
+    {
+      al_stop_timer(bonus_timer);
+      current_bonus = BONUS_MAX;
+      pause_menu.idx = 0;
+      callback();
+    }
+    else
+    {
+      safe_exit("Invalid confirm_menu.title", 1);
+    }
+    break;
+  case 1:
+  case -1: // NO
+    state = PAUSED;
+    break;
+  default:
+    safe_exit("Invalid confirm menu callback index", 1);
+    break;
+  }
+}
+
+static void show_confirm_restart(void)
+{
+  confirm_menu.idx = 1;
+  confirm_menu.title = CONFIRM_RESTART;
+  state = CONFIRM;
+}
+
+static void show_confirm_abandon(void)
+{
+  confirm_menu.idx = 1;
+  confirm_menu.title = CONFIRM_ABANDON;
+  state = CONFIRM;
 }

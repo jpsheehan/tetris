@@ -24,7 +24,7 @@ sudo apt install liballegro5-dev make
 - [x] Add a "lines cleared" text
 - [x] Add a locking delay for soft locking
 - [x] Add a timer to the HUD
-- [ ] Detect T-Spins for scoring
+- [x] Detect T-Spins for scoring
 - [ ] Detect combos for scoring
 - [x] Detect perfect clears for scoring
 - [x] Detect lock-out (locking down above the play area)
@@ -53,7 +53,8 @@ sudo apt install liballegro5-dev make
   - [x] marathon (complete level 15, 150 lines, leaderboard is score based)
   - [x] ultra (2 minute timed, leaderboard is score based)
   - [x] endless (leaderboard is score based)
-- [ ] Add pause-menu option to restart
+- [x] Add pause-menu option to restart
+- [x] Offer confirmations for restart and and abandon
 - [ ] Add highscores for each mode
 - [ ] Add options for muting sounds
 - [x] Add a retry menu after finishing the game
