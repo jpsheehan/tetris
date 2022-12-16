@@ -35,6 +35,7 @@ sudo apt install liballegro5-dev make
 
 ### Fluff
 - [x] Add a countdown before starting
+- [x] Smooth out the preroll (we have 60 fps, let's use it!)
 - [ ] Add some background graphics (maybe this could be based on the level?)
 - [ ] Add a sound effect for when rotation fails
 - [ ] Add a sound effect for leveling up
@@ -56,7 +57,7 @@ sudo apt install liballegro5-dev make
 
 - [x] Fix sounds dropping out from preroll... sometimes??? Usually after pausing.
   - The preroll timer was being skipped because it was counting too fast in some instances.
-- [ ] We appear to do too much in the input loop for the game
+- [ ] We appear to do too much in the input loop for the game (MIGHT NOT BE AN ISSUE ANYMORE)
 
 ### CI/CD
 

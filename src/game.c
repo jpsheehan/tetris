@@ -14,7 +14,7 @@
 #include "audio.h"
 #include "asset_loader.h"
 
-#define PREROLL_STEPS 20
+#define PREROLL_STEPS 60
 #define PREROLL_RESOLUTION (1.0 / PREROLL_STEPS)
 
 typedef enum GAME_STATE
@@ -127,22 +127,22 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
     break;
   case PREROLL:
     preroll_count = al_get_timer_count(preroll);
-    if (preroll_count == (int)(0.3 / PREROLL_RESOLUTION) && !(sfx_played & 0b0001))
+    if (preroll_count >= (int)(0.3 / PREROLL_RESOLUTION) && !(sfx_played & 0b0001))
     {
       audio_play_sfx(SFX_THREE);
       sfx_played |= 0b0001;
     }
-    else if (preroll_count == (int)(1.3 / PREROLL_RESOLUTION) && !(sfx_played & 0b0010))
+    else if (preroll_count >= (int)(1.3 / PREROLL_RESOLUTION) && !(sfx_played & 0b0010))
     {
       audio_play_sfx(SFX_TWO);
       sfx_played |= 0b0010;
     }
-    else if (preroll_count == (int)(2.3 / PREROLL_RESOLUTION) && !(sfx_played & 0b0100))
+    else if (preroll_count >= (int)(2.3 / PREROLL_RESOLUTION) && !(sfx_played & 0b0100))
     {
       audio_play_sfx(SFX_ONE);
       sfx_played |= 0b0100;
     }
-    else if (preroll_count == (int)(3.3 / PREROLL_RESOLUTION) && !(sfx_played & 0b1000))
+    else if (preroll_count >= (int)(3.3 / PREROLL_RESOLUTION) && !(sfx_played & 0b1000))
     {
       audio_play_sfx(SFX_GO);
       sfx_played |= 0b1000;
