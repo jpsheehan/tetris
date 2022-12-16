@@ -17,6 +17,8 @@ static char *filenames[SFX_MAX] = {
     "./resources/audio/sfx_line_clear.ogg",
     NULL,
     NULL,
+    NULL,
+    NULL,
     "./resources/audio/sfx_three.ogg",
     "./resources/audio/sfx_two.ogg",
     "./resources/audio/sfx_one.ogg",

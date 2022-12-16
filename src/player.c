@@ -11,14 +11,20 @@
 #include "score.h"
 #include "asset_loader.h"
 
+static void (*callback)(void);
+static TSPIN get_tspin(void);
+
 static PLAYER player;
 static PIECE held_piece;
 static bool can_swap_with_held_piece;
 static ALLEGRO_FONT *font = NULL;
 static ALLEGRO_TIMER *lock_delay = NULL;
-static void (*callback)(void);
+static TSPIN tspin_state = TS_NONE;
 
-bool player_collides_with_cell(PLAYER *p)
+static bool was_last_move_a_rotation = false;
+static int last_kick_index = -1;
+
+static bool player_collides_with_cell(PLAYER *p)
 {
     ASSERT_PIECE(p->piece);
     ASSERT_ROTATION(p->rotation);
@@ -36,7 +42,7 @@ bool player_collides_with_cell(PLAYER *p)
     return false;
 }
 
-void dispense_specific_piece(PIECE piece)
+static void dispense_specific_piece(PIECE piece)
 {
     player.piece = piece;
     player.x = (FIELD_W - 4) / 2;
@@ -50,7 +56,7 @@ void dispense_specific_piece(PIECE piece)
     }
 }
 
-void dispense_next_piece()
+static void dispense_next_piece()
 {
     al_stop_timer(lock_delay);
     dispense_specific_piece(randomiser_next());
@@ -60,6 +66,11 @@ void dispense_next_piece()
 static ALLEGRO_TIMER *create_lock_delay_timer(void)
 {
     return al_create_timer(0.5);
+}
+
+TSPIN player_get_tspin_state(void)
+{
+    return tspin_state;
 }
 
 void player_init(void (*cb)(void))
@@ -79,6 +90,8 @@ void player_init(void (*cb)(void))
     }
 
     held_piece = PIECE_MAX;
+    was_last_move_a_rotation = false;
+    last_kick_index = -1;
     dispense_next_piece();
 }
 
@@ -131,11 +144,14 @@ bool player_rotate(PLAYER *p, bool ccw)
     int initial_rotation = p->rotation;
     int initial_x = p->x;
     int initial_y = p->y;
+    last_kick_index = -1;
 
     p->rotation = (p->rotation + (ccw ? 3 : 1)) % 4;
 
     if (player_is_in_bounds(p) && !player_collides_with_cell(p))
+    {
         return true;
+    }
 
     POINT *kicks = mino_get_kick_data(p->piece, initial_rotation, false);
     if (kicks == NULL)
@@ -151,7 +167,10 @@ bool player_rotate(PLAYER *p, bool ccw)
         p->y = initial_y + kick.y;
 
         if (player_is_in_bounds(p) && !player_collides_with_cell(p))
+        {
+            last_kick_index = i;
             return true;
+        }
     }
 
     p->rotation = initial_rotation;
@@ -249,13 +268,17 @@ bool player_lock_down(bool hard_lock)
         callback();
     }
 
+    tspin_state = get_tspin();
+
     return true;
 }
 
 void player_update(ALLEGRO_EVENT *event, int frames)
 {
+    tspin_state = TS_NONE;
     if (frames % max((int)((double)FPS * gravity_get()), 1) == 0) // each second
     {
+        // GRAVITY
         if (player_can_move_down(&player))
         {
             player_move_down(&player);
@@ -277,6 +300,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         {
             if (player_can_move_left(&player))
             {
+                was_last_move_a_rotation = false;
                 player_move_left(&player);
                 if (al_get_timer_started(lock_delay))
                 {
@@ -290,6 +314,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         {
             if (player_can_move_right(&player))
             {
+                was_last_move_a_rotation = false;
                 player_move_right(&player);
                 if (al_get_timer_started(lock_delay))
                 {
@@ -301,6 +326,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         // SOFT DROP
         if (keyboard_is_pressed(ALLEGRO_KEY_DOWN))
         {
+            was_last_move_a_rotation = false;
             if (player_can_move_down(&player))
             {
                 player_move_down(&player);
@@ -324,6 +350,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         case ALLEGRO_KEY_X:
             if (player_rotate_cw(&player))
             {
+                was_last_move_a_rotation = true;
                 if (al_get_timer_started(lock_delay))
                 {
                     reset_lock_delay();
@@ -334,6 +361,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         case ALLEGRO_KEY_Z:
             if (player_rotate_ccw(&player))
             {
+                was_last_move_a_rotation = true;
                 if (al_get_timer_started(lock_delay))
                 {
                     reset_lock_delay();
@@ -342,6 +370,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
             }
             break;
         case ALLEGRO_KEY_UP: // SONIC DROP
+            was_last_move_a_rotation = false;
             while (player_can_move_down(&player))
             {
                 player_move_down(&player);
@@ -355,6 +384,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         case ALLEGRO_KEY_SPACE: // SWAP
             if (can_swap_with_held_piece)
             {
+                was_last_move_a_rotation = false;
                 if (held_piece >= 0 && held_piece < PIECE_MAX)
                 {
                     PIECE temp = held_piece;
@@ -402,4 +432,63 @@ void player_draw()
 PIECE player_get_held_piece(void)
 {
     return held_piece;
+}
+
+static TSPIN get_tspin(void)
+{
+    // https://tetris.wiki/T-Spin#Current_rules
+    if (player.piece == T && was_last_move_a_rotation)
+    {
+        int corners_filled = 0;
+        int front_corners_filled = 0;
+
+        if (field_get_used_or_default(player.x, player.y, true)) corners_filled++;
+        if (field_get_used_or_default(player.x+2, player.y, true)) corners_filled++;
+        if (field_get_used_or_default(player.x, player.y+2, true)) corners_filled++;
+        if (field_get_used_or_default(player.x+2, player.y+2, true)) corners_filled++;
+
+        switch (player.rotation)
+        {
+            case 0:
+                if (field_get_used_or_default(player.x, player.y, true)) front_corners_filled++;
+                if (field_get_used_or_default(player.x+2, player.y, true)) front_corners_filled++;
+                break;
+            case 1:
+                if (field_get_used_or_default(player.x+2, player.y, true)) front_corners_filled++;
+                if (field_get_used_or_default(player.x+2, player.y+2, true)) front_corners_filled++;
+                break;
+            case 2:
+                if (field_get_used_or_default(player.x, player.y+2, true)) front_corners_filled++;
+                if (field_get_used_or_default(player.x+2, player.y+2, true)) front_corners_filled++;
+                break;
+            case 3:
+                if (field_get_used_or_default(player.x, player.y, true)) front_corners_filled++;
+                if (field_get_used_or_default(player.x, player.y+2, true)) front_corners_filled++;
+                break;
+        }
+
+        if (corners_filled >= 3)
+        {
+            if (front_corners_filled == 2)
+            {
+                // proper
+                return TS_PROPER;
+            }
+            else
+            {
+                if (last_kick_index == 3)
+                {
+                    // proper
+                    return TS_PROPER;
+                }
+                else
+                {
+                    // mini
+                    return TS_MINI;
+                }
+            }
+        }
+    }
+
+    return TS_NONE;
 }

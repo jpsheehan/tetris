@@ -65,10 +65,17 @@ static char* bonus_words[] = {
     "Double",
     "Triple",
     "Tetris",
+    "T-Spin",
+    "T-Spin",
+    "T-Spin Mini",
+    "T-Spin Mini",
+    "T-Spin Double",
+    "T-Spin Mini Double",
+    "T-Spin Triple",
     "Perfect Clear",
     "Perfect Clear Double",
     "Perfect Clear Triple",
-    "Perfect Clear Tetris"
+    "Perfect Clear Tetris",
 };
 
 void hud_draw(HUD_UPDATE_DATA *pData)

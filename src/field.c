@@ -5,6 +5,7 @@
 #include "score.h"
 #include "audio.h"
 #include "utils.h"
+#include "player.h"
 
 static CELL field[FIELD_H][FIELD_W] = {0};
 
@@ -86,25 +87,8 @@ void field_update(void)
 
     if (num_rows_cleared > 0)
     {
-        switch (num_rows_cleared)
-        {
-        case 1:
-            game_show_bonus(SINGLE);
-            break;
-        case 2:
-            game_show_bonus(DOUBLE);
-            break;
-        case 3:
-            game_show_bonus(TRIPLE);
-            break;
-        case 4:
-            game_show_bonus(TETRIS);
-            break;
-        default:
-            safe_exit("Invalid number of lines cleared", 1);
-            break;
-        }
 
+        // perfect clear points are bonus points and always awarded
         if (is_perfect_clear())
         {
             switch (num_rows_cleared)
@@ -125,6 +109,75 @@ void field_update(void)
                 safe_exit("Invalid number of lines cleared", 1);
                 break;
             }
+        }
+
+        switch (player_get_tspin_state())
+        {
+        case TS_NONE:
+            switch (num_rows_cleared)
+            {
+            case 1:
+                game_show_bonus(SINGLE);
+                break;
+            case 2:
+                game_show_bonus(DOUBLE);
+                break;
+            case 3:
+                game_show_bonus(TRIPLE);
+                break;
+            case 4:
+                game_show_bonus(TETRIS);
+                break;
+            default:
+                safe_exit("Invalid number of lines cleared", 1);
+                break;
+            }
+            break;
+        case TS_PROPER:
+            switch (num_rows_cleared)
+            {
+            case 1:
+                game_show_bonus(TSPIN_SINGLE);
+                break;
+            case 2:
+                game_show_bonus(TSPIN_DOUBLE);
+                break;
+            case 3:
+                game_show_bonus(TSPIN_TRIPLE);
+                break;
+            default:
+                safe_exit("Invalid number of lines cleared for tspin proper", 1);
+                break;
+            }
+            break;
+        case TS_MINI:
+            switch (num_rows_cleared)
+            {
+            case 1:
+                game_show_bonus(TSPIN_MINI_SINGLE);
+                break;
+            case 2:
+                game_show_bonus(TSPIN_MINI_DOUBLE);
+                break;
+            default:
+                safe_exit("Invalid number of lines cleared for tspin mini", 1);
+                break;
+            }
+            break;
+        }
+    }
+    else
+    {
+        switch (player_get_tspin_state())
+        {
+        case TS_PROPER:
+            game_show_bonus(TSPIN_SINGLE_NO_LINES);
+            break;
+        case TS_MINI:
+            game_show_bonus(TSPIN_MINI_SINGLE_NO_LINES);
+            break;
+        case TS_NONE:
+            break;
         }
     }
 }

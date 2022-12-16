@@ -212,7 +212,7 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
     else
     {
       player_update(pEvent, frames);
-      field_update();
+      field_update(); // must be run after player_update!
       check_win_conditions();
     }
     break;
@@ -313,6 +313,17 @@ void game_show_bonus(BONUS bonus)
   case PERFECT_CLEAR_TRIPLE:
   case PERFECT_CLEAR_TETRIS:
     audio_play_sfx(SFX_PERFECT_CLEAR);
+    break;
+  case TSPIN_MINI_SINGLE_NO_LINES:
+  case TSPIN_MINI_SINGLE:
+  case TSPIN_MINI_DOUBLE:
+    audio_play_sfx(SFX_TSPIN_MINI);
+    break;
+  case TSPIN_SINGLE_NO_LINES:
+  case TSPIN_SINGLE:
+  case TSPIN_DOUBLE:
+  case TSPIN_TRIPLE:
+    audio_play_sfx(SFX_TSPIN_PROPER);
     break;
   default:
     break;
