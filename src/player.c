@@ -10,6 +10,7 @@
 #include "randomiser.h"
 #include "score.h"
 #include "asset_loader.h"
+#include "input.h"
 
 static void (*callback)(void);
 static TSPIN get_tspin(void);
@@ -295,8 +296,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
 
     if (frames % (FPS / 10) == 0)
     {
-        // MOVE LEFT
-        if (keyboard_is_pressed(ALLEGRO_KEY_LEFT))
+        if (keyboard_is_pressed(input_get_mapping(INPUT_MOVE_LEFT)))
         {
             if (player_can_move_left(&player))
             {
@@ -310,7 +310,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         }
 
         // MOVE RIGHT
-        if (keyboard_is_pressed(ALLEGRO_KEY_RIGHT))
+        if (keyboard_is_pressed(input_get_mapping(INPUT_MOVE_RIGHT)))
         {
             if (player_can_move_right(&player))
             {
@@ -324,7 +324,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         }
 
         // SOFT DROP
-        if (keyboard_is_pressed(ALLEGRO_KEY_DOWN))
+        if (keyboard_is_pressed(input_get_mapping(INPUT_SOFT_DROP)))
         {
             was_last_move_a_rotation = false;
             if (player_can_move_down(&player))
@@ -335,7 +335,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
             {
                 if (player_lock_down(true))
                 {
-                    keyboard_reset_key(ALLEGRO_KEY_DOWN);
+                    keyboard_reset_key(input_get_mapping(INPUT_SOFT_DROP));
                     dispense_next_piece();
                     audio_play_sfx(SFX_LOCK_DOWN);
                 }
@@ -345,9 +345,8 @@ void player_update(ALLEGRO_EVENT *event, int frames)
 
     if (event->type == ALLEGRO_EVENT_KEY_DOWN)
     {
-        switch (event->keyboard.keycode)
+        if (event->keyboard.keycode == input_get_mapping(INPUT_ROTATE_CW))
         {
-        case ALLEGRO_KEY_X:
             if (player_rotate_cw(&player))
             {
                 was_last_move_a_rotation = true;
@@ -357,8 +356,9 @@ void player_update(ALLEGRO_EVENT *event, int frames)
                 }
                 audio_play_sfx(SFX_ROTATE_CW);
             }
-            break;
-        case ALLEGRO_KEY_Z:
+        }
+        else if (event->keyboard.keycode == input_get_mapping(INPUT_ROTATE_CCW))
+        {
             if (player_rotate_ccw(&player))
             {
                 was_last_move_a_rotation = true;
@@ -368,8 +368,9 @@ void player_update(ALLEGRO_EVENT *event, int frames)
                 }
                 audio_play_sfx(SFX_ROTATE_CCW);
             }
-            break;
-        case ALLEGRO_KEY_UP: // SONIC DROP
+        }
+        else if (event->keyboard.keycode == input_get_mapping(INPUT_SONIC_DROP))
+        {
             was_last_move_a_rotation = false;
             while (player_can_move_down(&player))
             {
@@ -380,8 +381,9 @@ void player_update(ALLEGRO_EVENT *event, int frames)
                 dispense_next_piece();
                 audio_play_sfx(SFX_HARD_DROP);
             }
-            break;
-        case ALLEGRO_KEY_SPACE: // SWAP
+        }
+        else if (event->keyboard.keycode == input_get_mapping(INPUT_HOLD))
+        {
             if (can_swap_with_held_piece)
             {
                 was_last_move_a_rotation = false;
@@ -399,7 +401,6 @@ void player_update(ALLEGRO_EVENT *event, int frames)
                 can_swap_with_held_piece = false;
                 al_stop_timer(lock_delay);
             }
-            break;
         }
     }
 }
@@ -442,29 +443,41 @@ static TSPIN get_tspin(void)
         int corners_filled = 0;
         int front_corners_filled = 0;
 
-        if (field_get_used_or_default(player.x, player.y, true)) corners_filled++;
-        if (field_get_used_or_default(player.x+2, player.y, true)) corners_filled++;
-        if (field_get_used_or_default(player.x, player.y+2, true)) corners_filled++;
-        if (field_get_used_or_default(player.x+2, player.y+2, true)) corners_filled++;
+        if (field_get_used_or_default(player.x, player.y, true))
+            corners_filled++;
+        if (field_get_used_or_default(player.x + 2, player.y, true))
+            corners_filled++;
+        if (field_get_used_or_default(player.x, player.y + 2, true))
+            corners_filled++;
+        if (field_get_used_or_default(player.x + 2, player.y + 2, true))
+            corners_filled++;
 
         switch (player.rotation)
         {
-            case 0:
-                if (field_get_used_or_default(player.x, player.y, true)) front_corners_filled++;
-                if (field_get_used_or_default(player.x+2, player.y, true)) front_corners_filled++;
-                break;
-            case 1:
-                if (field_get_used_or_default(player.x+2, player.y, true)) front_corners_filled++;
-                if (field_get_used_or_default(player.x+2, player.y+2, true)) front_corners_filled++;
-                break;
-            case 2:
-                if (field_get_used_or_default(player.x, player.y+2, true)) front_corners_filled++;
-                if (field_get_used_or_default(player.x+2, player.y+2, true)) front_corners_filled++;
-                break;
-            case 3:
-                if (field_get_used_or_default(player.x, player.y, true)) front_corners_filled++;
-                if (field_get_used_or_default(player.x, player.y+2, true)) front_corners_filled++;
-                break;
+        case 0:
+            if (field_get_used_or_default(player.x, player.y, true))
+                front_corners_filled++;
+            if (field_get_used_or_default(player.x + 2, player.y, true))
+                front_corners_filled++;
+            break;
+        case 1:
+            if (field_get_used_or_default(player.x + 2, player.y, true))
+                front_corners_filled++;
+            if (field_get_used_or_default(player.x + 2, player.y + 2, true))
+                front_corners_filled++;
+            break;
+        case 2:
+            if (field_get_used_or_default(player.x, player.y + 2, true))
+                front_corners_filled++;
+            if (field_get_used_or_default(player.x + 2, player.y + 2, true))
+                front_corners_filled++;
+            break;
+        case 3:
+            if (field_get_used_or_default(player.x, player.y, true))
+                front_corners_filled++;
+            if (field_get_used_or_default(player.x, player.y + 2, true))
+                front_corners_filled++;
+            break;
         }
 
         if (corners_filled >= 3)

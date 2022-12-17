@@ -1,0 +1,22 @@
+#ifndef INPUT_H_
+#define INPUT_H_
+
+typedef enum INPUT {
+    INPUT_MENU_UP,
+    INPUT_MENU_DOWN,
+    INPUT_MENU_BACK,
+    INPUT_MENU_SELECT,
+    INPUT_PAUSE,
+    INPUT_MOVE_LEFT,
+    INPUT_MOVE_RIGHT,
+    INPUT_SOFT_DROP,
+    INPUT_SONIC_DROP,
+    INPUT_HOLD,
+    INPUT_ROTATE_CW,
+    INPUT_ROTATE_CCW,
+    INPUT_MAX,
+} INPUT;
+
+int input_get_mapping(INPUT i);
+
+#endif

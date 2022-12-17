@@ -13,6 +13,7 @@
 #include "utils.h"
 #include "audio.h"
 #include "asset_loader.h"
+#include "input.h"
 
 #define ASSERT_BONUS(bonus) ASSERT_RANGE(bonus, 0, BONUS_MAX, "bonus")
 
@@ -218,13 +219,13 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
     {
       enter_state_playing();
     }
-    else if (pEvent->type == ALLEGRO_EVENT_KEY_DOWN && pEvent->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+    else if (pEvent->type == ALLEGRO_EVENT_KEY_DOWN && pEvent->keyboard.keycode == input_get_mapping(INPUT_PAUSE))
     {
       enter_state_paused();
     }
     break;
   case PLAYING:
-    if (pEvent->type == ALLEGRO_EVENT_KEY_DOWN && pEvent->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+    if (pEvent->type == ALLEGRO_EVENT_KEY_DOWN && pEvent->keyboard.keycode == input_get_mapping(INPUT_PAUSE))
     {
       enter_state_paused();
     }

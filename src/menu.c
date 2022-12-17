@@ -4,6 +4,7 @@
 #include "menu.h"
 #include "utils.h"
 #include "asset_loader.h"
+#include "input.h"
 
 ALLEGRO_FONT *font = NULL;
 
@@ -35,27 +36,28 @@ void menu_update(MENU *menu, ALLEGRO_EVENT *event)
 {
     if (event->type == ALLEGRO_EVENT_KEY_DOWN)
     {
-        switch (event->keyboard.keycode)
+        if (event->keyboard.keycode == input_get_mapping(INPUT_MENU_UP))
         {
-        case ALLEGRO_KEY_UP:
             if (menu->idx > 0)
                 menu->idx--;
-            break;
-        case ALLEGRO_KEY_DOWN:
+        }
+        else if (event->keyboard.keycode == input_get_mapping(INPUT_MENU_DOWN))
+        {
             if (menu->idx + 1 < menu->n_opts)
                 menu->idx++;
-            break;
-        case ALLEGRO_KEY_ENTER:
-            // do something
+        }
+        else if (event->keyboard.keycode == input_get_mapping(INPUT_MENU_SELECT))
+        {
             if (menu->callback == NULL)
                 safe_exit("Menu callback cannot be NULL", 1);
             menu->callback(menu->idx);
-            break;
-        case ALLEGRO_KEY_ESCAPE:
+        }
+        else if (event->keyboard.keycode == input_get_mapping(INPUT_MENU_BACK))
+        {
+
             if (menu->callback == NULL)
                 safe_exit("Menu callback cannot be NULL", 1);
             menu->callback(-1);
-            break;
         }
     }
 }

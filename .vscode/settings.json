@@ -8,6 +8,7 @@
         "utils.h": "c",
         "score.h": "c",
         "field.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "tetris.h": "c"
     }
 }
