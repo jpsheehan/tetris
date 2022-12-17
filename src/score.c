@@ -50,18 +50,22 @@ void score_add(BONUS bonus)
         break;
     case TSPIN_MINI_SINGLE:
         score += level_get() * 200;
+        total_lines += 1;
         break;
     case TSPIN_SINGLE_NO_LINES:
         score += level_get() * 400;
         break;
     case TSPIN_SINGLE:
         score += level_get() * 800;
+        total_lines += 1;
         break;
     case TSPIN_DOUBLE:
         score += level_get() * 1200;
+        total_lines += 2;
         break;
     case TSPIN_TRIPLE:
         score += level_get() * 1600;
+        total_lines += 3;
         break;
     default:
         safe_exit("Invalid bonus", 1);

@@ -87,30 +87,6 @@ void field_update(void)
 
     if (num_rows_cleared > 0)
     {
-
-        // perfect clear points are bonus points and always awarded
-        if (is_perfect_clear())
-        {
-            switch (num_rows_cleared)
-            {
-            case 1:
-                game_show_bonus(PERFECT_CLEAR_SINGLE);
-                break;
-            case 2:
-                game_show_bonus(PERFECT_CLEAR_DOUBLE);
-                break;
-            case 3:
-                game_show_bonus(PERFECT_CLEAR_TRIPLE);
-                break;
-            case 4:
-                game_show_bonus(PERFECT_CLEAR_TETRIS);
-                break;
-            default:
-                safe_exit("Invalid number of lines cleared", 1);
-                break;
-            }
-        }
-
         switch (player_get_tspin_state())
         {
         case TS_NONE:
@@ -162,6 +138,29 @@ void field_update(void)
             }
             break;
         }
+
+        // perfect clear points are bonus points and always awarded
+        if (is_perfect_clear())
+        {
+            switch (num_rows_cleared)
+            {
+            case 1:
+                game_show_bonus(PERFECT_CLEAR_SINGLE);
+                break;
+            case 2:
+                game_show_bonus(PERFECT_CLEAR_DOUBLE);
+                break;
+            case 3:
+                game_show_bonus(PERFECT_CLEAR_TRIPLE);
+                break;
+            case 4:
+                game_show_bonus(PERFECT_CLEAR_TETRIS);
+                break;
+            default:
+                safe_exit("Invalid number of lines cleared", 1);
+                break;
+            }
+        }
     }
     else
     {
@@ -189,7 +188,7 @@ void field_draw(bool show_stack)
     if (!show_stack)
         return;
 
-    for (int j = 0; j < FIELD_H; j++)
+    for (int j = FIELD_H - 1; j >= 0; j--)
         for (int i = 0; i < FIELD_W; i++)
         {
             CELL *cell = &field[j][i];

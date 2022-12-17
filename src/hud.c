@@ -70,7 +70,6 @@ static char* bonus_words[] = {
     "T-Spin Mini",
     "T-Spin Mini",
     "T-Spin Double",
-    "T-Spin Mini Double",
     "T-Spin Triple",
     "Perfect Clear",
     "Perfect Clear Double",

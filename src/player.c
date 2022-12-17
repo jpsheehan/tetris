@@ -293,7 +293,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         }
     }
 
-    if (frames % (FPS / 15) == 0)
+    if (frames % (FPS / 10) == 0)
     {
         // MOVE LEFT
         if (keyboard_is_pressed(ALLEGRO_KEY_LEFT))
