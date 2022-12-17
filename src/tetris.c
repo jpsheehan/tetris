@@ -6,6 +6,7 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 
+#include "tetris.h"
 #include "utils.h"
 #include "display.h"
 #include "keyboard.h"
@@ -13,7 +14,7 @@
 #include "game.h"
 #include "asset_loader.h"
 #include "main_menu.h"
-#include "tetris.h"
+#include "transition.h"
 
 typedef enum STATE
 {
@@ -43,6 +44,7 @@ int main()
     must_init(al_install_keyboard(), "keyboard");
 
     audio_init();
+    transition_init();
 
     must_init(al_init_primitives_addon(), "primitives");
     must_init(al_init_font_addon(), "font");
@@ -140,9 +142,9 @@ static void game_callback(void)
     state = MENU;
 }
 
-static void menu_callback(CHOICE mode)
+static void menu_callback(CHOICE choice)
 {
-    switch (mode)
+    switch (choice)
     {
     case CHOICE_EXIT:
         done = true;
@@ -169,5 +171,8 @@ static void menu_callback(CHOICE mode)
         game_init_debug(&game_callback);
         break;
 #endif
+    default:
+        safe_exit("Invalid menu choice", 1);
+        break;
     }
 }

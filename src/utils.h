@@ -23,13 +23,15 @@
 #define ASSERT_PIECE(piece) ASSERT_RANGE(piece, 0, PIECE_MAX, "piece")
 #define ASSERT_ROTATION(rot) ASSERT_RANGE(rot, 0, 4, "rotation")
 
-#ifndef min
-#define min(x, y) ((x) < (y) ? (x) : (y))
+#ifndef MIN
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
 #endif
 
-#ifndef max
-#define max(x, y) ((x) > (y) ? (x) : (y))
+#ifndef MAX
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
 #endif
+
+#define CLAMP(x, mn, mx) (MAX(MIN((x), (mx)), (mn)))
 
 void must_init(bool test, const char *description);
 void safe_exit(const char* description, int code);

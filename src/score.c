@@ -97,5 +97,5 @@ int lines_until_next_level(void)
 double gravity_get(void)
 {
     // https://tetris.fandom.com/wiki/Tetris_Worlds#Gravity
-    return pow(0.8 - ((double)(min(level_get(), 15) - 1) * 0.007), (double)(min(level_get(), 15) - 1));
+    return pow(0.8 - ((double)(MIN(level_get(), 15) - 1) * 0.007), (double)(MIN(level_get(), 15) - 1));
 }

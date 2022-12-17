@@ -4,12 +4,22 @@
 #include "display.h"
 #include "utils.h"
 #include "tetris.h"
+#include "transition.h"
+
+#define MENU_TRANSITION_TIME_S 0.20
 
 typedef enum STATE
 {
+    TRANS_TO_MAIN,
+    TRANS_FROM_MAIN,
     MAIN,
+    TRANS_TO_ARCADE,
+    TRANS_FROM_ARCADE,
     ARCADE,
+    TRANS_TO_OPTIONS,
+    TRANS_FROM_OPTIONS,
     OPTIONS,
+    MENU_CALLBACK,
 #if DEBUG_MENU
     DEBUG,
     DEBUG_LINE_CLEAR,
@@ -17,21 +27,25 @@ typedef enum STATE
     DEBUG_TSPIN,
     DEBUG_TSPIN_MINI,
 #endif
+    STATE_MAX,
 } STATE;
 
-void main_callback(int idx);
-void arcade_callback(int idx);
-void options_callback(int idx);
+static void main_callback(int idx);
+static void arcade_callback(int idx);
+static void options_callback(int idx);
 #if DEBUG_MENU
-void debug_callback(int idx);
-void debug_line_clear_callback(int idx);
-void debug_perfect_clear_callback(int idx);
-void debug_tspin_callback(int idx);
-void debug_tspin_mini_callback(int idx);
+static void debug_callback(int idx);
+static void debug_line_clear_callback(int idx);
+static void debug_perfect_clear_callback(int idx);
+static void debug_tspin_callback(int idx);
+static void debug_tspin_mini_callback(int idx);
 #endif
+static void transition_callback(void);
 
-static STATE state = MAIN;
+static STATE state = TRANS_TO_MAIN;
+static STATE next_state = STATE_MAX;
 static void (*callback)(int);
+static CHOICE game_mode = CHOICE_MAX;
 
 static MENU main_menu = {
     .title = "Tetris",
@@ -159,8 +173,9 @@ static MENU debug_tspin_mini_menu = {
 void main_menu_init(void (*cb)(CHOICE))
 {
     menu_init();
-    state = MAIN;
+    state = TRANS_TO_MAIN;
     callback = (void (*)(int))cb;
+    transition_start(FADE_IN, MENU_TRANSITION_TIME_S, &transition_callback);
 }
 
 void main_menu_update(ALLEGRO_EVENT *pEvent)
@@ -193,6 +208,14 @@ void main_menu_update(ALLEGRO_EVENT *pEvent)
         menu_update(&debug_tspin_mini_menu, pEvent);
         break;
 #endif
+    case TRANS_FROM_ARCADE:
+    case TRANS_FROM_MAIN:
+    case TRANS_FROM_OPTIONS:
+    case TRANS_TO_ARCADE:
+    case TRANS_TO_MAIN:
+    case TRANS_TO_OPTIONS:
+        transition_update(pEvent);
+        break;
     default:
         safe_exit("Invalid menu state", 1);
         break;
@@ -229,6 +252,21 @@ void main_menu_draw(void)
         menu_draw(&debug_tspin_mini_menu);
         break;
 #endif
+    case TRANS_FROM_ARCADE:
+    case TRANS_TO_ARCADE:
+        menu_draw(&arcade_menu);
+        transition_draw();
+        break;
+    case TRANS_FROM_MAIN:
+    case TRANS_TO_MAIN:
+        menu_draw(&main_menu);
+        transition_draw();
+        break;
+    case TRANS_FROM_OPTIONS:
+    case TRANS_TO_OPTIONS:
+        menu_draw(&options_menu);
+        transition_draw();
+        break;
     default:
         safe_exit("Invalid menu state", 1);
         break;
@@ -241,13 +279,17 @@ void main_callback(int idx)
     {
     case 0:
         // Arcade
-        state = ARCADE;
+        state = TRANS_FROM_MAIN;
+        next_state = ARCADE;
         arcade_menu.idx = 0;
+        transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
         break;
     case 1:
         // Options
-        state = OPTIONS;
+        state = TRANS_FROM_MAIN;
+        next_state = OPTIONS;
         options_menu.idx = 0;
+        transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
         break;
     case -1:
     case 2:
@@ -268,28 +310,34 @@ void main_callback(int idx)
 
 void arcade_callback(int idx)
 {
+    state = TRANS_FROM_ARCADE;
     switch (idx)
     {
     case 0:
-        callback(CHOICE_MARATHON);
+        game_mode = CHOICE_MARATHON;
+        next_state = MENU_CALLBACK;
         break;
     case 1:
-        callback(CHOICE_SPRINT);
+        game_mode = CHOICE_SPRINT;
+        next_state = MENU_CALLBACK;
         break;
     case 2:
-        callback(CHOICE_ULTRA);
+        game_mode = CHOICE_ULTRA;
+        next_state = MENU_CALLBACK;
         break;
     case 3:
-        callback(CHOICE_ENDLESS);
+        game_mode = CHOICE_ENDLESS;
+        next_state = MENU_CALLBACK;
         break;
     case -1:
     case 4:
-        state = MAIN;
+        next_state = MAIN;
         break;
     default:
         safe_exit("Invalid arcade menu index", 1);
         break;
     }
+    transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
 }
 
 void options_callback(int idx)
@@ -298,7 +346,9 @@ void options_callback(int idx)
     {
     case -1:
     case 0:
-        state = MAIN;
+        state = TRANS_FROM_OPTIONS;
+        next_state = MAIN;
+        transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
         break;
     default:
         safe_exit("Invalid options menu index", 1);
@@ -685,3 +735,49 @@ void debug_tspin_mini_callback(int idx)
     }
 }
 #endif
+
+static void transition_callback(void)
+{
+    // printf("Callback started, state = %d, next_state = %d\n", state, next_state);
+    switch (state)
+    {
+    case TRANS_TO_ARCADE:
+        state = ARCADE;
+        break;
+    case TRANS_TO_MAIN:
+        state = MAIN;
+        break;
+    case TRANS_TO_OPTIONS:
+        state = OPTIONS;
+        break;
+    case TRANS_FROM_ARCADE:
+    case TRANS_FROM_MAIN:
+    case TRANS_FROM_OPTIONS:
+        switch (next_state)
+        {
+        case MAIN:
+            state = TRANS_TO_MAIN;
+            break;
+        case ARCADE:
+            state = TRANS_TO_ARCADE;
+            break;
+        case OPTIONS:
+            state = TRANS_TO_OPTIONS;
+            break;
+        case MENU_CALLBACK:
+            callback(game_mode);
+            state = TRANS_FROM_ARCADE;
+            next_state = ARCADE;
+            break;
+        default:
+            safe_exit("Invalid next_state", 1);
+            break;
+        }
+        transition_start(FADE_IN, MENU_TRANSITION_TIME_S, &transition_callback);
+        break;
+    default:
+        safe_exit("Invalid non-transition state", 1);
+        break;
+    }
+    // printf("Callback ended, state = %d, next_state = %d\n", state, next_state);
+}

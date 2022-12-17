@@ -259,7 +259,7 @@ bool player_lock_down(bool hard_lock)
         x += player.x;
         y += player.y;
 
-        max_y = max(y, max_y);
+        max_y = MAX(y, max_y);
 
         field_set_used_safely(x, y, player.c);
     }
@@ -277,7 +277,7 @@ bool player_lock_down(bool hard_lock)
 void player_update(ALLEGRO_EVENT *event, int frames)
 {
     tspin_state = TS_NONE;
-    if (frames % max((int)((double)FPS * gravity_get()), 1) == 0) // each second
+    if (frames % MAX((int)((double)FPS * gravity_get()), 1) == 0) // each second
     {
         // GRAVITY
         if (player_can_move_down(&player))

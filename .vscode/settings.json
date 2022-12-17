@@ -9,6 +9,13 @@
         "score.h": "c",
         "field.h": "c",
         "stdbool.h": "c",
-        "tetris.h": "c"
+        "tetris.h": "c",
+        "transistion.h": "c",
+        "chrono": "c",
+        "random": "c",
+        "limits": "c",
+        "semaphore": "c",
+        "valarray": "c",
+        "ratio": "c"
     }
 }

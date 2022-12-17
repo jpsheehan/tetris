@@ -15,6 +15,7 @@ typedef enum CHOICE
 #if DEBUG_MENU
     CHOICE_DEBUG,
 #endif
+    CHOICE_MAX,
 } CHOICE;
 
 void main_menu_init(void (*cb)(CHOICE));
