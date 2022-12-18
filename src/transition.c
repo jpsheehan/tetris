@@ -37,12 +37,13 @@ void *transition_start(TRANSITION_TYPE type, float time_s, void (*cb)(void))
     return pTransition;
 }
 
-void transition_draw(void *pTransition)
+void transition_draw(void *_pTransition)
 {
-    double step_percent = CLAMP((double)al_get_timer_count(((TRANSITION *)pTransition)->timer) / TRANSITION_STEPS, 0.0, 1.0);
+    TRANSITION* pTransition = (TRANSITION*)_pTransition;
+    double step_percent = CLAMP((double)al_get_timer_count(pTransition->timer) / TRANSITION_STEPS, 0.0, 1.0);
     ALLEGRO_COLOR colour;
 
-    switch (((TRANSITION *)pTransition)->type)
+    switch (pTransition->type)
     {
     case NONE:
         break;
@@ -60,12 +61,15 @@ void transition_draw(void *pTransition)
     }
 }
 
-void transition_update(void *pTransition, ALLEGRO_EVENT *pEvent)
+void transition_update(void *_pTransition, ALLEGRO_EVENT *pEvent)
 {
-    if (al_get_timer_count(((TRANSITION *)pTransition)->timer) >= TRANSITION_STEPS)
+    TRANSITION* pTransition = (TRANSITION*)_pTransition;
+    
+    if (al_get_timer_count(pTransition->timer) >= TRANSITION_STEPS)
     {
-        al_stop_timer(((TRANSITION *)pTransition)->timer);
-        ((TRANSITION *)pTransition)->callback();
+        al_stop_timer(pTransition->timer);
+        al_set_timer_count(pTransition->timer, 0);
+        pTransition->callback();
     }
 }
 
@@ -74,8 +78,10 @@ static ALLEGRO_TIMER *create_timer(void)
     return al_create_timer(1.0);
 }
 
-void transition_free(void *pTransition)
+void transition_free(void *_pTransition)
 {
-    asset_loader_unload(((TRANSITION *)pTransition)->timer);
+    TRANSITION* pTransition = (TRANSITION*)_pTransition;
+    
+    asset_loader_unload(pTransition->timer);
     free(pTransition);
 }

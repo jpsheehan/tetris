@@ -767,9 +767,9 @@ static void transition_callback(void)
             state = TRANS_TO_OPTIONS;
             break;
         case MENU_CALLBACK:
-            callback(game_mode);
             state = TRANS_FROM_ARCADE;
             next_state = ARCADE;
+            callback(game_mode);
             // transition_free(transition);
             // transition = transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
             return;
