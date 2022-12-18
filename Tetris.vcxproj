@@ -121,6 +121,7 @@
     <ClCompile Include="src\field.c" />
     <ClCompile Include="src\game.c" />
     <ClCompile Include="src\hud.c" />
+    <ClCompile Include="src\input.c" />
     <ClCompile Include="src\keyboard.c" />
     <ClCompile Include="src\main_menu.c" />
     <ClCompile Include="src\menu.c" />
@@ -129,6 +130,7 @@
     <ClCompile Include="src\randomiser.c" />
     <ClCompile Include="src\score.c" />
     <ClCompile Include="src\tetris.c" />
+    <ClCompile Include="src\transition.c" />
     <ClCompile Include="src\utils.c" />
   </ItemGroup>
   <ItemGroup>
@@ -139,6 +141,7 @@
     <ClInclude Include="src\field.h" />
     <ClInclude Include="src\game.h" />
     <ClInclude Include="src\hud.h" />
+    <ClInclude Include="src\input.h" />
     <ClInclude Include="src\keyboard.h" />
     <ClInclude Include="src\main_menu.h" />
     <ClInclude Include="src\menu.h" />
@@ -146,6 +149,7 @@
     <ClInclude Include="src\player.h" />
     <ClInclude Include="src\randomiser.h" />
     <ClInclude Include="src\score.h" />
+    <ClInclude Include="src\transition.h" />
     <ClInclude Include="src\utils.h" />
   </ItemGroup>
   <ItemGroup>
