@@ -15,8 +15,9 @@ typedef struct ASSET
   void *p;
 } ASSET;
 
+static bool defrag_assets(void);
 static int next_asset_idx = 0;
-static ASSET assets[MAX_ASSETS] = { 0 };
+static ASSET assets[MAX_ASSETS] = {0};
 
 void unload_asset(ASSET *asset);
 
@@ -29,23 +30,22 @@ void asset_loader_init(void)
   }
 }
 
-void* asset_loader_load(ASSET_TYPE type, AssetLoaderCallback f)
+void *asset_loader_load(ASSET_TYPE type, AssetLoaderCallback f)
 {
   if (f == NULL)
     return false;
-  
+
   if (type < 0 || type >= A_MAX)
     return false;
 
-  if (next_asset_idx >= MAX_ASSETS) {
-    safe_exit("No more room for assets", 1);
-    return false;
-  }
-  
-  ASSET* pAsset = &assets[next_asset_idx++];
+  if (next_asset_idx >= MAX_ASSETS)
+    if (!defrag_assets())
+      safe_exit("No more room for assets", 1);
+
+  ASSET *pAsset = &assets[next_asset_idx++];
   pAsset->type = type;
   pAsset->p = f();
-  
+
   return pAsset->p;
 }
 
@@ -98,11 +98,11 @@ void unload_asset(ASSET *asset)
   case A_EVENT_QUEUE:
     al_destroy_event_queue(asset->p);
     break;
-  
+
   case A_SAMPLE:
     al_destroy_sample(asset->p);
     break;
-  
+
   case A_AUDIO_STREAM:
     al_destroy_audio_stream(asset->p);
     break;
@@ -117,15 +117,40 @@ void unload_asset(ASSET *asset)
 
 void asset_loader_deinit_allegro(void)
 {
-  if (al_is_audio_installed()) {
+  if (al_is_audio_installed())
+  {
     al_uninstall_audio();
   }
 
-  if (al_is_keyboard_installed()) {
+  if (al_is_keyboard_installed())
+  {
     al_uninstall_keyboard();
   }
 
-  if (al_is_system_installed()) {
+  if (al_is_system_installed())
+  {
     al_uninstall_system();
   }
+}
+
+static bool defrag_assets(void)
+{
+  bool has_defragged = false;
+  for (int i = 0; i < MAX_ASSETS; i++)
+  {
+    ASSET* pDstAsset = &assets[i];
+    if (pDstAsset->p != NULL)
+      continue;
+    for (int j = 0; j < MAX_ASSETS; j++) {
+      ASSET* pSrcAsset = &assets[j];
+      if (pSrcAsset->p == NULL)
+        continue;
+      
+      // we have found an asset we can move
+      memmove(pDstAsset, pSrcAsset, sizeof(ASSET));
+      pSrcAsset->p = NULL;
+      has_defragged = true;
+    }
+  }
+  return has_defragged;
 }

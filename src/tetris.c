@@ -44,7 +44,6 @@ int main()
     must_init(al_install_keyboard(), "keyboard");
 
     audio_init();
-    transition_init();
 
     must_init(al_init_primitives_addon(), "primitives");
     must_init(al_init_font_addon(), "font");

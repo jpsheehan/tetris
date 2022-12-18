@@ -42,6 +42,7 @@ static void debug_tspin_mini_callback(int idx);
 #endif
 static void transition_callback(void);
 
+static void *transition = NULL;
 static STATE state = TRANS_TO_MAIN;
 static STATE next_state = STATE_MAX;
 static void (*callback)(int);
@@ -175,7 +176,7 @@ void main_menu_init(void (*cb)(CHOICE))
     menu_init();
     state = TRANS_TO_MAIN;
     callback = (void (*)(int))cb;
-    transition_start(FADE_IN, MENU_TRANSITION_TIME_S, &transition_callback);
+    transition = transition_start(FADE_IN, MENU_TRANSITION_TIME_S, &transition_callback);
 }
 
 void main_menu_update(ALLEGRO_EVENT *pEvent)
@@ -214,9 +215,10 @@ void main_menu_update(ALLEGRO_EVENT *pEvent)
     case TRANS_TO_ARCADE:
     case TRANS_TO_MAIN:
     case TRANS_TO_OPTIONS:
-        transition_update(pEvent);
+        transition_update(transition, pEvent);
         break;
     default:
+        printf("State is %d\n", state);
         safe_exit("Invalid menu state", 1);
         break;
     }
@@ -255,20 +257,20 @@ void main_menu_draw(void)
     case TRANS_FROM_ARCADE:
     case TRANS_TO_ARCADE:
         menu_draw(&arcade_menu);
-        transition_draw();
+        transition_draw(transition);
         break;
     case TRANS_FROM_MAIN:
     case TRANS_TO_MAIN:
         menu_draw(&main_menu);
-        transition_draw();
+        transition_draw(transition);
         break;
     case TRANS_FROM_OPTIONS:
     case TRANS_TO_OPTIONS:
         menu_draw(&options_menu);
-        transition_draw();
+        transition_draw(transition);
         break;
     default:
-        safe_exit("Invalid menu state", 1);
+        safe_exit("Invalid menu state in draw", 1);
         break;
     }
 }
@@ -282,14 +284,14 @@ void main_callback(int idx)
         state = TRANS_FROM_MAIN;
         next_state = ARCADE;
         arcade_menu.idx = 0;
-        transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
+        transition = transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
         break;
     case 1:
         // Options
         state = TRANS_FROM_MAIN;
         next_state = OPTIONS;
         options_menu.idx = 0;
-        transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
+        transition = transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
         break;
     case -1:
     case 2:
@@ -337,7 +339,7 @@ void arcade_callback(int idx)
         safe_exit("Invalid arcade menu index", 1);
         break;
     }
-    transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
+    transition = transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
 }
 
 void options_callback(int idx)
@@ -348,7 +350,7 @@ void options_callback(int idx)
     case 0:
         state = TRANS_FROM_OPTIONS;
         next_state = MAIN;
-        transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
+        transition = transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
         break;
     default:
         safe_exit("Invalid options menu index", 1);
@@ -768,12 +770,15 @@ static void transition_callback(void)
             callback(game_mode);
             state = TRANS_FROM_ARCADE;
             next_state = ARCADE;
-            break;
+            // transition_free(transition);
+            // transition = transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
+            return;
         default:
             safe_exit("Invalid next_state", 1);
             break;
         }
-        transition_start(FADE_IN, MENU_TRANSITION_TIME_S, &transition_callback);
+        transition_free(transition);
+        transition = transition_start(FADE_IN, MENU_TRANSITION_TIME_S, &transition_callback);
         break;
     default:
         safe_exit("Invalid non-transition state", 1);

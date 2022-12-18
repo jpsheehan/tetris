@@ -14,6 +14,7 @@
 #include "audio.h"
 #include "asset_loader.h"
 #include "input.h"
+#include "transition.h"
 
 #define ASSERT_BONUS(bonus) ASSERT_RANGE(bonus, 0, BONUS_MAX, "bonus")
 
@@ -22,6 +23,7 @@
 
 typedef enum GAME_STATE
 {
+  TRANS_TO_INIT,
   INIT,
   PREROLL,
   PLAYING,
@@ -40,6 +42,7 @@ static void show_confirm_restart(void);
 static void show_confirm_abandon(void);
 static void draw_preroll(void);
 static void player_callback(void);
+static void transition_callback(void);
 static ALLEGRO_TIMER *create_preroll_timer(void);
 static ALLEGRO_TIMER *create_ultra_timer(void);
 static ALLEGRO_TIMER *create_bonus_timer(void);
@@ -51,6 +54,7 @@ static void enter_state_paused(void);
 static void enter_state_preroll(void);
 #endif
 
+static void* transition = NULL;
 static BONUS current_bonus = BONUS_MAX;
 static ALLEGRO_TIMER *bonus_timer = NULL;
 static MODE mode;
@@ -186,6 +190,9 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
 
   switch (state)
   {
+  case TRANS_TO_INIT:
+    transition_update(transition, pEvent);
+    break;
   case INIT:
 #if DISABLE_PREROLL
     enter_state_playing();
@@ -278,6 +285,11 @@ void game_draw(void)
 
   switch (state)
   {
+  case TRANS_TO_INIT:
+    field_draw(data.show_minos);
+    hud_draw(&data);
+    transition_draw(transition);
+    break;
   case INIT:
     field_draw(data.show_minos);
     hud_draw(&data);
@@ -451,7 +463,7 @@ static void draw_preroll(void)
 
 static void reset_game_state(MODE newMode)
 {
-  state = INIT;
+  state = TRANS_TO_INIT;
   mode = newMode;
   current_bonus = BONUS_MAX;
 
@@ -461,6 +473,7 @@ static void reset_game_state(MODE newMode)
   hud_init();
   player_init(&player_callback);
   al_set_timer_count(timer, 0);
+  transition = transition_start(FADE_IN, 0.2, &transition_callback);
 }
 
 static void check_win_conditions(void)
@@ -566,4 +579,20 @@ static void show_confirm_abandon(void)
   confirm_menu.idx = 1;
   confirm_menu.title = CONFIRM_ABANDON;
   state = CONFIRM;
+}
+
+static void transition_callback(void)
+{
+  switch (state)
+  {
+  case TRANS_TO_INIT:
+    state = INIT;
+    break;
+  default:
+    safe_exit("Invalid state for transition callback", 1);
+    break;
+  }
+
+  transition_free(transition);
+  transition = NULL;
 }

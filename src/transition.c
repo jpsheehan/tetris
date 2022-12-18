@@ -10,38 +10,39 @@
 
 static ALLEGRO_TIMER *create_timer(void);
 
-static void (*callback)(void) = NULL;
-static ALLEGRO_TIMER *timer = NULL;
-static TRANSITION current_transition = NONE;
-
-void transition_init(void)
+typedef struct TRANSITION
 {
-    if (timer == NULL)
-    {
-        timer = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_timer);
-        must_init(timer, "transition timer");
-    }
-}
+    TRANSITION_TYPE type;
+    ALLEGRO_TIMER *timer;
+    void (*callback)(void);
+} TRANSITION;
 
-void transition_start(TRANSITION transition, float time_s, void (*cb)(void))
+void *transition_start(TRANSITION_TYPE type, float time_s, void (*cb)(void))
 {
     must_init(cb, "transition callback");
 
-    al_set_timer_speed(timer, time_s / TRANSITION_STEPS);
-    al_set_timer_count(timer, 0);
+    TRANSITION* pTransition = calloc(1, sizeof(TRANSITION));
+    must_init(pTransition, "transition");
+    pTransition->timer = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_timer);
+    must_init(pTransition->timer, "transition timer");
 
-    callback = cb;
-    current_transition = transition;
+    al_set_timer_speed(pTransition->timer, time_s / TRANSITION_STEPS);
+    al_set_timer_count(pTransition->timer, 0);
 
-    al_start_timer(timer);
+    pTransition->callback = cb;
+    pTransition->type = type;
+
+    al_start_timer(pTransition->timer);
+
+    return pTransition;
 }
 
-void transition_draw(void)
+void transition_draw(void *pTransition)
 {
-    double step_percent = CLAMP((double)al_get_timer_count(timer) / TRANSITION_STEPS, 0.0, 1.0);
+    double step_percent = CLAMP((double)al_get_timer_count(((TRANSITION *)pTransition)->timer) / TRANSITION_STEPS, 0.0, 1.0);
     ALLEGRO_COLOR colour;
 
-    switch (current_transition)
+    switch (((TRANSITION *)pTransition)->type)
     {
     case NONE:
         break;
@@ -59,17 +60,22 @@ void transition_draw(void)
     }
 }
 
-void transition_update(ALLEGRO_EVENT *pEvent)
+void transition_update(void *pTransition, ALLEGRO_EVENT *pEvent)
 {
-    if (al_get_timer_count(timer) >= TRANSITION_STEPS)
+    if (al_get_timer_count(((TRANSITION *)pTransition)->timer) >= TRANSITION_STEPS)
     {
-        al_stop_timer(timer);
-
-        callback();
+        al_stop_timer(((TRANSITION *)pTransition)->timer);
+        ((TRANSITION *)pTransition)->callback();
     }
 }
 
 static ALLEGRO_TIMER *create_timer(void)
 {
     return al_create_timer(1.0);
+}
+
+void transition_free(void *pTransition)
+{
+    asset_loader_unload(((TRANSITION *)pTransition)->timer);
+    free(pTransition);
 }
