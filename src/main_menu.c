@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #include "main_menu.h"
 #include "asset_loader.h"
 #include "menu.h"
@@ -504,7 +506,7 @@ static PIECE debug_bag[][7] = {
 };
 
 /* NOTE: These fields are being described upside-down and mirrored */
-static u_int16_t debug_fields[][20] = {
+static uint16_t debug_fields[][20] = {
     {
         // line clear single
         0b1111011111,
@@ -585,7 +587,7 @@ void debug_load_custom_level(DEBUG_TEST test)
     randomiser_seed(7, debug_bag[test]);
 
     field_init();
-    u_int16_t *field = debug_fields[test];
+    uint16_t *field = debug_fields[test];
     ALLEGRO_COLOR c = al_map_rgb(0xea, 0xba, 0xbe);
     for (int y = 0; y < FIELD_H; y++)
     {

@@ -232,11 +232,11 @@ bool player_can_rotate_ccw(PLAYER *p)
 
 bool player_lock_down(bool hard_lock)
 {
+#if !MAKE_LOGO
     ASSERT_PIECE(player.piece);
     ASSERT_ROTATION(player.rotation);
 
     if (!hard_lock)
-
     {
         if (!al_get_timer_started(lock_delay))
         {
@@ -250,6 +250,7 @@ bool player_lock_down(bool hard_lock)
     }
 
     al_stop_timer(lock_delay);
+#endif
 
     int max_y = -10;
     for (int i = 0; i < 4; i++)
@@ -505,3 +506,47 @@ static TSPIN get_tspin(void)
 
     return TS_NONE;
 }
+
+#if MAKE_LOGO
+void player_make_logo(void)
+{
+    while (player_can_move_down(&player))
+    {
+        player_move_down(&player);
+    }
+    player_lock_down(true);
+
+    dispense_next_piece();
+    player_rotate_cw(&player);
+    player_move_left(&player);
+    player_move_left(&player);
+    player_move_left(&player);
+    while (player_can_move_down(&player))
+    {
+        player_move_down(&player);
+    }
+    player_lock_down(true);
+
+    dispense_next_piece();
+    player.c = mino_get_default_colour(O);
+    player_rotate_cw(&player);
+    player_move_left(&player);
+    while (player_can_move_down(&player))
+    {
+        player_move_down(&player);
+    }
+    player_lock_down(true);
+    
+    dispense_next_piece();
+    player.c = mino_get_default_colour(Z);
+    player_rotate_ccw(&player);
+    player_move_right(&player);
+    while (player_can_move_down(&player))
+    {
+        player_move_down(&player);
+    }
+    player_lock_down(true);
+    dispense_next_piece();
+
+}
+#endif
