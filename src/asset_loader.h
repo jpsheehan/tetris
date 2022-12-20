@@ -14,12 +14,23 @@ typedef enum ASSET_TYPE {
   A_MAX,
 } ASSET_TYPE;
 
+typedef struct ASSET
+{
+  ASSET_TYPE type;
+  void *p;
+  char *tag;
+  int id;
+} ASSET;
+
 typedef void* (*AssetLoaderCallback)(void);
 
 void asset_loader_init(void);
-void* asset_loader_load(ASSET_TYPE type, AssetLoaderCallback f);
-bool asset_loader_unload(void* p);
+ASSET* asset_loader_load(const char* tag, ASSET_TYPE type, AssetLoaderCallback f);
+bool asset_loader_unload(ASSET* pAsset);
 void asset_loader_unload_all(void);
 void asset_loader_deinit_allegro(void);
+void* asset_loader_get(int id);
+
+#define A(pAsset) (((ASSET*)pAsset)->p)
 
 #endif

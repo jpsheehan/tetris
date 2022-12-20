@@ -18,8 +18,8 @@ static TSPIN get_tspin(void);
 static PLAYER player;
 static PIECE held_piece;
 static bool can_swap_with_held_piece;
-static ALLEGRO_FONT *font = NULL;
-static ALLEGRO_TIMER *lock_delay = NULL;
+static int font = 0;
+static int lock_delay = 0;
 static TSPIN tspin_state = TS_NONE;
 
 static bool was_last_move_a_rotation = false;
@@ -59,7 +59,7 @@ static void dispense_specific_piece(PIECE piece)
 
 static void dispense_next_piece()
 {
-    al_stop_timer(lock_delay);
+    al_stop_timer(A(lock_delay));
     dispense_specific_piece(randomiser_next());
     can_swap_with_held_piece = true;
 }
@@ -78,16 +78,14 @@ void player_init(void (*cb)(void))
 {
     callback = cb;
 
-    if (font == NULL)
+    if (font == 0)
     {
-        font = asset_loader_load(A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
-        must_init(font, "player font");
+        font = asset_loader_load("player", A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
     }
 
-    if (lock_delay == NULL)
+    if (lock_delay == 0)
     {
-        lock_delay = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_lock_delay_timer);
-        must_init(lock_delay, "lock delay timer");
+        lock_delay = asset_loader_load("lock delay timer", A_TIMER, (AssetLoaderCallback)&create_lock_delay_timer);
     }
 
     held_piece = PIECE_MAX;
@@ -98,12 +96,12 @@ void player_init(void (*cb)(void))
 
 void reset_lock_delay(void)
 {
-    if (lock_delay != NULL)
+    if (lock_delay != 0)
     {
-        if (al_get_timer_started(lock_delay))
-            al_stop_timer(lock_delay);
-        al_set_timer_count(lock_delay, 0);
-        al_start_timer(lock_delay);
+        if (al_get_timer_started(A(lock_delay)))
+            al_stop_timer(A(lock_delay));
+        al_set_timer_count(A(lock_delay), 0);
+        al_start_timer(A(lock_delay));
     }
 }
 
@@ -238,18 +236,18 @@ bool player_lock_down(bool hard_lock)
 
     if (!hard_lock)
     {
-        if (!al_get_timer_started(lock_delay))
+        if (!al_get_timer_started(A(lock_delay)))
         {
             reset_lock_delay();
         }
 
-        if (!al_get_timer_count(lock_delay))
+        if (!al_get_timer_count(A(lock_delay)))
         {
             return false;
         }
     }
 
-    al_stop_timer(lock_delay);
+    al_stop_timer(A(lock_delay));
 #endif
 
     int max_y = -10;
@@ -303,7 +301,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
             {
                 was_last_move_a_rotation = false;
                 player_move_left(&player);
-                if (al_get_timer_started(lock_delay))
+                if (al_get_timer_started(A(lock_delay)))
                 {
                     reset_lock_delay();
                 }
@@ -317,7 +315,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
             {
                 was_last_move_a_rotation = false;
                 player_move_right(&player);
-                if (al_get_timer_started(lock_delay))
+                if (al_get_timer_started(A(lock_delay)))
                 {
                     reset_lock_delay();
                 }
@@ -351,7 +349,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
             if (player_rotate_cw(&player))
             {
                 was_last_move_a_rotation = true;
-                if (al_get_timer_started(lock_delay))
+                if (al_get_timer_started(A(lock_delay)))
                 {
                     reset_lock_delay();
                 }
@@ -363,7 +361,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
             if (player_rotate_ccw(&player))
             {
                 was_last_move_a_rotation = true;
-                if (al_get_timer_started(lock_delay))
+                if (al_get_timer_started(A(lock_delay)))
                 {
                     reset_lock_delay();
                 }
@@ -400,7 +398,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
                     dispense_next_piece();
                 }
                 can_swap_with_held_piece = false;
-                al_stop_timer(lock_delay);
+                al_stop_timer(A(lock_delay));
             }
         }
     }
@@ -536,7 +534,7 @@ void player_make_logo(void)
         player_move_down(&player);
     }
     player_lock_down(true);
-    
+
     dispense_next_piece();
     player.c = mino_get_default_colour(Z);
     player_rotate_ccw(&player);
@@ -547,6 +545,5 @@ void player_make_logo(void)
     }
     player_lock_down(true);
     dispense_next_piece();
-
 }
 #endif

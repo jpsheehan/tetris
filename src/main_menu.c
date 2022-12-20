@@ -746,12 +746,15 @@ static void transition_callback(void)
     {
     case TRANS_TO_ARCADE:
         state = ARCADE;
+        next_state = STATE_MAX;
         break;
     case TRANS_TO_MAIN:
         state = MAIN;
+        next_state = STATE_MAX;
         break;
     case TRANS_TO_OPTIONS:
         state = OPTIONS;
+        next_state = STATE_MAX;
         break;
     case TRANS_FROM_ARCADE:
     case TRANS_FROM_MAIN:
@@ -760,12 +763,15 @@ static void transition_callback(void)
         {
         case MAIN:
             state = TRANS_TO_MAIN;
+            next_state = STATE_MAX;
             break;
         case ARCADE:
             state = TRANS_TO_ARCADE;
+            next_state = STATE_MAX;
             break;
         case OPTIONS:
             state = TRANS_TO_OPTIONS;
+            next_state = STATE_MAX;
             break;
         case MENU_CALLBACK:
             state = TRANS_FROM_ARCADE;

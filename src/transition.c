@@ -13,7 +13,7 @@ static ALLEGRO_TIMER *create_timer(void);
 typedef struct TRANSITION
 {
     TRANSITION_TYPE type;
-    ALLEGRO_TIMER *timer;
+    int timer;
     void (*callback)(void);
 } TRANSITION;
 
@@ -23,16 +23,15 @@ void *transition_start(TRANSITION_TYPE type, float time_s, void (*cb)(void))
 
     TRANSITION* pTransition = calloc(1, sizeof(TRANSITION));
     must_init(pTransition, "transition");
-    pTransition->timer = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_timer);
-    must_init(pTransition->timer, "transition timer");
+    pTransition->timer = asset_loader_load("transition timer", A_TIMER, (AssetLoaderCallback)&create_timer);
 
-    al_set_timer_speed(pTransition->timer, time_s / TRANSITION_STEPS);
-    al_set_timer_count(pTransition->timer, 0);
+    al_set_timer_speed(A(pTransition->timer), time_s / TRANSITION_STEPS);
+    al_set_timer_count(A(pTransition->timer), 0);
 
     pTransition->callback = cb;
     pTransition->type = type;
 
-    al_start_timer(pTransition->timer);
+    al_start_timer(A(pTransition->timer));
 
     return pTransition;
 }
@@ -40,7 +39,7 @@ void *transition_start(TRANSITION_TYPE type, float time_s, void (*cb)(void))
 void transition_draw(void *_pTransition)
 {
     TRANSITION* pTransition = (TRANSITION*)_pTransition;
-    double step_percent = CLAMP((double)al_get_timer_count(pTransition->timer) / TRANSITION_STEPS, 0.0, 1.0);
+    double step_percent = CLAMP((double)al_get_timer_count(A(pTransition->timer)) / TRANSITION_STEPS, 0.0, 1.0);
     ALLEGRO_COLOR colour;
 
     switch (pTransition->type)
@@ -64,11 +63,12 @@ void transition_draw(void *_pTransition)
 void transition_update(void *_pTransition, ALLEGRO_EVENT *pEvent)
 {
     TRANSITION* pTransition = (TRANSITION*)_pTransition;
+    must_init(pTransition, "transition");
     
-    if (al_get_timer_count(pTransition->timer) >= TRANSITION_STEPS)
+    if (al_get_timer_count(A(pTransition->timer)) >= TRANSITION_STEPS)
     {
-        al_stop_timer(pTransition->timer);
-        al_set_timer_count(pTransition->timer, 0);
+        al_stop_timer(A(pTransition->timer));
+        al_set_timer_count(A(pTransition->timer), 0);
         pTransition->callback();
     }
 }

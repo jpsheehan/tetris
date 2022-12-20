@@ -57,13 +57,13 @@ static void enter_state_preroll(void);
 
 static void* transition = NULL;
 static BONUS current_bonus = BONUS_MAX;
-static ALLEGRO_TIMER *bonus_timer = NULL;
+static int bonus_timer = 0;
 static MODE mode;
 static void (*callback)(void) = NULL;
 static int sfx_played = 0b0000;
-static ALLEGRO_TIMER *preroll = NULL;
-static ALLEGRO_TIMER *timer = NULL;
-static ALLEGRO_FONT *font = NULL;
+static int preroll = 0;
+static int timer = 0;
+static int font = 0;
 static GAME_STATE state = INIT;
 static char *CONFIRM_RESTART = "Really restart this game?";
 static char *CONFIRM_ABANDON = "Really abandon this game?";
@@ -116,28 +116,24 @@ static MENU confirm_menu = {
 
 static void game_init(void)
 {
-  if (preroll == NULL)
+  if (preroll == 0)
   {
-    preroll = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_preroll_timer);
-    must_init(preroll, "preroll timer");
+    preroll = asset_loader_load("preroll timer", A_TIMER, (AssetLoaderCallback)&create_preroll_timer);
   }
 
-  if (timer == NULL)
+  if (timer == 0)
   {
-    timer = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_ultra_timer);
-    must_init(timer, "ultra timer");
+    timer = asset_loader_load("ultra timer", A_TIMER, (AssetLoaderCallback)&create_ultra_timer);
   }
 
-  if (bonus_timer == NULL)
+  if (bonus_timer == 0)
   {
-    bonus_timer = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_bonus_timer);
-    must_init(timer, "bonus timer");
+    bonus_timer = asset_loader_load("bonus timer", A_TIMER, (AssetLoaderCallback)&create_bonus_timer);
   }
 
-  if (font == NULL)
+  if (font == 0)
   {
-    font = asset_loader_load(A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
-    must_init(font, "game font");
+    font = asset_loader_load("game font", A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
   }
 }
 
@@ -181,7 +177,7 @@ void game_init_debug(void (*cb)(void))
   score_init();
   hud_init();
   player_init(&player_callback);
-  al_set_timer_count(timer, 0);
+  al_set_timer_count(A(timer), 0);
 }
 #endif
 
@@ -202,7 +198,7 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
 #endif
     break;
   case PREROLL:
-    preroll_count = al_get_timer_count(preroll);
+    preroll_count = al_get_timer_count(A(preroll));
     if (preroll_count >= (int)(0.3 / PREROLL_RESOLUTION) && !(sfx_played & 0b0001))
     {
       audio_play_sfx(SFX_THREE);
@@ -223,7 +219,7 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
       audio_play_sfx(SFX_GO);
       sfx_played |= 0b1000;
     }
-    else if (al_get_timer_count(preroll) >= (int)(4.0 / PREROLL_RESOLUTION))
+    else if (al_get_timer_count(A(preroll)) >= (int)(4.0 / PREROLL_RESOLUTION))
     {
       enter_state_playing();
     }
@@ -248,13 +244,13 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
     menu_update(&pause_menu, pEvent);
     break;
   case RETRY:
-    al_stop_timer(timer);
-    al_stop_timer(bonus_timer);
+    al_stop_timer(A(timer));
+    al_stop_timer(A(bonus_timer));
     menu_update(&retry_menu, pEvent);
     break;
   case WIN:
-    al_stop_timer(timer);
-    al_stop_timer(bonus_timer);
+    al_stop_timer(A(timer));
+    al_stop_timer(A(bonus_timer));
     menu_update(&win_menu, pEvent);
     break;
   case CONFIRM:
@@ -265,9 +261,9 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
     break;
   }
 
-  if (current_bonus != BONUS_MAX && al_get_timer_count(bonus_timer) >= 1 && al_get_timer_started(bonus_timer))
+  if (current_bonus != BONUS_MAX && al_get_timer_count(A(bonus_timer)) >= 1 && al_get_timer_started(A(bonus_timer)))
   {
-    al_stop_timer(bonus_timer);
+    al_stop_timer(A(bonus_timer));
     current_bonus = BONUS_MAX;
   }
 
@@ -278,9 +274,9 @@ void game_draw(void)
 {
   HUD_UPDATE_DATA data = {
       .mode = mode,
-      .timer_count = timer == NULL ? 0 : (int)al_get_timer_count(timer),
+      .timer_count = timer == 0 ? 0 : (int)al_get_timer_count(A(timer)),
       .show_minos = state == PLAYING || state == RETRY || state == WIN,
-      .timer_running = al_get_timer_started(timer),
+      .timer_running = al_get_timer_started(A(timer)),
       .bonus = current_bonus,
   };
 
@@ -370,9 +366,9 @@ void game_show_bonus(BONUS bonus)
     break;
   }
 
-  al_stop_timer(bonus_timer);
-  al_set_timer_count(bonus_timer, 0);
-  al_start_timer(bonus_timer);
+  al_stop_timer(A(bonus_timer));
+  al_set_timer_count(A(bonus_timer), 0);
+  al_start_timer(A(bonus_timer));
 }
 
 static void pause_menu_callback(int option)
@@ -452,14 +448,14 @@ static ALLEGRO_TIMER *create_bonus_timer(void)
 
 static void draw_preroll(void)
 {
-  int countdown = 3 - al_get_timer_count(preroll) / PREROLL_STEPS;
-  int t = al_get_timer_count(preroll) % PREROLL_STEPS;
+  int countdown = 3 - al_get_timer_count(A(preroll)) / PREROLL_STEPS;
+  int t = al_get_timer_count(A(preroll)) % PREROLL_STEPS;
   int y = t < 0.3 * PREROLL_STEPS ? (t * BUFFER_H / (0.6 * PREROLL_STEPS)) : (t < (0.7 * PREROLL_STEPS) ? BUFFER_H / 2 : (t - 0.4 * PREROLL_STEPS) * BUFFER_H / (0.6 * PREROLL_STEPS));
 
   if (countdown > 0)
-    al_draw_textf(font, al_map_rgb_f(1, 1, 1), BUFFER_W / 2, y, ALLEGRO_ALIGN_CENTER, "%d!", countdown);
+    al_draw_textf(A(font), al_map_rgb_f(1, 1, 1), BUFFER_W / 2, y, ALLEGRO_ALIGN_CENTER, "%d!", countdown);
   else
-    al_draw_text(font, al_map_rgb_f(1, 1, 1), BUFFER_W / 2, y, ALLEGRO_ALIGN_CENTER, "GO!");
+    al_draw_text(A(font), al_map_rgb_f(1, 1, 1), BUFFER_W / 2, y, ALLEGRO_ALIGN_CENTER, "GO!");
 }
 
 static void reset_game_state(MODE newMode)
@@ -479,7 +475,7 @@ static void reset_game_state(MODE newMode)
   field_init();
   hud_init();
   player_init(&player_callback);
-  al_set_timer_count(timer, 0);
+  al_set_timer_count(A(timer), 0);
   transition = transition_start(FADE_IN, 0.2, &transition_callback);
 
 #if DEBUG_MENU && MAKE_LOGO
@@ -503,7 +499,7 @@ static void check_win_conditions(void)
       state = WIN;
     break;
   case ULTRA:
-    if (al_get_timer_count(timer) >= MAX_ULTRA_SECONDS)
+    if (al_get_timer_count(A(timer)) >= MAX_ULTRA_SECONDS)
       state = WIN;
     break;
   case ENDLESS:
@@ -518,8 +514,8 @@ static void check_win_conditions(void)
 #if !DISABLE_PREROLL
 static void enter_state_preroll(void)
 {
-  al_set_timer_count(preroll, 0);
-  al_start_timer(preroll);
+  al_set_timer_count(A(preroll), 0);
+  al_start_timer(A(preroll));
   state = PREROLL;
   sfx_played = 0b0000;
 }
@@ -527,21 +523,21 @@ static void enter_state_preroll(void)
 
 static void enter_state_playing(void)
 {
-  al_stop_timer(preroll);
+  al_stop_timer(A(preroll));
   state = PLAYING;
   audio_turn_music_up();
-  al_start_timer(timer);
+  al_start_timer(A(timer));
   if (current_bonus != BONUS_MAX)
   {
-    al_start_timer(bonus_timer);
+    al_start_timer(A(bonus_timer));
   }
 }
 
 static void enter_state_paused(void)
 {
-  al_stop_timer(preroll);
-  al_stop_timer(timer);
-  al_stop_timer(bonus_timer);
+  al_stop_timer(A(preroll));
+  al_stop_timer(A(timer));
+  al_stop_timer(A(bonus_timer));
   state = PAUSED;
   audio_turn_music_down();
 }
@@ -558,7 +554,7 @@ static void confirm_menu_callback(int option)
     }
     else if (confirm_menu.title == CONFIRM_ABANDON)
     {
-      al_stop_timer(bonus_timer);
+      al_stop_timer(A(bonus_timer));
       current_bonus = BONUS_MAX;
       pause_menu.idx = 0;
       callback();

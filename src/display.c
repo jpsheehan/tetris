@@ -2,9 +2,9 @@
 #include "utils.h"
 #include "asset_loader.h"
 
-ALLEGRO_DISPLAY *disp = NULL;
-ALLEGRO_BITMAP *buffer = NULL;
-ALLEGRO_BITMAP *logo = NULL;
+int disp = 0;
+int buffer = 0;
+int logo = 0;
 
 static ALLEGRO_DISPLAY *create_display(void)
 {
@@ -23,49 +23,46 @@ static ALLEGRO_BITMAP *load_logo(void)
 
 void disp_init()
 {
-    if (disp == NULL)
+    if (disp == 0)
     {
         al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
         al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
 
-        disp = asset_loader_load(A_DISPLAY, (AssetLoaderCallback)&create_display);
-        must_init(disp, "display");
+        disp = asset_loader_load("display", A_DISPLAY, (AssetLoaderCallback)&create_display);
 
-        al_set_window_title(disp, "Tetris");
+        al_set_window_title(A(disp), "Tetris");
     }
 
-    if (buffer == NULL)
+    if (buffer == 0)
     {
-        buffer = asset_loader_load(A_BITMAP, (AssetLoaderCallback)&create_buffer);
-        must_init(buffer, "bitmap buffer");
+        buffer = asset_loader_load("buffer", A_BITMAP, (AssetLoaderCallback)&create_buffer);
     }
 
-    if (logo == NULL)
+    if (logo == 0)
     {
-        logo = asset_loader_load(A_BITMAP, (AssetLoaderCallback)&load_logo);
-        must_init(logo, "program logo");
-        al_set_display_icon(disp, logo);
+        logo = asset_loader_load("logo", A_BITMAP, (AssetLoaderCallback)&load_logo);
+        al_set_display_icon(A(disp), A(logo));
     }
 }
 
 void disp_pre_draw()
 {
-    al_set_target_bitmap(buffer);
+    al_set_target_bitmap(A(buffer));
 }
 
 void disp_post_draw()
 {
-    al_set_target_backbuffer(disp);
-    al_draw_scaled_bitmap(buffer, 0, 0, BUFFER_W, BUFFER_H, 0, 0, DISP_W, DISP_H, 0);
+    al_set_target_backbuffer(A(disp));
+    al_draw_scaled_bitmap(A(buffer), 0, 0, BUFFER_W, BUFFER_H, 0, 0, DISP_W, DISP_H, 0);
     al_flip_display();
 }
 
 void disp_register_event_source(ALLEGRO_EVENT_QUEUE *queue)
 {
-    al_register_event_source(queue, al_get_display_event_source(disp));
+    al_register_event_source(queue, al_get_display_event_source(A(disp)));
 }
 
 ALLEGRO_BITMAP *disp_get_buffer(void)
 {
-    return buffer;
+    return A(buffer);
 }

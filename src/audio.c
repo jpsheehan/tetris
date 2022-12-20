@@ -6,8 +6,8 @@
 #include "audio.h"
 #include "utils.h"
 
-static ALLEGRO_AUDIO_STREAM *music = NULL;
-static ALLEGRO_SAMPLE *samples[SFX_MAX] = {0};
+static int music = 0;
+static int samples[SFX_MAX] = {0};
 
 static char *filenames[SFX_MAX] = {
     "./resources/audio/sfx_rotate_cw.ogg",
@@ -41,25 +41,23 @@ ALLEGRO_SAMPLE *create_sample(void)
 
 void audio_init(void)
 {
-    // if (music == NULL)
+    // if (music == 0)
     // {
-    //     music = asset_loader_load(A_AUDIO_STREAM, (AssetLoaderCallback)&create_music);
-    //     must_init(music, "audio stream");
+    //     music = asset_loader_load("audio stream", A_AUDIO_STREAM, (AssetLoaderCallback)&create_music);
 
-    //     al_set_audio_stream_playmode(music, ALLEGRO_PLAYMODE_LOOP);
+    //     al_set_audio_stream_playmode(A(music), ALLEGRO_PLAYMODE_LOOP);
     //     audio_turn_music_down();
-    //     al_attach_audio_stream_to_mixer(music, al_get_default_mixer());
+    //     al_attach_audio_stream_to_mixer(A(music), al_get_default_mixer());
     // }
 
     for (int i = 0; i < SFX_MAX; i++)
     {
-        if (filenames[i] == NULL || samples[i] != NULL)
+        if (filenames[i] == NULL || samples[i] != 0)
         {
             continue;
         }
         filename_to_load = filenames[i];
-        samples[i] = asset_loader_load(A_SAMPLE, (AssetLoaderCallback)&create_sample);
-        must_init(samples[i], filenames[i]);
+        samples[i] = asset_loader_load(filename_to_load, A_SAMPLE, (AssetLoaderCallback)&create_sample);
     }
 }
 
@@ -71,7 +69,7 @@ void audio_play_sfx(SFX sfx)
         safe_exit("SFX is out of range", 1);
         return;
     }
-    if (samples[sfx] == NULL)
+    if (samples[sfx] == 0)
     {
         if (filenames[sfx] != NULL)
             safe_exit("Sample is null", 1);
@@ -80,17 +78,17 @@ void audio_play_sfx(SFX sfx)
     float gain = 0.4;
     if (sfx >= SFX_THREE && sfx <= SFX_GO)
         gain = 0.5;
-    al_play_sample(samples[sfx], gain, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+    al_play_sample(A(samples[sfx]), gain, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 }
 
 void audio_turn_music_down(void)
 {
-    if (music != NULL)
-        al_set_audio_stream_gain(music, 0.05);
+    if (music != 0)
+        al_set_audio_stream_gain(A(music), 0.05);
 }
 
 void audio_turn_music_up(void)
 {
-    if (music != NULL)
-        al_set_audio_stream_gain(music, 0.15);
+    if (music != 0)
+        al_set_audio_stream_gain(A(music), 0.15);
 }

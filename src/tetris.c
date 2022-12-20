@@ -47,15 +47,12 @@ int main()
     keyboard_init();
     audio_init();
 
-    ALLEGRO_TIMER *timer = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_frame_timer);
-    must_init(timer, "timer");
+    int timer = asset_loader_load("frame timer", A_TIMER, (AssetLoaderCallback)&create_frame_timer);
+    int queue = asset_loader_load("event queue", A_EVENT_QUEUE, (AssetLoaderCallback)&al_create_event_queue);
 
-    ALLEGRO_EVENT_QUEUE *queue = asset_loader_load(A_EVENT_QUEUE, (AssetLoaderCallback)&al_create_event_queue);
-    must_init(queue, "queue");
-
-    keyboard_register_event_source(queue);
-    disp_register_event_source(queue);
-    al_register_event_source(queue, al_get_timer_event_source(timer));
+    keyboard_register_event_source(A(queue));
+    disp_register_event_source(A(queue));
+    al_register_event_source(A(queue), al_get_timer_event_source(A(timer)));
 
     done = false;
     bool redraw = true;
@@ -65,11 +62,11 @@ int main()
 
     main_menu_init(menu_callback);
 
-    al_start_timer(timer);
+    al_start_timer(A(timer));
 
     while (1)
     {
-        al_wait_for_event(queue, &event);
+        al_wait_for_event(A(queue), &event);
 
         switch (event.type)
         {
@@ -102,7 +99,7 @@ int main()
             break;
         }
 
-        if (redraw && al_is_event_queue_empty(queue))
+        if (redraw && al_is_event_queue_empty(A(queue)))
         {
             disp_pre_draw();
             al_clear_to_color(al_map_rgb(0, 0, 0));
