@@ -515,17 +515,38 @@ void player_make_logo(void)
         player_move_down(&player);
     }
     player_lock_down(true);
-      dispense_next_piece();
 
+    dispense_next_piece();
     player_rotate_cw(&player);
     player_move_left(&player);
     player_move_left(&player);
     player_move_left(&player);
-
     while (player_can_move_down(&player))
     {
         player_move_down(&player);
     }
     player_lock_down(true);
+
+    dispense_next_piece();
+    player.c = mino_get_default_colour(O);
+    player_rotate_cw(&player);
+    player_move_left(&player);
+    while (player_can_move_down(&player))
+    {
+        player_move_down(&player);
+    }
+    player_lock_down(true);
+    
+    dispense_next_piece();
+    player.c = mino_get_default_colour(Z);
+    player_rotate_ccw(&player);
+    player_move_right(&player);
+    while (player_can_move_down(&player))
+    {
+        player_move_down(&player);
+    }
+    player_lock_down(true);
+    dispense_next_piece();
+
 }
 #endif

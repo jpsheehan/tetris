@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <allegro5/allegro5.h>
+#include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_audio.h>
@@ -36,18 +37,16 @@ int main()
     must_init(al_install_audio(), "install audio");
     must_init(al_init_acodec_addon(), "init audio codec");
     must_init(al_reserve_samples(16), "reserve samples");
-
-    asset_loader_init();
-
-    disp_init();
-    keyboard_init();
-    must_init(al_install_keyboard(), "keyboard");
-
-    audio_init();
-    transition_init();
-
+    must_init(al_init_image_addon(), "init image addon");
     must_init(al_init_primitives_addon(), "primitives");
     must_init(al_init_font_addon(), "font");
+    must_init(al_install_keyboard(), "keyboard");
+
+    asset_loader_init();
+    disp_init();
+    keyboard_init();
+    audio_init();
+    transition_init();
 
     ALLEGRO_TIMER *timer = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_frame_timer);
     must_init(timer, "timer");

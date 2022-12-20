@@ -459,7 +459,7 @@ static void reset_game_state(MODE newMode)
   randomiser_init();
 
 #if DEBUG_MENU && MAKE_LOGO
-  PIECE piece_buffer[4] = { T, I, T, J };
+  PIECE piece_buffer[4] = { T, I, T, L };
   randomiser_seed(4, piece_buffer);
 #endif
 

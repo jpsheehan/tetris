@@ -4,6 +4,7 @@
 
 ALLEGRO_DISPLAY *disp = NULL;
 ALLEGRO_BITMAP *buffer = NULL;
+ALLEGRO_BITMAP *logo = NULL;
 
 static ALLEGRO_DISPLAY *create_display(void)
 {
@@ -15,6 +16,11 @@ static ALLEGRO_BITMAP *create_buffer(void)
     return al_create_bitmap(BUFFER_W, BUFFER_H);
 }
 
+static ALLEGRO_BITMAP *load_logo(void)
+{
+    return al_load_bitmap("./resources/graphics/logo.png");
+}
+
 void disp_init()
 {
     if (disp == NULL)
@@ -24,12 +30,21 @@ void disp_init()
 
         disp = asset_loader_load(A_DISPLAY, (AssetLoaderCallback)&create_display);
         must_init(disp, "display");
+
+        al_set_window_title(disp, "Tetris");
     }
 
     if (buffer == NULL)
     {
         buffer = asset_loader_load(A_BITMAP, (AssetLoaderCallback)&create_buffer);
         must_init(buffer, "bitmap buffer");
+    }
+
+    if (logo == NULL)
+    {
+        logo = asset_loader_load(A_BITMAP, (AssetLoaderCallback)&load_logo);
+        must_init(logo, "program logo");
+        al_set_display_icon(disp, logo);
     }
 }
 

@@ -1,5 +1,5 @@
-CFLAGS=-fsanitize=address -fsanitize=undefined -g -Werror -Wall `pkg-config allegro-5 allegro_primitives-5 allegro_audio-5 allegro_acodec-5  --cflags`
-LFLAGS=`pkg-config allegro-5 allegro_font-5 allegro_primitives-5 allegro_audio-5 allegro_acodec-5 --libs` -lm
+CFLAGS=-g -Werror -Wall `pkg-config allegro-5 allegro_image-5 allegro_primitives-5 allegro_audio-5 allegro_acodec-5  --cflags`
+LFLAGS=`pkg-config allegro-5 allegro_image-5 allegro_font-5 allegro_primitives-5 allegro_audio-5 allegro_acodec-5 --libs` -lm
 CC=gcc
 SRC=src
 OBJ=obj
