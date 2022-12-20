@@ -16,6 +16,7 @@
         "limits": "c",
         "semaphore": "c",
         "valarray": "c",
-        "ratio": "c"
+        "ratio": "c",
+        "transition.h": "c"
     }
 }

@@ -220,7 +220,6 @@ void main_menu_update(ALLEGRO_EVENT *pEvent)
         transition_update(transition, pEvent);
         break;
     default:
-        printf("State is %d\n", state);
         safe_exit("Invalid menu state", 1);
         break;
     }

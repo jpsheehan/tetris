@@ -46,7 +46,6 @@ int main()
     disp_init();
     keyboard_init();
     audio_init();
-    transition_init();
 
     ALLEGRO_TIMER *timer = asset_loader_load(A_TIMER, (AssetLoaderCallback)&create_frame_timer);
     must_init(timer, "timer");

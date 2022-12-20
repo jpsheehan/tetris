@@ -9,8 +9,6 @@ typedef enum TRANSITION_TYPE {
     FADE_OUT,
 } TRANSITION_TYPE;
 
-void transition_init(void);
-
 void transition_draw(void* pTransition);
 void transition_update(void* pTransition, ALLEGRO_EVENT* pEvent);
 void* transition_start(TRANSITION_TYPE type, float time_s, void(*cb)(void));
