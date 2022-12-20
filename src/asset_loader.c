@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_audio.h>
@@ -13,56 +14,60 @@ typedef struct ASSET
 {
   ASSET_TYPE type;
   void *p;
+  char* tag;
 } ASSET;
 
-static bool defrag_assets(void);
-static int next_asset_idx = 0;
 static ASSET assets[MAX_ASSETS] = {0};
+static int get_next_free_slot(void);
 
 void unload_asset(ASSET *asset);
 
 void asset_loader_init(void)
 {
-  next_asset_idx = 0;
   for (int i = 0; i < MAX_ASSETS; i++)
   {
     assets[i].p = NULL;
   }
 }
 
-void *asset_loader_load(ASSET_TYPE type, AssetLoaderCallback f)
+int asset_loader_load(const char *tag, ASSET_TYPE type, AssetLoaderCallback f)
 {
   if (f == NULL)
     return false;
 
-  if (type < 0 || type >= A_MAX)
-    return false;
+  ASSERT_RANGE(type, 0, A_MAX, "asset type");
 
+  int next_asset_idx = get_next_free_slot();
   if (next_asset_idx >= MAX_ASSETS)
-    if (!defrag_assets())
-      safe_exit("No more room for assets", 1);
+    safe_exit("No more room for assets", 1);
 
-  ASSET *pAsset = &assets[next_asset_idx++];
+  ASSET *pAsset = &assets[next_asset_idx];
   pAsset->type = type;
   pAsset->p = f();
+  must_init(pAsset->p, tag);
+  pAsset->tag = strdup(tag);
+  must_init(pAsset->tag, "asset tag string");
 
-  return pAsset->p;
+  return next_asset_idx;
 }
 
-bool asset_loader_unload(void *p)
+void* asset_loader_get(int handle)
 {
-  if (p == NULL)
+  ASSERT_RANGE(handle, 0, MAX_ASSETS, "asset handle must be in range");
+  return assets[handle].p;
+}
+
+bool asset_loader_unload(int handle)
+{
+  ASSERT_RANGE(handle, 0, MAX_ASSETS, "asset handle");
+
+  ASSET *pAsset= &assets[handle];
+
+  if (pAsset == NULL)
     return false;
 
-  for (int i = 0; i < MAX_ASSETS; i++)
-  {
-    ASSET *asset = &assets[i];
-    if (asset->p == p)
-    {
-      unload_asset(asset);
-    }
-  }
-  return false;
+  unload_asset(pAsset);
+  return true;
 }
 
 void asset_loader_unload_all(void)
@@ -113,6 +118,8 @@ void unload_asset(ASSET *asset)
   }
 
   asset->p = NULL;
+  free(asset->tag);
+  asset->tag = NULL;
 }
 
 void asset_loader_deinit_allegro(void)
@@ -133,24 +140,12 @@ void asset_loader_deinit_allegro(void)
   }
 }
 
-static bool defrag_assets(void)
+static int get_next_free_slot(void)
 {
-  bool has_defragged = false;
   for (int i = 0; i < MAX_ASSETS; i++)
   {
-    ASSET* pDstAsset = &assets[i];
-    if (pDstAsset->p != NULL)
-      continue;
-    for (int j = 0; j < MAX_ASSETS; j++) {
-      ASSET* pSrcAsset = &assets[j];
-      if (pSrcAsset->p == NULL)
-        continue;
-      
-      // we have found an asset we can move
-      memmove(pDstAsset, pSrcAsset, sizeof(ASSET));
-      pSrcAsset->p = NULL;
-      has_defragged = true;
-    }
+    if (assets[i].p == NULL)
+      return i;
   }
-  return has_defragged;
+  return MAX_ASSETS;
 }
