@@ -14,6 +14,7 @@
 #include "audio.h"
 #include "asset_loader.h"
 #include "input.h"
+#include "tetris.h"
 
 #define ASSERT_BONUS(bonus) ASSERT_RANGE(bonus, 0, BONUS_MAX, "bonus")
 
@@ -456,11 +457,21 @@ static void reset_game_state(MODE newMode)
   current_bonus = BONUS_MAX;
 
   randomiser_init();
+
+#if DEBUG_MENU && MAKE_LOGO
+  PIECE piece_buffer[4] = { T, I, T, J };
+  randomiser_seed(4, piece_buffer);
+#endif
+
   score_init();
   field_init();
   hud_init();
   player_init(&player_callback);
   al_set_timer_count(timer, 0);
+
+#if DEBUG_MENU && MAKE_LOGO
+  player_make_logo();
+#endif
 }
 
 static void check_win_conditions(void)

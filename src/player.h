@@ -3,6 +3,7 @@
 
 #include <allegro5/allegro.h>
 
+#include "tetris.h"
 #include "mino.h"
 
 typedef struct PLAYER
@@ -25,5 +26,9 @@ void player_update(ALLEGRO_EVENT *event, int frames);
 void player_draw();
 PIECE player_get_held_piece(void);
 TSPIN player_get_tspin_state(void);
+
+#if MAKE_LOGO
+void player_make_logo(void);
+#endif
 
 #endif
