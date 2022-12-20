@@ -285,6 +285,8 @@ void main_callback(int idx)
         state = TRANS_FROM_MAIN;
         next_state = ARCADE;
         arcade_menu.idx = 0;
+        if (transition != NULL)
+            transition_free(transition);
         transition = transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
         break;
     case 1:
@@ -292,6 +294,8 @@ void main_callback(int idx)
         state = TRANS_FROM_MAIN;
         next_state = OPTIONS;
         options_menu.idx = 0;
+        if (transition != NULL)
+            transition_free(transition);
         transition = transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
         break;
     case -1:
@@ -340,6 +344,7 @@ void arcade_callback(int idx)
         safe_exit("Invalid arcade menu index", 1);
         break;
     }
+    if (transition != NULL) transition_free(transition);
     transition = transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
 }
 
@@ -351,6 +356,7 @@ void options_callback(int idx)
     case 0:
         state = TRANS_FROM_OPTIONS;
         next_state = MAIN;
+        if (transition != NULL) transition_free(transition);
         transition = transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
         break;
     default:
@@ -746,15 +752,12 @@ static void transition_callback(void)
     {
     case TRANS_TO_ARCADE:
         state = ARCADE;
-        next_state = STATE_MAX;
         break;
     case TRANS_TO_MAIN:
         state = MAIN;
-        next_state = STATE_MAX;
         break;
     case TRANS_TO_OPTIONS:
         state = OPTIONS;
-        next_state = STATE_MAX;
         break;
     case TRANS_FROM_ARCADE:
     case TRANS_FROM_MAIN:
@@ -777,7 +780,8 @@ static void transition_callback(void)
             state = TRANS_FROM_ARCADE;
             next_state = ARCADE;
             callback(game_mode);
-            // transition_free(transition);
+            transition_free(transition);
+            transition = NULL;
             // transition = transition_start(FADE_OUT, MENU_TRANSITION_TIME_S, &transition_callback);
             return;
         default:
@@ -785,6 +789,12 @@ static void transition_callback(void)
             break;
         }
         transition_free(transition);
+        transition = NULL;
+        if (state == MAIN || state == OPTIONS || state == ARCADE)
+        {
+            next_state = STATE_MAX;
+            return;
+        }
         transition = transition_start(FADE_IN, MENU_TRANSITION_TIME_S, &transition_callback);
         break;
     default:

@@ -70,6 +70,7 @@ void transition_update(void *_pTransition, ALLEGRO_EVENT *pEvent)
         al_stop_timer(A(pTransition->timer));
         al_set_timer_count(A(pTransition->timer), 0);
         pTransition->callback();
+        // do nothing after this! transition has likely been freed
     }
 }
 

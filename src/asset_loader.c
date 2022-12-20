@@ -48,6 +48,8 @@ int asset_loader_load(const char *tag, ASSET_TYPE type, AssetLoaderCallback f)
   pAsset->tag = strdup(tag);
   must_init(pAsset->tag, "asset tag string");
 
+  printf("Loaded [%02d] %s\n", next_asset_idx, pAsset->tag);
+
   return next_asset_idx;
 }
 
@@ -66,6 +68,7 @@ bool asset_loader_unload(int handle)
   if (pAsset == NULL)
     return false;
 
+  printf("Unloaded [%02d] %s\n", handle, pAsset->tag);
   unload_asset(pAsset);
   return true;
 }
@@ -118,8 +121,10 @@ void unload_asset(ASSET *asset)
   }
 
   asset->p = NULL;
+
   free(asset->tag);
   asset->tag = NULL;
+
 }
 
 void asset_loader_deinit_allegro(void)
