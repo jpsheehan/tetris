@@ -22,7 +22,7 @@ void *transition_start(TRANSITION_TYPE type, float time_s, void (*cb)(void))
     must_init(cb, "transition callback");
 
     TRANSITION* pTransition = calloc(1, sizeof(TRANSITION));
-    must_init(pTransition, "transition");
+    must_init(pTransition, "transition start");
     pTransition->timer = asset_loader_load("transition timer", A_TIMER, (AssetLoaderCallback)&create_timer);
 
     al_set_timer_speed(A(pTransition->timer), time_s / TRANSITION_STEPS);
@@ -63,7 +63,7 @@ void transition_draw(void *_pTransition)
 void transition_update(void *_pTransition, ALLEGRO_EVENT *pEvent)
 {
     TRANSITION* pTransition = (TRANSITION*)_pTransition;
-    must_init(pTransition, "transition");
+    must_init(pTransition, "transition update");
     
     if (al_get_timer_count(A(pTransition->timer)) >= TRANSITION_STEPS)
     {
