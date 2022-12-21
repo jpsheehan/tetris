@@ -35,7 +35,8 @@ typedef enum GAME_STATE
   DEFEAT,
   CONFIRM,
   TRANS_TO_CALLBACK,
-  TRANS_TO_RETRY,
+  TRANS_TO_RETRY_YES,
+  TRANS_TO_RETRY_NO,
   TRANS_TO_RESTART,
 } GAME_STATE;
 
@@ -193,7 +194,8 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
   {
   case TRANS_TO_INIT:
   case TRANS_TO_CALLBACK:
-  case TRANS_TO_RETRY:
+  case TRANS_TO_RETRY_YES:
+  case TRANS_TO_RETRY_NO:
   case TRANS_TO_RESTART:
     transition_update(transition, pEvent);
     break;
@@ -282,7 +284,7 @@ void game_draw(void)
   HUD_UPDATE_DATA data = {
       .mode = mode,
       .timer_count = timer == 0 ? 0 : (int)al_get_timer_count(A(timer)),
-      .show_minos = state == PLAYING || state == RETRY || state == WIN || state == TRANS_TO_RETRY,
+      .show_minos = state == PLAYING || state == RETRY || state == WIN || state == TRANS_TO_RETRY_YES || state == TRANS_TO_RETRY_NO,
       .timer_running = al_get_timer_started(A(timer)),
       .bonus = current_bonus,
   };
@@ -302,7 +304,8 @@ void game_draw(void)
     menu_draw(&confirm_menu);
     transition_draw(transition);
     break;
-  case TRANS_TO_RETRY:
+  case TRANS_TO_RETRY_YES:
+  case TRANS_TO_RETRY_NO:
     field_draw(data.show_minos);
     hud_draw(&data);
     al_draw_filled_rectangle(0, 0, BUFFER_W, BUFFER_H, al_map_rgba_f(0, 0, 0, 0.5));
@@ -425,15 +428,13 @@ static void retry_menu_callback(int option)
   {
   case -1:
   case 1: // NO
-    retry_menu.idx = 0;
-    state = TRANS_TO_CALLBACK;
+    state = TRANS_TO_RETRY_NO;
     if (transition != NULL)
       transition_free(transition);
     transition = transition_start(FADE_OUT, GAME_TRANSITION_S, &transition_callback);
     break;
   case 0: // YES
-    retry_menu.idx = 0;
-    state = TRANS_TO_RETRY;
+    state = TRANS_TO_RETRY_YES;
     if (transition != NULL)
       transition_free(transition);
     transition = transition_start(FADE_OUT, GAME_TRANSITION_S, &transition_callback);
@@ -635,6 +636,8 @@ static void transition_callback(void)
   case TRANS_TO_INIT:
     state = INIT;
     break;
+  case TRANS_TO_RETRY_NO:
+    retry_menu.idx = 0;
   case TRANS_TO_CALLBACK:
     state = TRANS_TO_INIT;
     callback();
@@ -643,7 +646,7 @@ static void transition_callback(void)
     game_init();
     reset_game_state(mode);
     break;
-  case TRANS_TO_RETRY:
+  case TRANS_TO_RETRY_YES:
     reset_game_state(mode); // sets state and creates new transition
     break;
   default:
