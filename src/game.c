@@ -19,6 +19,7 @@
 
 #define ASSERT_BONUS(bonus) ASSERT_RANGE(bonus, 0, BONUS_MAX, "bonus")
 
+#define GAME_TRANSITION_S 0.5
 #define PREROLL_STEPS 60
 #define PREROLL_RESOLUTION (1.0 / PREROLL_STEPS)
 
@@ -33,6 +34,8 @@ typedef enum GAME_STATE
   WIN,
   DEFEAT,
   CONFIRM,
+  TRANS_TO_CALLBACK,
+  TRANS_TO_RETRY,
 } GAME_STATE;
 
 static void win_menu_callback(int option);
@@ -55,7 +58,7 @@ static void enter_state_paused(void);
 static void enter_state_preroll(void);
 #endif
 
-static void* transition = NULL;
+static void *transition = NULL;
 static BONUS current_bonus = BONUS_MAX;
 static int bonus_timer = 0;
 static MODE mode;
@@ -188,6 +191,8 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
   switch (state)
   {
   case TRANS_TO_INIT:
+  case TRANS_TO_CALLBACK:
+  case TRANS_TO_RETRY:
     transition_update(transition, pEvent);
     break;
   case INIT:
@@ -275,7 +280,7 @@ void game_draw(void)
   HUD_UPDATE_DATA data = {
       .mode = mode,
       .timer_count = timer == 0 ? 0 : (int)al_get_timer_count(A(timer)),
-      .show_minos = state == PLAYING || state == RETRY || state == WIN,
+      .show_minos = state == PLAYING || state == RETRY || state == WIN || state == TRANS_TO_RETRY,
       .timer_running = al_get_timer_started(A(timer)),
       .bonus = current_bonus,
   };
@@ -285,6 +290,20 @@ void game_draw(void)
   case TRANS_TO_INIT:
     field_draw(data.show_minos);
     hud_draw(&data);
+    transition_draw(transition);
+    break;
+  case TRANS_TO_CALLBACK:
+    field_draw(data.show_minos);
+    hud_draw(&data);
+    al_draw_filled_rectangle(0, 0, BUFFER_W, BUFFER_H, al_map_rgba_f(0, 0, 0, 0.5));
+    menu_draw(&confirm_menu);
+    transition_draw(transition);
+    break;
+  case TRANS_TO_RETRY:
+    field_draw(data.show_minos);
+    hud_draw(&data);
+    al_draw_filled_rectangle(0, 0, BUFFER_W, BUFFER_H, al_map_rgba_f(0, 0, 0, 0.5));
+    menu_draw(&retry_menu);
     transition_draw(transition);
     break;
   case INIT:
@@ -404,11 +423,17 @@ static void retry_menu_callback(int option)
   case -1:
   case 1: // NO
     retry_menu.idx = 0;
-    callback();
+    state = TRANS_TO_CALLBACK;
+    if (transition != NULL)
+      transition_free(transition);
+    transition = transition_start(FADE_OUT, GAME_TRANSITION_S, &transition_callback);
     break;
   case 0: // YES
     retry_menu.idx = 0;
-    reset_game_state(mode);
+    state = TRANS_TO_RETRY;
+    if (transition != NULL)
+      transition_free(transition);
+    transition = transition_start(FADE_OUT, GAME_TRANSITION_S, &transition_callback);
     break;
   default:
     safe_exit("Invalid retry menu option", 1);
@@ -467,7 +492,7 @@ static void reset_game_state(MODE newMode)
   randomiser_init();
 
 #if DEBUG_MENU && MAKE_LOGO
-  PIECE piece_buffer[4] = { T, I, T, L };
+  PIECE piece_buffer[4] = {T, I, T, L};
   randomiser_seed(4, piece_buffer);
 #endif
 
@@ -476,7 +501,11 @@ static void reset_game_state(MODE newMode)
   hud_init();
   player_init(&player_callback);
   al_set_timer_count(A(timer), 0);
-  transition = transition_start(FADE_IN, 0.2, &transition_callback);
+
+  state = TRANS_TO_INIT;
+  if (transition != NULL)
+    transition_free(transition);
+  transition = transition_start(FADE_IN, GAME_TRANSITION_S, &transition_callback);
 
 #if DEBUG_MENU && MAKE_LOGO
   player_make_logo();
@@ -557,7 +586,10 @@ static void confirm_menu_callback(int option)
       al_stop_timer(A(bonus_timer));
       current_bonus = BONUS_MAX;
       pause_menu.idx = 0;
-      callback();
+      state = TRANS_TO_CALLBACK;
+      if (transition != NULL)
+        transition_free(transition);
+      transition = transition_start(FADE_OUT, GAME_TRANSITION_S, &transition_callback);
     }
     else
     {
@@ -590,16 +622,23 @@ static void show_confirm_abandon(void)
 
 static void transition_callback(void)
 {
+  transition_free(transition);
+  transition = NULL;
+
   switch (state)
   {
   case TRANS_TO_INIT:
     state = INIT;
     break;
+  case TRANS_TO_CALLBACK:
+    state = TRANS_TO_INIT;
+    callback();
+    break;
+  case TRANS_TO_RETRY:
+    reset_game_state(mode); // sets state and creates new transition
+    break;
   default:
     safe_exit("Invalid state for transition callback", 1);
     break;
   }
-
-  transition_free(transition);
-  transition = NULL;
 }

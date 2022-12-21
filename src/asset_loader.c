@@ -79,7 +79,7 @@ void asset_loader_unload_all(void)
   {
     ASSET *asset = &assets[i];
     if (asset->p != NULL)
-      unload_asset(asset);
+      asset_loader_unload(i);
   }
 }
 
