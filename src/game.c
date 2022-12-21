@@ -36,6 +36,7 @@ typedef enum GAME_STATE
   CONFIRM,
   TRANS_TO_CALLBACK,
   TRANS_TO_RETRY,
+  TRANS_TO_RESTART,
 } GAME_STATE;
 
 static void win_menu_callback(int option);
@@ -193,6 +194,7 @@ void game_update(ALLEGRO_EVENT *pEvent, int frames)
   case TRANS_TO_INIT:
   case TRANS_TO_CALLBACK:
   case TRANS_TO_RETRY:
+  case TRANS_TO_RESTART:
     transition_update(transition, pEvent);
     break;
   case INIT:
@@ -293,6 +295,7 @@ void game_draw(void)
     transition_draw(transition);
     break;
   case TRANS_TO_CALLBACK:
+  case TRANS_TO_RESTART:
     field_draw(data.show_minos);
     hud_draw(&data);
     al_draw_filled_rectangle(0, 0, BUFFER_W, BUFFER_H, al_map_rgba_f(0, 0, 0, 0.5));
@@ -578,8 +581,10 @@ static void confirm_menu_callback(int option)
   case 0: // YES
     if (confirm_menu.title == CONFIRM_RESTART)
     {
-      game_init();
-      reset_game_state(mode);
+      state = TRANS_TO_RESTART;
+      if (transition != NULL)
+        transition_free(transition);
+      transition = transition_start(FADE_OUT, GAME_TRANSITION_S, &transition_callback);
     }
     else if (confirm_menu.title == CONFIRM_ABANDON)
     {
@@ -633,6 +638,10 @@ static void transition_callback(void)
   case TRANS_TO_CALLBACK:
     state = TRANS_TO_INIT;
     callback();
+    break;
+  case TRANS_TO_RESTART:
+    game_init();
+    reset_game_state(mode);
     break;
   case TRANS_TO_RETRY:
     reset_game_state(mode); // sets state and creates new transition
