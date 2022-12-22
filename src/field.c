@@ -183,7 +183,7 @@ void field_draw(bool show_stack)
     int border_w = 1;
     ALLEGRO_COLOR border_c = al_map_rgb(0x98, 0x00, 0xff);
 
-    al_draw_rectangle(FIELD_MARGIN_X, FIELD_MARGIN_Y - border_w, FIELD_MARGIN_X + FIELD_W * MINO_W + border_w, FIELD_MARGIN_Y + FIELD_H * MINO_H, border_c, border_w);
+    al_draw_rectangle(FIELD_MARGIN_X - 1, FIELD_MARGIN_Y - border_w, FIELD_MARGIN_X + FIELD_W * MINO_W + border_w, FIELD_MARGIN_Y + FIELD_H * MINO_H + 1, border_c, border_w);
 
     if (!show_stack)
         return;
