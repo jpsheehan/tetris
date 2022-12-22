@@ -84,6 +84,7 @@ int main()
         if (done)
             break;
 
+        disp_update(&event);
         keyboard_update(&event);
 
         switch (state)
