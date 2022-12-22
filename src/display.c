@@ -12,7 +12,7 @@ int buffer = 0;
 int logo = 0;
 
 bool fullscreen = false;
-float scaling_factor = 2.0;
+float scaling_factor = 2.5;
 
 static void set_scaling_factor(int width, int height);
 
@@ -85,7 +85,7 @@ void disp_post_draw(void)
     float dy = (al_get_display_height(A(disp)) - DISP_H) / 2;
 
     al_set_target_backbuffer(A(disp));
-    al_draw_filled_rectangle(0, 0, al_get_display_width(A(disp)), al_get_display_height(A(disp)), al_map_rgb_f(0.4, 0.8, 1.0));
+    al_draw_filled_rectangle(0, 0, al_get_display_width(A(disp)), al_get_display_height(A(disp)), al_map_rgb_f(0, 0, 0));
     al_draw_scaled_bitmap(A(buffer), 0, 0, BUFFER_W, BUFFER_H, dx, dy, DISP_W, DISP_H, 0);
     al_flip_display();
 }
