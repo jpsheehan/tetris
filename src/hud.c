@@ -89,8 +89,18 @@ void hud_draw(HUD_UPDATE_DATA *pData)
 
     if (pData->timer_running || (!pData->timer_running && al_get_timer_count(A(flash_timer)) % 2 == 0))
     {
-        int seconds_to_show = pData->mode == ULTRA ? MAX_ULTRA_SECONDS - pData->timer_count : pData->timer_count;
-        al_draw_textf(A(font), al_map_rgb_f(1, 1, 1), 30, 90, 0, "%02d:%02d", seconds_to_show / 60, seconds_to_show % 60);
+        int milliseconds_to_show = pData->mode == ULTRA ? (MAX_ULTRA_SECONDS * 1000) - pData->timer_count : pData->timer_count;
+        
+        int minutes = milliseconds_to_show / 60000;
+        minutes = CLAMP(minutes, 0, 99);
+
+        int seconds = (milliseconds_to_show / 1000) % 60;
+        seconds = CLAMP(seconds, 0, 59);
+
+        int milliseconds = milliseconds_to_show % 1000;
+        milliseconds = CLAMP(milliseconds, 0, 999);
+
+        al_draw_textf(A(font), al_map_rgb_f(1, 1, 1), 30, 90, 0, "%02d:%02d.%03d", minutes, seconds, milliseconds);
     }
 
     if (pData->bonus >= 0 && pData->bonus < BONUS_MAX)

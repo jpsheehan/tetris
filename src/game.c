@@ -467,7 +467,7 @@ static ALLEGRO_TIMER *create_preroll_timer(void)
 
 static ALLEGRO_TIMER *create_ultra_timer(void)
 {
-  return al_create_timer(1.0);
+  return al_create_timer(0.001);
 }
 
 static ALLEGRO_TIMER *create_bonus_timer(void)
@@ -524,7 +524,7 @@ static void check_win_conditions(void)
   switch (mode)
   {
   case MARATHON:
-    if (level_get() >= MAX_MARATHON_LEVEL)
+    if (level_get() > LAST_MARATHON_LEVEL)
       state = WIN;
     break;
   case SPRINT:
@@ -532,7 +532,7 @@ static void check_win_conditions(void)
       state = WIN;
     break;
   case ULTRA:
-    if (al_get_timer_count(A(timer)) >= MAX_ULTRA_SECONDS)
+    if (al_get_timer_count(A(timer)) >= MAX_ULTRA_SECONDS * 1000)
       state = WIN;
     break;
   case ENDLESS:

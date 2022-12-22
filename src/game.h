@@ -5,7 +5,7 @@
 
 #include "tetris.h"
 
-#define MAX_MARATHON_LEVEL 15
+#define LAST_MARATHON_LEVEL 15
 #define MAX_SPRINT_LINES 40
 #define MAX_ULTRA_SECONDS 120
 
@@ -33,6 +33,8 @@ typedef enum BONUS
     PERFECT_CLEAR_DOUBLE,
     PERFECT_CLEAR_TRIPLE,
     PERFECT_CLEAR_TETRIS,
+    HARD_DROP,
+    SOFT_DROP,
     BONUS_MAX,
 } BONUS;
 

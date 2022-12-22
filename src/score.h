@@ -11,6 +11,6 @@ long score_get(void);
 int level_get(void);
 int lines_cleared_get(void);
 int lines_until_next_level(void);
-double gravity_get(void);
+double gravity_get(int level);
 
 #endif

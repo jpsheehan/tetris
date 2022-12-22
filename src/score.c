@@ -67,6 +67,12 @@ void score_add(BONUS bonus)
         score += level_get() * 1600;
         total_lines += 3;
         break;
+    case SOFT_DROP:
+        score += level_get() * 1;
+        break;
+    case HARD_DROP:
+        score += level_get() * 2;
+        break;
     default:
         safe_exit("Invalid bonus", 1);
         break;
@@ -94,8 +100,10 @@ int lines_until_next_level(void)
     return level_get() * 10 - total_lines;
 }
 
-double gravity_get(void)
+#define MAX_LEVEL 15
+
+double gravity_get(int level)
 {
     // https://tetris.fandom.com/wiki/Tetris_Worlds#Gravity
-    return pow(0.8 - ((double)(MIN(level_get(), 15) - 1) * 0.007), (double)(MIN(level_get(), 15) - 1));
+    return pow(0.8 - ((double)(MIN(level, MAX_LEVEL) - 1) * 0.007), (double)(MIN(level, MAX_LEVEL) - 1));
 }
