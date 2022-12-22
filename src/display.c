@@ -11,6 +11,7 @@ int disp = 0;
 int buffer = 0;
 int logo = 0;
 
+bool fullscreen = false;
 float scaling_factor = 2.0;
 
 static void set_scaling_factor(int width, int height);
@@ -20,6 +21,8 @@ static ALLEGRO_DISPLAY *create_display(void)
     al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
     al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
     al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
+    al_set_new_window_title("Tetris");
+
     return al_create_display(DISP_W, DISP_H);
 }
 
@@ -39,7 +42,7 @@ void disp_init(void)
     {
         disp = asset_loader_load("display", A_DISPLAY, (AssetLoaderCallback)&create_display);
 
-        al_set_window_title(A(disp), "Tetris");
+        al_set_window_constraints(A(disp), BUFFER_W, BUFFER_H, 0, 0);
     }
 
     if (buffer == 0)
@@ -60,6 +63,13 @@ void disp_update(ALLEGRO_EVENT *pEvent)
     {
     case ALLEGRO_EVENT_DISPLAY_RESIZE:
         set_scaling_factor(pEvent->display.width, pEvent->display.height);
+        break;
+    case ALLEGRO_EVENT_KEY_DOWN:
+        if (pEvent->keyboard.keycode == ALLEGRO_KEY_F11)
+        {
+            fullscreen = !fullscreen;
+            al_set_display_flag(A(disp), ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
+        }
         break;
     }
 }

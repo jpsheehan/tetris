@@ -28,7 +28,7 @@ sudo apt install liballegro5-dev make
 - [ ] Detect combos for scoring
 - [x] Detect perfect clears for scoring
 - [x] Detect lock-out (locking down above the play area)
-- [x] Fix up the input (it doesn't feel right)
+- [ ] Fix up the input (it doesn't feel right)
   - I think it needs to accept your first input, then wait a little bit before being sensitive
   - At the moment it is just sensitive
 - [x] Add a way to pause the game (think about blurring the stack)
@@ -39,8 +39,9 @@ sudo apt install liballegro5-dev make
 - [x] Smooth out the preroll (we have 60 fps, let's use it!)
 - [ ] Add some background graphics (maybe this could be based on the level?)
 - [x] Add a program icon (and window icon)
-- [ ] Add a fullscreen mode
+- [x] Add a fullscreen mode (press F11)
 - [x] Scale the app window when resized
+- [ ] Add more information about each mode in the menu
 - [ ] Add a sound effect for when rotation fails
 - [ ] Add a sound effect for leveling up
 - [ ] Add some special effects for when lines are cleared (perhaps even animate the lines clearing)
