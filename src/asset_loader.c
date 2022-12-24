@@ -4,6 +4,7 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_ttf.h>
 
 #include "asset_loader.h"
 #include "utils.h"
@@ -129,6 +130,11 @@ void unload_asset(ASSET *asset)
 
 void asset_loader_deinit_allegro(void)
 {
+  if (al_is_ttf_addon_initialized())
+  {
+    al_shutdown_ttf_addon();
+  }
+  
   if (al_is_audio_installed())
   {
     al_uninstall_audio();

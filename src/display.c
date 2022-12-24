@@ -12,7 +12,7 @@ int buffer = 0;
 int logo = 0;
 
 bool fullscreen = false;
-float scaling_factor = 2.5;
+float scaling_factor = 1.0;
 
 static void set_scaling_factor(int width, int height);
 

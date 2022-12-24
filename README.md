@@ -45,6 +45,7 @@ sudo apt install liballegro5-dev make
 - [ ] Add a sound effect for when rotation fails
 - [ ] Add a sound effect for leveling up
 - [ ] Add some special effects for when lines are cleared (perhaps even animate the lines clearing)
+- [ ] Upscale the UI to 640x480
 
 ### Menu Stuff
 

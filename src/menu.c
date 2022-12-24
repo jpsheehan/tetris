@@ -5,29 +5,37 @@
 #include "utils.h"
 #include "asset_loader.h"
 #include "input.h"
+#include "resources.h"
 
-int font = 0;
+int option_font = 0;
+int title_font = 0;
+
+static ALLEGRO_FONT *load_option_font(void);
+static ALLEGRO_FONT *load_title_font(void);
 
 void menu_init(void)
 {
-    if (font == 0)
+    if (option_font == 0)
     {
-        font = asset_loader_load("menu font", A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
+        option_font = asset_loader_load("option font", A_FONT, (AssetLoaderCallback)&load_option_font);
+    }
+
+    if (title_font == 0)
+    {
+        title_font = asset_loader_load("title font", A_FONT, (AssetLoaderCallback)&load_title_font);
     }
 }
 
 void menu_draw(MENU *menu)
 {
-    int x = menu->x - al_get_text_width(A(font), menu->title) / 2;
-    al_draw_text(A(font), al_map_rgb_f(1, 1, 1), x, menu->y, 0, menu->title);
+    al_draw_text(A(title_font), al_map_rgb_f(1, 1, 1), menu->x, menu->y, ALLEGRO_ALIGN_CENTER, menu->title);
 
     for (int i = 0; i < menu->n_opts; i++)
     {
         char *option = menu->opts[i];
         ALLEGRO_COLOR color = i == menu->idx ? al_map_rgb_f(1, 0, 0) : al_map_rgb_f(1, 1, 1);
-        x = menu->x - al_get_text_width(A(font), option) / 2;
 
-        al_draw_text(A(font), color, x, menu->y + 30 + 20 * i, 0, option);
+        al_draw_text(A(option_font), color, menu->x, menu->y + 60 + 30 * i, ALLEGRO_ALIGN_CENTER, option);
     }
 }
 
@@ -59,4 +67,14 @@ void menu_update(MENU *menu, ALLEGRO_EVENT *event)
             menu->callback(-1);
         }
     }
+}
+
+static ALLEGRO_FONT *load_option_font(void)
+{
+    return al_load_font(R_FONT_XOLONIUM_REGULAR, 24, 0);
+}
+
+static ALLEGRO_FONT *load_title_font(void)
+{
+    return al_load_font(R_FONT_XOLONIUM_REGULAR, 32, 0);
 }

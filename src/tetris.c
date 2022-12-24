@@ -6,6 +6,7 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
+#include <allegro5/allegro_ttf.h>
 
 #include "tetris.h"
 #include "utils.h"
@@ -40,6 +41,7 @@ int main()
     must_init(al_init_image_addon(), "init image addon");
     must_init(al_init_primitives_addon(), "primitives");
     must_init(al_init_font_addon(), "font");
+    must_init(al_init_ttf_addon(), "ttf addon");
     must_init(al_install_keyboard(), "keyboard");
 
     asset_loader_init();

@@ -3,8 +3,8 @@
 
 #include <allegro5/allegro5.h>
 
-#define BUFFER_W 320
-#define BUFFER_H 240
+#define BUFFER_W 640
+#define BUFFER_H 480
 
 void disp_init(void);
 void disp_update(ALLEGRO_EVENT* pEvent);
