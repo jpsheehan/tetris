@@ -10,18 +10,35 @@
 #include "player.h"
 #include "utils.h"
 #include "asset_loader.h"
+#include "resources.h"
 
-#define FIRST_X 10
-#define FIRST_Y 10
+#define LEFT REL(0.5) // left
+#define TOP REL(0.5)  // top
 
-#define SECOND_X (BUFFER_W - 70)
-#define SECOND_Y 40
+#define RIGHT (BUFFER_W - REL(0.5))  // right
+#define BOTTOM (BUFFER_H - REL(1.5)) // bottom
 
-#define THIRD_Y (BUFFER_H - 70)
+#define CENTER (BUFFER_W / 2)            // center
+#define MIDDLE (BUFFER_H / 2 - REL(0.5)) // middle
 
-static int font = 0;
+static int score_font = 0;
 static int flash_timer = 0;
-static long score_display;
+static int level_font = 0;
+static int remaining_lines_font = 0;
+static int bonus_font = 0;
+static int time_font = 0;
+static int next_font = 0;
+static int hold_font = 0;
+static int lines_cleared_font = 0;
+
+static ALLEGRO_FONT *load_score_font(void);
+static ALLEGRO_FONT *load_level_font(void);
+static ALLEGRO_FONT *load_remaining_lines_font(void);
+static ALLEGRO_FONT *load_bonus_font(void);
+static ALLEGRO_FONT *load_time_font(void);
+static ALLEGRO_FONT *load_next_font(void);
+static ALLEGRO_FONT *load_hold_font(void);
+static ALLEGRO_FONT *load_lines_cleared_font(void);
 
 static void draw_score(void);
 static void draw_randomiser(void);
@@ -31,11 +48,48 @@ static void draw_remaining_lines(void);
 static void draw_lines_cleared(void);
 static ALLEGRO_TIMER *create_flash_timer(void);
 
+static long score_display;
+
 void hud_init(void)
 {
-    if (font == 0)
+    if (score_font == 0)
     {
-        font = asset_loader_load("hud font", A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
+        score_font = asset_loader_load("score font", A_FONT, (AssetLoaderCallback)&load_score_font);
+    }
+
+    if (level_font == 0)
+    {
+        level_font = asset_loader_load("level font", A_FONT, (AssetLoaderCallback)&load_level_font);
+    }
+
+    if (remaining_lines_font == 0)
+    {
+        remaining_lines_font = asset_loader_load("remaining lines font", A_FONT, (AssetLoaderCallback)&load_remaining_lines_font);
+    }
+
+    if (bonus_font == 0)
+    {
+        bonus_font = asset_loader_load("bonus font", A_FONT, (AssetLoaderCallback)&load_bonus_font);
+    }
+
+    if (time_font == 0)
+    {
+        time_font = asset_loader_load("time font", A_FONT, (AssetLoaderCallback)&load_time_font);
+    }
+
+    if (hold_font == 0)
+    {
+        hold_font = asset_loader_load("hold font", A_FONT, (AssetLoaderCallback)&load_hold_font);
+    }
+
+    if (next_font == 0)
+    {
+        next_font = asset_loader_load("next font", A_FONT, (AssetLoaderCallback)&load_next_font);
+    }
+
+    if (lines_cleared_font == 0)
+    {
+        lines_cleared_font = asset_loader_load("lines_cleared font", A_FONT, (AssetLoaderCallback)&load_lines_cleared_font);
     }
 
     if (flash_timer == 0)
@@ -58,7 +112,7 @@ void hud_update(void)
     }
 }
 
-static char* bonus_words[] = {
+static char *bonus_words[] = {
     "Single",
     "Double",
     "Triple",
@@ -90,7 +144,7 @@ void hud_draw(HUD_UPDATE_DATA *pData)
     if (pData->timer_running || (!pData->timer_running && al_get_timer_count(A(flash_timer)) % 2 == 0))
     {
         int milliseconds_to_show = pData->mode == ULTRA ? (MAX_ULTRA_SECONDS * 1000) - pData->timer_count : pData->timer_count;
-        
+
         int minutes = milliseconds_to_show / 60000;
         minutes = CLAMP(minutes, 0, 99);
 
@@ -100,26 +154,26 @@ void hud_draw(HUD_UPDATE_DATA *pData)
         int milliseconds = milliseconds_to_show % 1000;
         milliseconds = CLAMP(milliseconds, 0, 999);
 
-        al_draw_textf(A(font), al_map_rgb_f(1, 1, 1), 30, 90, 0, "%02d:%02d.%03d", minutes, seconds, milliseconds);
+        al_draw_textf(A(time_font), al_map_rgb_f(1, 1, 1), LEFT, MIDDLE - REL(2), ALLEGRO_ALIGN_LEFT, "%02d:%02d.%03d", minutes, seconds, milliseconds);
     }
 
     if (pData->bonus >= 0 && pData->bonus < BONUS_MAX)
     {
-        char* bonus_text = bonus_words[pData->bonus];
-        al_draw_textf(A(font), al_map_rgb_f(1, 1, 1), 30, 110, 0, "%s!", bonus_text);
+        char *bonus_text = bonus_words[pData->bonus];
+        al_draw_textf(A(bonus_font), al_map_rgb_f(1, 1, 1), LEFT, MIDDLE, ALLEGRO_ALIGN_LEFT, "%s!", bonus_text);
     }
 }
 
 static void draw_score(void)
 {
-    al_draw_textf(A(font), al_map_rgb_f(1, 1, 1), 10, FIRST_Y, 0, "%06ld", score_display);
+    al_draw_textf(A(score_font), al_map_rgb_f(1, 1, 1), LEFT, TOP, ALLEGRO_ALIGN_LEFT, "%06ld", score_display);
 }
 
 static void draw_randomiser(void)
 {
-    al_draw_text(A(font), al_map_rgb_f(1, 1, 1), SECOND_X, SECOND_Y, 0, "Next");
+    al_draw_text(A(next_font), al_map_rgb_f(1, 1, 1), RIGHT, TOP + REL(1.5), ALLEGRO_ALIGN_RIGHT, "Next");
 
-    int gap_y = 20;
+    int gap_y = MINO_H * 2;
     PIECE bag[6];
     int num_read = 0;
 
@@ -127,39 +181,78 @@ static void draw_randomiser(void)
 
     for (int i = 0; i < num_read; i++)
     {
-        mino_draw(bag[i], 0, SECOND_X, SECOND_Y + (i + 0.5) * (MINO_H + gap_y), mino_get_default_colour(bag[i]), 1.0);
+        mino_draw(bag[i], 0, RIGHT - MINO_H * 4, TOP + REL(1.5) + (i + 1) * (MINO_H + gap_y), mino_get_default_colour(bag[i]), 1.0);
     }
 }
 
 static void draw_held_piece(void)
 {
-    int offset_x = FIRST_X + 10;
-    al_draw_textf(A(font), al_map_rgb_f(1, 1, 1), offset_x, SECOND_Y, 0, "Hold");
+    al_draw_textf(A(hold_font), al_map_rgb_f(1, 1, 1), LEFT, TOP + REL(1.5), 0, "Hold");
 
     PIECE held_piece = player_get_held_piece();
 
     if (held_piece >= 0 && held_piece < PIECE_MAX)
     {
-        mino_draw(held_piece, 0, offset_x, SECOND_Y + 15, mino_get_default_colour(held_piece), 1.0);
+        mino_draw(held_piece, 0, LEFT, TOP + REL(3), mino_get_default_colour(held_piece), 1.0);
     }
 }
 
 static void draw_level(void)
 {
-    al_draw_textf(A(font), al_map_rgb_f(1, 1, 1), SECOND_X, FIRST_Y, 0, "Level %d", level_get());
+    al_draw_textf(A(level_font), al_map_rgb_f(1, 1, 1), RIGHT, TOP, ALLEGRO_ALIGN_RIGHT, "Level %d", level_get());
 }
 
 static void draw_remaining_lines(void)
 {
-    al_draw_textf(A(font), al_map_rgb_f(1, 1, 1), FIRST_X, BUFFER_H - 15, 0, "%d lines until next level", lines_until_next_level());
+    al_draw_textf(A(remaining_lines_font), al_map_rgb_f(1, 1, 1), LEFT, BOTTOM, 0, "%d lines until next level", lines_until_next_level());
 }
 
 static void draw_lines_cleared(void)
 {
-    al_draw_textf(A(font), al_map_rgb_f(1, 1, 1), FIRST_X, THIRD_Y, 0, "%d lines", lines_cleared_get());
+    al_draw_textf(A(lines_cleared_font), al_map_rgb_f(1, 1, 1), LEFT, MIDDLE + REL(2), 0, "%d lines", lines_cleared_get());
 }
 
 static ALLEGRO_TIMER *create_flash_timer(void)
 {
     return al_create_timer(0.5);
+}
+
+static ALLEGRO_FONT *load_score_font(void)
+{
+    return al_load_font(R_FONT_XOLONIUM_REGULAR, REL(1), 0);
+}
+
+static ALLEGRO_FONT *load_level_font(void)
+{
+    return al_load_font(R_FONT_XOLONIUM_REGULAR, REL(1), 0);
+}
+
+static ALLEGRO_FONT *load_remaining_lines_font(void)
+{
+    return al_load_font(R_FONT_XOLONIUM_REGULAR, REL(1), 0);
+}
+
+static ALLEGRO_FONT *load_time_font(void)
+{
+    return al_load_font(R_FONT_XOLONIUM_REGULAR, REL(1), 0);
+}
+
+static ALLEGRO_FONT *load_hold_font(void)
+{
+    return al_load_font(R_FONT_XOLONIUM_REGULAR, REL(1), 0);
+}
+
+static ALLEGRO_FONT *load_next_font(void)
+{
+    return al_load_font(R_FONT_XOLONIUM_REGULAR, REL(1), 0);
+}
+
+static ALLEGRO_FONT *load_bonus_font(void)
+{
+    return al_load_font(R_FONT_XOLONIUM_REGULAR, REL(1), 0);
+}
+
+static ALLEGRO_FONT *load_lines_cleared_font(void)
+{
+    return al_load_font(R_FONT_XOLONIUM_REGULAR, REL(1), 0);
 }

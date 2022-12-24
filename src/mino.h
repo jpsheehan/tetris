@@ -3,8 +3,8 @@
 
 #include <allegro5/allegro.h>
 
-#define MINO_W 10
-#define MINO_H 10
+#define MINO_W 20
+#define MINO_H 20
 
 typedef enum PIECE
 {

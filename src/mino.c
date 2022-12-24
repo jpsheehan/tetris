@@ -509,7 +509,6 @@ void mino_draw_cell(int x, int y, ALLEGRO_COLOR c, float scale)
         { .x = x, .y = y + MINO_W * scale, .z = 0, .color = lighter },
         { .x = x + MINO_W * scale, .y = y + MINO_W * scale, .z = 0, .color = c },
     };
-    // al_draw_filled_rectangle(x, y, x + MINO_W * scale, y + MINO_H * scale, c);
     al_draw_prim(v, NULL, NULL, 0, 4, ALLEGRO_PRIM_TRIANGLE_STRIP);
 
     al_unmap_rgb_f(c, &r, &g, &b);

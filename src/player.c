@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <allegro5/allegro.h>
-#include <allegro5/allegro_font.h>
 
 #include "player.h"
 #include "field.h"
@@ -18,7 +17,6 @@ static TSPIN get_tspin(void);
 static PLAYER player;
 static PIECE held_piece;
 static bool can_swap_with_held_piece;
-static int font = 0;
 static int lock_delay = 0;
 static TSPIN tspin_state = TS_NONE;
 
@@ -77,11 +75,6 @@ TSPIN player_get_tspin_state(void)
 void player_init(void (*cb)(void))
 {
     callback = cb;
-
-    if (font == 0)
-    {
-        font = asset_loader_load("player", A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
-    }
 
     if (lock_delay == 0)
     {

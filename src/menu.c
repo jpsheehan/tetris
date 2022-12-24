@@ -71,10 +71,10 @@ void menu_update(MENU *menu, ALLEGRO_EVENT *event)
 
 static ALLEGRO_FONT *load_option_font(void)
 {
-    return al_load_font(R_FONT_XOLONIUM_REGULAR, 24, 0);
+    return al_load_font(R_FONT_XOLONIUM_REGULAR, REL(1), 0);
 }
 
 static ALLEGRO_FONT *load_title_font(void)
 {
-    return al_load_font(R_FONT_XOLONIUM_REGULAR, 32, 0);
+    return al_load_font(R_FONT_XOLONIUM_REGULAR, REL(1.33), 0);
 }

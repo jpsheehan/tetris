@@ -16,6 +16,7 @@
 #include "input.h"
 #include "transition.h"
 #include "tetris.h"
+#include "resources.h"
 
 #define ASSERT_BONUS(bonus) ASSERT_RANGE(bonus, 0, BONUS_MAX, "bonus")
 
@@ -59,6 +60,7 @@ static void enter_state_paused(void);
 #if !DISABLE_PREROLL
 static void enter_state_preroll(void);
 #endif
+static ALLEGRO_FONT *create_preroll_font(void);
 
 static void *transition = NULL;
 static BONUS current_bonus = BONUS_MAX;
@@ -68,7 +70,7 @@ static void (*callback)(void) = NULL;
 static int sfx_played = 0b0000;
 static int preroll = 0;
 static int timer = 0;
-static int font = 0;
+static int preroll_font = 0;
 static GAME_STATE state = INIT;
 static char *CONFIRM_RESTART = "Really restart this game?";
 static char *CONFIRM_ABANDON = "Really abandon this game?";
@@ -136,9 +138,9 @@ static void game_init(void)
     bonus_timer = asset_loader_load("bonus timer", A_TIMER, (AssetLoaderCallback)&create_bonus_timer);
   }
 
-  if (font == 0)
+  if (preroll_font == 0)
   {
-    font = asset_loader_load("game font", A_FONT, (AssetLoaderCallback)&al_create_builtin_font);
+    preroll_font = asset_loader_load("preroll font", A_FONT, (AssetLoaderCallback)&create_preroll_font);
   }
 }
 
@@ -479,12 +481,17 @@ static void draw_preroll(void)
 {
   int countdown = 3 - al_get_timer_count(A(preroll)) / PREROLL_STEPS;
   int t = al_get_timer_count(A(preroll)) % PREROLL_STEPS;
-  int y = t < 0.3 * PREROLL_STEPS ? (t * BUFFER_H / (0.6 * PREROLL_STEPS)) : (t < (0.7 * PREROLL_STEPS) ? BUFFER_H / 2 : (t - 0.4 * PREROLL_STEPS) * BUFFER_H / (0.6 * PREROLL_STEPS));
+  int middle = BUFFER_H / 2 - al_get_font_line_height(A(preroll_font));
+  int y = t < 0.3 * PREROLL_STEPS
+        ? (t * middle / (0.3 * PREROLL_STEPS))
+        : (t < (0.7 * PREROLL_STEPS)
+          ? middle
+          : (t - 0.4 * PREROLL_STEPS) * middle / (0.3 * PREROLL_STEPS));
 
   if (countdown > 0)
-    al_draw_textf(A(font), al_map_rgb_f(1, 1, 1), BUFFER_W / 2, y, ALLEGRO_ALIGN_CENTER, "%d!", countdown);
+    al_draw_textf(A(preroll_font), al_map_rgb_f(1, 1, 1), BUFFER_W / 2, y, ALLEGRO_ALIGN_CENTER, "%d!", countdown);
   else
-    al_draw_text(A(font), al_map_rgb_f(1, 1, 1), BUFFER_W / 2, y, ALLEGRO_ALIGN_CENTER, "GO!");
+    al_draw_text(A(preroll_font), al_map_rgb_f(1, 1, 1), BUFFER_W / 2, y, ALLEGRO_ALIGN_CENTER, "GO!");
 }
 
 static void reset_game_state(MODE newMode)
@@ -653,4 +660,9 @@ static void transition_callback(void)
     safe_exit("Invalid state for transition callback", 1);
     break;
   }
+}
+
+static ALLEGRO_FONT *create_preroll_font(void)
+{
+  return al_load_font(R_FONT_XOLONIUM_REGULAR, REL(2), 0);
 }

@@ -9,7 +9,7 @@
 #include "asset_loader.h"
 #include "utils.h"
 
-#define MAX_ASSETS 30
+#define MAX_ASSETS 40
 
 typedef struct ASSET
 {
@@ -134,7 +134,7 @@ void asset_loader_deinit_allegro(void)
   {
     al_shutdown_ttf_addon();
   }
-  
+
   if (al_is_audio_installed())
   {
     al_uninstall_audio();

@@ -133,7 +133,8 @@ void field_update(void)
                 game_show_bonus(TSPIN_MINI_SINGLE);
                 break;
             default:
-                safe_exit("Invalid number of lines cleared for tspin mini", 1);
+                // for some reason we can hit this :(
+                // safe_exit("Invalid number of lines cleared for tspin mini", 1);
                 break;
             }
             break;
@@ -180,7 +181,7 @@ void field_update(void)
 
 void field_draw(bool show_stack)
 {
-    int border_w = 1;
+    int border_w = 2;
     ALLEGRO_COLOR border_c = al_map_rgb(0x98, 0x00, 0xff);
 
     al_draw_rectangle(FIELD_MARGIN_X - 1, FIELD_MARGIN_Y - border_w, FIELD_MARGIN_X + FIELD_W * MINO_W + border_w, FIELD_MARGIN_Y + FIELD_H * MINO_H + 1, border_c, border_w);
