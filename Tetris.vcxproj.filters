@@ -95,6 +95,9 @@
     <ClInclude Include="src\randomiser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\resources.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\score.h">
       <Filter>Header Files</Filter>
     </ClInclude>

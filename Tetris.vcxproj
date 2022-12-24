@@ -74,6 +74,7 @@
     <Allegro_AddonAcodec>true</Allegro_AddonAcodec>
     <Allegro_AddonFont>true</Allegro_AddonFont>
     <Allegro_AddonImage>true</Allegro_AddonImage>
+    <Allegro_AddonTtf>true</Allegro_AddonImage>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Allegro_AddonPrimitives>true</Allegro_AddonPrimitives>
@@ -81,6 +82,7 @@
     <Allegro_AddonAcodec>true</Allegro_AddonAcodec>
     <Allegro_AddonFont>true</Allegro_AddonFont>
     <Allegro_AddonImage>true</Allegro_AddonImage>
+    <Allegro_AddonTtf>true</Allegro_AddonImage>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -150,6 +152,7 @@
     <ClInclude Include="src\mino.h" />
     <ClInclude Include="src\player.h" />
     <ClInclude Include="src\randomiser.h" />
+    <ClInclude Include="src\resources.h" />
     <ClInclude Include="src\score.h" />
     <ClInclude Include="src\transition.h" />
     <ClInclude Include="src\utils.h" />
