@@ -20,6 +20,7 @@ typedef struct ASSET
 
 static ASSET assets[MAX_ASSETS] = {0};
 static int get_next_free_slot(void);
+static int hwm = 0;
 
 void unload_asset(ASSET *asset);
 
@@ -50,6 +51,8 @@ int asset_loader_load(const char *tag, ASSET_TYPE type, AssetLoaderCallback f)
   must_init(pAsset->tag, "asset tag string");
 
   printf("Loaded [%02d] %s\n", next_asset_idx, pAsset->tag);
+  if (next_asset_idx > hwm)
+    hwm = next_asset_idx;
 
   return next_asset_idx;
 }
@@ -82,6 +85,7 @@ void asset_loader_unload_all(void)
     if (asset->p != NULL)
       asset_loader_unload(i);
   }
+  printf("HWM was %d\n", hwm);
 }
 
 void unload_asset(ASSET *asset)
