@@ -19,6 +19,7 @@
         "ratio": "c",
         "transition.h": "c",
         "allegro_acodec.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "display.h": "c"
     }
 }

@@ -62,6 +62,7 @@ static void enter_state_paused(void);
 static void enter_state_preroll(void);
 #endif
 static ALLEGRO_FONT *create_preroll_font(void);
+static ALLEGRO_BITMAP* load_background_image(void);
 
 static void *transition = NULL;
 static BONUS current_bonus = BONUS_MAX;
@@ -72,6 +73,7 @@ static int sfx_played = 0b0000;
 static int preroll = 0;
 static int timer = 0;
 static int preroll_font = 0;
+static int background_image = 0;
 static GAME_STATE state = INIT;
 static char *CONFIRM_RESTART = "Really restart this game?";
 static char *CONFIRM_ABANDON = "Really abandon this game?";
@@ -144,6 +146,11 @@ static void game_init(void)
   if (preroll_font == 0)
   {
     preroll_font = asset_loader_load("preroll font", A_FONT, (AssetLoaderCallback)&create_preroll_font);
+  }
+
+  if (background_image == 0)
+  {
+     background_image = asset_loader_load("background game image", A_BITMAP, (AssetLoaderCallback)&load_background_image);
   }
 }
 
@@ -293,6 +300,8 @@ void game_draw(void)
       .timer_running = al_get_timer_started(A(timer)),
       .bonus = current_bonus,
   };
+
+  al_draw_scaled_bitmap(A(background_image), 0, 0, al_get_bitmap_width(A(background_image)), al_get_bitmap_height(A(background_image)), 0, 0, BUFFER_W, BUFFER_H, 0);
 
   switch (state)
   {
@@ -719,4 +728,9 @@ static void transition_callback(void)
 static ALLEGRO_FONT *create_preroll_font(void)
 {
   return al_load_font(R_FONT_XOLONIUM_REGULAR, REL(2), 0);
+}
+
+static ALLEGRO_BITMAP* load_background_image(void)
+{
+  return al_load_bitmap("./resources/graphics/space_planet.jpeg");
 }
