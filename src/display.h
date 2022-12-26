@@ -14,5 +14,6 @@ void disp_register_event_source(ALLEGRO_EVENT_QUEUE* queue);
 int disp_get_buffer_width(void);
 int disp_get_buffer_height(void);
 ALLEGRO_BITMAP* disp_get_buffer(void);
+void disp_return_to_windowed_mode(void);
 
 #endif

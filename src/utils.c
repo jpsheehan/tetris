@@ -19,6 +19,7 @@ void safe_exit(const char *message, int code)
         printf("%s\n", message);
     }
 
+    disp_return_to_windowed_mode();
     asset_loader_unload_all();
     asset_loader_deinit_allegro();
 
