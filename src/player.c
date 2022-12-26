@@ -11,6 +11,9 @@
 #include "asset_loader.h"
 #include "input.h"
 
+#define CLEAR_TIMER_RESOLUTION 100
+#define CLEAR_TIMER_PERIOD 0.4
+
 static void (*callback)(void);
 static TSPIN get_tspin(void);
 
@@ -19,7 +22,9 @@ static PIECE held_piece;
 static bool can_swap_with_held_piece;
 static int lock_delay = 0;
 static int gravity_timer = 0;
+static int clear_timer = 0;
 static TSPIN tspin_state = TS_NONE;
+static bool should_dispense_next_piece = false;
 
 static bool was_last_move_a_rotation = false;
 static int last_kick_index = -1;
@@ -59,8 +64,13 @@ static void dispense_specific_piece(PIECE piece)
 static void dispense_next_piece()
 {
     al_stop_timer(A(lock_delay));
+    al_stop_timer(A(gravity_timer));
+    al_stop_timer(A(clear_timer));
+    al_set_timer_count(A(clear_timer), 0);
+
     dispense_specific_piece(randomiser_next());
     can_swap_with_held_piece = true;
+    should_dispense_next_piece = false;
 }
 
 static ALLEGRO_TIMER *create_lock_delay_timer(void)
@@ -73,6 +83,11 @@ static ALLEGRO_TIMER *create_gravity_timer(void)
     return al_create_timer(gravity_get(level_get()));
 }
 
+static ALLEGRO_TIMER *create_clear_timer(void)
+{
+    return al_create_timer(CLEAR_TIMER_PERIOD / CLEAR_TIMER_RESOLUTION);
+}
+
 TSPIN player_get_tspin_state(void)
 {
     return tspin_state;
@@ -81,11 +96,13 @@ TSPIN player_get_tspin_state(void)
 void player_pause_timers(void)
 {
     al_stop_timer(A(gravity_timer));
+    al_stop_timer(A(clear_timer));
 }
 
 void player_start_timers(void)
 {
     al_start_timer(A(gravity_timer));
+    al_start_timer(A(clear_timer));
 }
 
 void player_init(void (*cb)(void))
@@ -100,6 +117,11 @@ void player_init(void (*cb)(void))
     if (gravity_timer == 0)
     {
         gravity_timer = asset_loader_load("gravity timer", A_TIMER, (AssetLoaderCallback)&create_gravity_timer);
+    }
+
+    if (clear_timer == 0)
+    {
+        clear_timer = asset_loader_load("clear timer", A_TIMER, (AssetLoaderCallback)&create_clear_timer);
     }
 
     held_piece = PIECE_MAX;
@@ -290,8 +312,42 @@ bool player_lock_down(bool hard_lock)
 void player_update(ALLEGRO_EVENT *event, int frames)
 {
     static int previous_level = 1;
+    static int previous_lines_cleared = 0;
 
     tspin_state = TS_NONE;
+
+    if (event->type == ALLEGRO_EVENT_TIMER)
+    {
+        if (should_dispense_next_piece)
+        {
+            if (previous_lines_cleared != lines_cleared_get())
+            {
+                if (al_get_timer_started(A(clear_timer)))
+                {
+                    if (al_get_timer_count(A(clear_timer)) >= CLEAR_TIMER_RESOLUTION)
+                    {
+                        dispense_next_piece();
+                        previous_lines_cleared = lines_cleared_get();
+                    }
+                }
+                else
+                {
+                    al_start_timer(A(clear_timer));
+                }
+            }
+            else
+            {
+                // no lines were cleared so just dispense a piece
+                dispense_next_piece();
+            }
+        }
+    }
+
+    if (should_dispense_next_piece)
+    {
+        // player is not on the screen, don't update anything
+        return;
+    }
 
     if (!al_get_timer_started(A(gravity_timer)))
     {
@@ -308,7 +364,6 @@ void player_update(ALLEGRO_EVENT *event, int frames)
 
     if (event->type == ALLEGRO_EVENT_TIMER)
     {
-        // counter is 100x the cells per second (100C/s)
         int64_t gravity = al_get_timer_count(A(gravity_timer));
         for (int _ = 0; _ < gravity; _++)
         {
@@ -320,7 +375,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
             {
                 if (player_lock_down(false))
                 {
-                    dispense_next_piece();
+                    should_dispense_next_piece = true;
                     audio_play_sfx(SFX_LOCK_DOWN);
                 }
                 break;
@@ -377,7 +432,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
                     if (player_lock_down(true))
                     {
                         keyboard_reset_key(input_get_mapping(INPUT_SOFT_DROP));
-                        dispense_next_piece();
+                        should_dispense_next_piece = true;
                         audio_play_sfx(SFX_LOCK_DOWN);
                     }
                     break;
@@ -422,7 +477,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
             }
             if (player_lock_down(true))
             {
-                dispense_next_piece();
+                should_dispense_next_piece = true;
                 audio_play_sfx(SFX_HARD_DROP);
             }
         }
@@ -440,7 +495,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
                 else
                 {
                     held_piece = player.piece;
-                    dispense_next_piece();
+                    should_dispense_next_piece = true;
                 }
                 can_swap_with_held_piece = false;
                 al_stop_timer(A(lock_delay));
@@ -468,7 +523,11 @@ void player_draw()
     ASSERT_PIECE(player.piece);
     ASSERT_ROTATION(player.rotation);
 
-    draw_ghost_piece();
+    if (should_dispense_next_piece)
+        return;
+
+    if (level_get() < 15)
+        draw_ghost_piece();
 
     // draw player
     field_draw_mino(player.piece, player.rotation, player.x, player.y, player.c);
