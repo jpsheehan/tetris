@@ -9,7 +9,7 @@ static int total_lines;
 void score_init(void)
 {
     score = 0;
-    total_lines = 149;
+    total_lines = 0;
 }
 
 void score_add(BONUS bonus)
@@ -100,7 +100,7 @@ int lines_until_next_level(void)
     return level_get() * 10 - total_lines;
 }
 
-#define MAX_LEVEL 15
+#define MAX_LEVEL 20
 
 double gravity_get(int level)
 {
