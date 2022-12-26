@@ -424,7 +424,22 @@ static void pause_menu_callback(int option)
 
 static void player_callback(void)
 {
-  state = RETRY;
+  if (mode == ENDLESS)
+  {
+    long score = score_get();
+    state = WIN;
+    if (leaderboard_is_worthy(ENDLESS, score))
+    {
+      leaderboard_add_score(ENDLESS, "TEST", score);
+      win_menu.title = WIN_NEW_HIGHSCORE_TEXT;
+    }
+    else
+    {
+      win_menu.title = WIN_NO_HIGHSCORE_TEXT;
+    }
+  }
+  else
+    state = RETRY;
 }
 
 static void retry_menu_callback(int option)
@@ -486,10 +501,10 @@ static void draw_preroll(void)
   int t = al_get_timer_count(A(preroll)) % PREROLL_STEPS;
   int middle = BUFFER_H / 2 - al_get_font_line_height(A(preroll_font));
   int y = t < 0.3 * PREROLL_STEPS
-        ? (t * middle / (0.3 * PREROLL_STEPS))
-        : (t < (0.7 * PREROLL_STEPS)
-          ? middle
-          : (t - 0.4 * PREROLL_STEPS) * middle / (0.3 * PREROLL_STEPS));
+              ? (t * middle / (0.3 * PREROLL_STEPS))
+              : (t < (0.7 * PREROLL_STEPS)
+                     ? middle
+                     : (t - 0.4 * PREROLL_STEPS) * middle / (0.3 * PREROLL_STEPS));
 
   if (countdown > 0)
     al_draw_textf(A(preroll_font), al_map_rgb_f(1, 1, 1), BUFFER_W / 2, y, ALLEGRO_ALIGN_CENTER, "%d!", countdown);
@@ -538,35 +553,45 @@ static void check_win_conditions(void)
     {
       long score = score_get();
       state = WIN;
-      if (leaderboard_is_worthy(MARATHON, score)) {
+      if (leaderboard_is_worthy(MARATHON, score))
+      {
         leaderboard_add_score(MARATHON, "TEST", score);
         win_menu.title = WIN_NEW_HIGHSCORE_TEXT;
-      } else {
+      }
+      else
+      {
         win_menu.title = WIN_NO_HIGHSCORE_TEXT;
       }
     }
     break;
   case SPRINT:
-    if (lines_cleared_get() >= MAX_SPRINT_LINES) {
+    if (lines_cleared_get() >= MAX_SPRINT_LINES)
+    {
       long score = al_get_timer_count(A(timer));
       state = WIN;
       if (leaderboard_is_worthy(SPRINT, score))
       {
         leaderboard_add_score(SPRINT, "TEST", score);
         win_menu.title = WIN_NEW_HIGHSCORE_TEXT;
-      } else {
+      }
+      else
+      {
         win_menu.title = WIN_NO_HIGHSCORE_TEXT;
       }
     }
     break;
   case ULTRA:
-    if (al_get_timer_count(A(timer)) >= MAX_ULTRA_SECONDS * 1000) {
+    if (al_get_timer_count(A(timer)) >= MAX_ULTRA_SECONDS * 1000)
+    {
       long score = score_get();
       state = WIN;
-      if (leaderboard_is_worthy(ULTRA, score)) {
+      if (leaderboard_is_worthy(ULTRA, score))
+      {
         leaderboard_add_score(ULTRA, "TEST", score);
         win_menu.title = WIN_NEW_HIGHSCORE_TEXT;
-      } else {
+      }
+      else
+      {
         win_menu.title = WIN_NO_HIGHSCORE_TEXT;
       }
     }
