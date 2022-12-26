@@ -536,9 +536,10 @@ static void check_win_conditions(void)
   case MARATHON:
     if (level_get() > LAST_MARATHON_LEVEL)
     {
+      long score = score_get();
       state = WIN;
-      if (leaderboard_is_worthy(MARATHON, score_get())) {
-        leaderboard_add_score(MARATHON, "TEST", score_get());
+      if (leaderboard_is_worthy(MARATHON, score)) {
+        leaderboard_add_score(MARATHON, "TEST", score);
         win_menu.title = WIN_NEW_HIGHSCORE_TEXT;
       } else {
         win_menu.title = WIN_NO_HIGHSCORE_TEXT;
@@ -547,10 +548,11 @@ static void check_win_conditions(void)
     break;
   case SPRINT:
     if (lines_cleared_get() >= MAX_SPRINT_LINES) {
+      long score = al_get_timer_count(A(timer));
       state = WIN;
-      if (leaderboard_is_worthy(SPRINT, score_get()))
+      if (leaderboard_is_worthy(SPRINT, score))
       {
-        leaderboard_add_score(SPRINT, "TEST", score_get());
+        leaderboard_add_score(SPRINT, "TEST", score);
         win_menu.title = WIN_NEW_HIGHSCORE_TEXT;
       } else {
         win_menu.title = WIN_NO_HIGHSCORE_TEXT;
@@ -559,9 +561,10 @@ static void check_win_conditions(void)
     break;
   case ULTRA:
     if (al_get_timer_count(A(timer)) >= MAX_ULTRA_SECONDS * 1000) {
+      long score = score_get();
       state = WIN;
-      if (leaderboard_is_worthy(ULTRA, score_get())) {
-        leaderboard_add_score(ULTRA, "TEST", score_get());
+      if (leaderboard_is_worthy(ULTRA, score)) {
+        leaderboard_add_score(ULTRA, "TEST", score);
         win_menu.title = WIN_NEW_HIGHSCORE_TEXT;
       } else {
         win_menu.title = WIN_NO_HIGHSCORE_TEXT;
