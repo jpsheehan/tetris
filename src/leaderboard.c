@@ -10,19 +10,6 @@ char mode_identifiers[MAX_MODE_IDENTIFIERS] = {
     'U',
     'E'};
 
-/*
-STORAGE FORMAT:
-
-Each line is formatted like this:
-
-  [ M, N0, N1, N2, N3, N4, '\0', S0, S1, S2, S3, S4, S5, S6, S7, '\n' ]
-
-Where:
-  M  = the mode, 'M', 'S', 'U', or 'E'
-  Nx = the xth character of the user's name
-  Sx = the xth byte of the score (least significant byte first, uint64_t)
-*/
-
 static bool does_leaderboard_file_exist(void);
 static void sort_highscores(MODE mode, SCORE *scores, size_t n);
 
@@ -115,12 +102,16 @@ void leaderboard_add_score(MODE mode, const char *name, uint64_t value)
 
   // STEP 1: Read all highscores for all modes
   SCORE all_scores[MAX_MODES * MAX_LEADERBOARD_ENTRIES] = {0};
-  file = al_fopen(leaderboard_filename, "rb");
-  if (file == NULL)
-    safe_exit("Could not read leaderboard", 1);
+  size_t num_read = 0;
 
-  size_t num_read = leaderboard_read_high_scores(MAX_MODES, MAX_MODES * MAX_LEADERBOARD_ENTRIES, all_scores);
-  al_fclose(file);
+  if (does_leaderboard_file_exist())
+  {
+    file = al_fopen(leaderboard_filename, "rb");
+    if (file == NULL)
+      safe_exit("Could not read leaderboard", 1);
+    num_read = leaderboard_read_high_scores(MAX_MODES, MAX_MODES * MAX_LEADERBOARD_ENTRIES, all_scores);
+    al_fclose(file);
+  }
 
   // STEP 2: Write all highscores for other modes, putting the ones we care about in a different buffer
   SCORE this_mode_scores[MAX_LEADERBOARD_ENTRIES * 2] = {0};
