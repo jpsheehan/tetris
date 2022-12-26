@@ -18,6 +18,7 @@ static PLAYER player;
 static PIECE held_piece;
 static bool can_swap_with_held_piece;
 static int lock_delay = 0;
+static int gravity_timer = 0;
 static TSPIN tspin_state = TS_NONE;
 
 static bool was_last_move_a_rotation = false;
@@ -67,9 +68,24 @@ static ALLEGRO_TIMER *create_lock_delay_timer(void)
     return al_create_timer(0.5);
 }
 
+static ALLEGRO_TIMER *create_gravity_timer(void)
+{
+    return al_create_timer(gravity_get(level_get()));
+}
+
 TSPIN player_get_tspin_state(void)
 {
     return tspin_state;
+}
+
+void player_pause_timers(void)
+{
+    al_stop_timer(A(gravity_timer));
+}
+
+void player_start_timers(void)
+{
+    al_start_timer(A(gravity_timer));
 }
 
 void player_init(void (*cb)(void))
@@ -79,6 +95,11 @@ void player_init(void (*cb)(void))
     if (lock_delay == 0)
     {
         lock_delay = asset_loader_load("lock delay timer", A_TIMER, (AssetLoaderCallback)&create_lock_delay_timer);
+    }
+
+    if (gravity_timer == 0)
+    {
+        gravity_timer = asset_loader_load("gravity timer", A_TIMER, (AssetLoaderCallback)&create_gravity_timer);
     }
 
     held_piece = PIECE_MAX;
@@ -268,13 +289,29 @@ bool player_lock_down(bool hard_lock)
 
 void player_update(ALLEGRO_EVENT *event, int frames)
 {
+    static int previous_level = 1;
+
     tspin_state = TS_NONE;
+
+    if (!al_get_timer_started(A(gravity_timer)))
+    {
+        al_set_timer_count(A(gravity_timer), 0);
+        al_set_timer_speed(A(gravity_timer), gravity_get(level_get()));
+        al_start_timer(A(gravity_timer));
+    }
+
+    if (previous_level != level_get())
+    {
+        al_set_timer_speed(A(gravity_timer), gravity_get(level_get()));
+        previous_level = level_get();
+    }
 
     if (event->type == ALLEGRO_EVENT_TIMER)
     {
-        if (frames % MAX((int)((double)FPS * gravity_get(level_get())), 1) == 0) // each second
+        // counter is 100x the cells per second (100C/s)
+        int64_t gravity = al_get_timer_count(A(gravity_timer));
+        for (int _ = 0; _ < gravity; _++)
         {
-            // GRAVITY
             if (player_can_move_down(&player))
             {
                 player_move_down(&player);
@@ -286,8 +323,10 @@ void player_update(ALLEGRO_EVENT *event, int frames)
                     dispense_next_piece();
                     audio_play_sfx(SFX_LOCK_DOWN);
                 }
+                break;
             }
         }
+        al_add_timer_count(A(gravity_timer), -(gravity));
     }
 
     if (frames % (FPS / 10) == 0)

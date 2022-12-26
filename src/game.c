@@ -630,6 +630,7 @@ static void enter_state_playing(void)
   state = PLAYING;
   audio_turn_music_up();
   al_start_timer(A(timer));
+  player_start_timers();
   if (current_bonus != BONUS_MAX)
   {
     al_start_timer(A(bonus_timer));
@@ -641,8 +642,9 @@ static void enter_state_paused(void)
   al_stop_timer(A(preroll));
   al_stop_timer(A(timer));
   al_stop_timer(A(bonus_timer));
-  state = PAUSED;
+  player_pause_timers();
   audio_turn_music_down();
+  state = PAUSED;
 }
 
 static void confirm_menu_callback(int option)

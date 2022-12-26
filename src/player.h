@@ -26,6 +26,8 @@ void player_update(ALLEGRO_EVENT *event, int frames);
 void player_draw();
 PIECE player_get_held_piece(void);
 TSPIN player_get_tspin_state(void);
+void player_pause_timers(void);
+void player_start_timers(void);
 
 #if MAKE_LOGO
 void player_make_logo(void);
