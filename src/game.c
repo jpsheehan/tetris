@@ -17,6 +17,7 @@
 #include "transition.h"
 #include "tetris.h"
 #include "resources.h"
+#include "leaderboard.h"
 
 #define ASSERT_BONUS(bonus) ASSERT_RANGE(bonus, 0, BONUS_MAX, "bonus")
 
@@ -74,6 +75,8 @@ static int preroll_font = 0;
 static GAME_STATE state = INIT;
 static char *CONFIRM_RESTART = "Really restart this game?";
 static char *CONFIRM_ABANDON = "Really abandon this game?";
+static char *WIN_NO_HIGHSCORE_TEXT = "You won, but no new high score";
+static char *WIN_NEW_HIGHSCORE_TEXT = "You set a new high score!";
 static MENU pause_menu = {
     .title = "Paused",
     .n_opts = 3,
@@ -532,15 +535,38 @@ static void check_win_conditions(void)
   {
   case MARATHON:
     if (level_get() > LAST_MARATHON_LEVEL)
+    {
       state = WIN;
+      if (leaderboard_is_worthy(MARATHON, score_get())) {
+        leaderboard_add_score(MARATHON, "TEST", score_get());
+        win_menu.title = WIN_NEW_HIGHSCORE_TEXT;
+      } else {
+        win_menu.title = WIN_NO_HIGHSCORE_TEXT;
+      }
+    }
     break;
   case SPRINT:
-    if (lines_cleared_get() >= MAX_SPRINT_LINES)
+    if (lines_cleared_get() >= MAX_SPRINT_LINES) {
       state = WIN;
+      if (leaderboard_is_worthy(SPRINT, score_get()))
+      {
+        leaderboard_add_score(SPRINT, "TEST", score_get());
+        win_menu.title = WIN_NEW_HIGHSCORE_TEXT;
+      } else {
+        win_menu.title = WIN_NO_HIGHSCORE_TEXT;
+      }
+    }
     break;
   case ULTRA:
-    if (al_get_timer_count(A(timer)) >= MAX_ULTRA_SECONDS * 1000)
+    if (al_get_timer_count(A(timer)) >= MAX_ULTRA_SECONDS * 1000) {
       state = WIN;
+      if (leaderboard_is_worthy(ULTRA, score_get())) {
+        leaderboard_add_score(ULTRA, "TEST", score_get());
+        win_menu.title = WIN_NEW_HIGHSCORE_TEXT;
+      } else {
+        win_menu.title = WIN_NO_HIGHSCORE_TEXT;
+      }
+    }
     break;
   case ENDLESS:
     // no win conditions

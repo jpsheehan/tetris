@@ -18,6 +18,7 @@
         "valarray": "c",
         "ratio": "c",
         "transition.h": "c",
-        "allegro_acodec.h": "c"
+        "allegro_acodec.h": "c",
+        "stdint.h": "c"
     }
 }

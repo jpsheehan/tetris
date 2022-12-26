@@ -9,7 +9,7 @@ static int total_lines;
 void score_init(void)
 {
     score = 0;
-    total_lines = 0;
+    total_lines = 145;
 }
 
 void score_add(BONUS bonus)

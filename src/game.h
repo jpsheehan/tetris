@@ -15,6 +15,7 @@ typedef enum MODE
     SPRINT,
     ULTRA,
     ENDLESS,
+    MAX_MODES,
 } MODE;
 
 typedef enum BONUS
