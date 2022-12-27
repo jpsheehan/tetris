@@ -6,6 +6,8 @@
 #include "tetris.h"
 #include "mino.h"
 
+#define CLEAR_TIMER_RESOLUTION 100.0
+
 typedef struct PLAYER
 {
     int x, y;
@@ -28,6 +30,7 @@ PIECE player_get_held_piece(void);
 TSPIN player_get_tspin_state(void);
 void player_pause_timers(void);
 void player_start_timers(void);
+long player_get_clear_timer_count(void);
 
 #if MAKE_LOGO
 void player_make_logo(void);

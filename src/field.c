@@ -9,7 +9,10 @@
 
 static CELL field[FIELD_H][FIELD_W] = {0};
 
+static bool requires_update = false;
 static bool is_perfect_clear(void);
+static int cleared_rows[4] = {0};
+static int num_cleared_rows = 0;
 
 void field_draw_cell(int x, int y, ALLEGRO_COLOR c)
 {
@@ -41,6 +44,7 @@ void field_init(void)
             field[y][x].used = false;
             field[y][x].c = al_map_rgb_f((float)x / (float)FIELD_H, (float)y / (float)FIELD_W, (float)(rand()) / (float)RAND_MAX);
         }
+    num_cleared_rows = 0;
 }
 
 void shift_upper_rows_down(int j)
@@ -61,9 +65,28 @@ void clear_row(int j)
         field[j][i].used = false;
 }
 
+void field_clear_rows(void)
+{
+    for (int i = 0; i < num_cleared_rows; i++)
+    {
+        int row = cleared_rows[i];
+        clear_row(row);
+        shift_upper_rows_down(row);
+    }
+    num_cleared_rows = 0;
+}
+
+void set_requires_update(void)
+{
+    requires_update = true;
+}
+
 void field_update(void)
 {
-    int num_rows_cleared = 0;
+    if (!requires_update)
+        return;
+
+    num_cleared_rows = 0;
 
     for (int j = 0; j < FIELD_H; j++)
     {
@@ -79,18 +102,16 @@ void field_update(void)
 
         if (row_is_cleared)
         {
-            num_rows_cleared++;
-            clear_row(j);
-            shift_upper_rows_down(j);
+            cleared_rows[num_cleared_rows++] = j;
         }
     }
 
-    if (num_rows_cleared > 0)
+    if (num_cleared_rows > 0)
     {
         switch (player_get_tspin_state())
         {
         case TS_NONE:
-            switch (num_rows_cleared)
+            switch (num_cleared_rows)
             {
             case 1:
                 game_show_bonus(SINGLE);
@@ -110,7 +131,7 @@ void field_update(void)
             }
             break;
         case TS_PROPER:
-            switch (num_rows_cleared)
+            switch (num_cleared_rows)
             {
             case 1:
                 game_show_bonus(TSPIN_SINGLE);
@@ -127,7 +148,7 @@ void field_update(void)
             }
             break;
         case TS_MINI:
-            switch (num_rows_cleared)
+            switch (num_cleared_rows)
             {
             case 1:
                 game_show_bonus(TSPIN_MINI_SINGLE);
@@ -143,7 +164,7 @@ void field_update(void)
         // perfect clear points are bonus points and always awarded
         if (is_perfect_clear())
         {
-            switch (num_rows_cleared)
+            switch (num_cleared_rows)
             {
             case 1:
                 game_show_bonus(PERFECT_CLEAR_SINGLE);
@@ -177,6 +198,8 @@ void field_update(void)
             break;
         }
     }
+
+    requires_update = false;
 }
 
 void field_draw(bool show_stack)
@@ -185,7 +208,7 @@ void field_draw(bool show_stack)
     ALLEGRO_COLOR border_c = al_map_rgb(0x98, 0x00, 0xff);
 
     // draw a transparent background rectangle
-    al_draw_filled_rectangle(FIELD_MARGIN_X - 1, FIELD_MARGIN_Y - border_w, FIELD_MARGIN_X + FIELD_W * MINO_W + border_w, FIELD_MARGIN_Y + FIELD_H * MINO_H + 1, al_map_rgba_f(0, 0, 0, 0.5));
+    al_draw_filled_rectangle(FIELD_MARGIN_X - 1, FIELD_MARGIN_Y - border_w, FIELD_MARGIN_X + FIELD_W * MINO_W + border_w, FIELD_MARGIN_Y + FIELD_H * MINO_H + 1, al_map_rgba_f(0, 0, 0, 0.6));
 
     // draw a border
     al_draw_rectangle(FIELD_MARGIN_X - 1, FIELD_MARGIN_Y - border_w, FIELD_MARGIN_X + FIELD_W * MINO_W + border_w, FIELD_MARGIN_Y + FIELD_H * MINO_H + 1, border_c, border_w);
@@ -194,6 +217,18 @@ void field_draw(bool show_stack)
         return;
 
     for (int j = FIELD_H - 1; j >= 0; j--)
+    {
+        bool is_row_cleared = false;
+
+        for (int i = 0; i < num_cleared_rows; i++) {
+            if (cleared_rows[i] == j) {
+                is_row_cleared = true;
+                break;
+            }
+        }
+
+        if (is_row_cleared) continue;
+
         for (int i = 0; i < FIELD_W; i++)
         {
             CELL *cell = &field[j][i];
@@ -203,6 +238,7 @@ void field_draw(bool show_stack)
                 field_draw_cell(i, j, cell->c);
             }
         }
+    }
 }
 
 bool field_get_used_or_default(int x, int y, bool default_)

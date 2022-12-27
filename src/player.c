@@ -11,7 +11,6 @@
 #include "asset_loader.h"
 #include "input.h"
 
-#define CLEAR_TIMER_RESOLUTION 100
 #define CLEAR_TIMER_PERIOD 0.4
 
 static void (*callback)(void);
@@ -309,6 +308,14 @@ bool player_lock_down(bool hard_lock)
     return true;
 }
 
+long player_get_clear_timer_count(void)
+{
+    if (al_get_timer_started(A(clear_timer)))
+        return -1;
+
+    return al_get_timer_count(A(clear_timer));
+}
+
 void player_update(ALLEGRO_EVENT *event, int frames)
 {
     static int previous_level = 1;
@@ -326,6 +333,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
                 {
                     if (al_get_timer_count(A(clear_timer)) >= CLEAR_TIMER_RESOLUTION)
                     {
+                        field_clear_rows();
                         dispense_next_piece();
                         previous_lines_cleared = lines_cleared_get();
                     }
@@ -341,29 +349,23 @@ void player_update(ALLEGRO_EVENT *event, int frames)
                 dispense_next_piece();
             }
         }
-    }
 
-    if (should_dispense_next_piece)
-    {
-        // player is not on the screen, don't update anything
-        return;
-    }
+        if (should_dispense_next_piece)
+            return;
 
-    if (!al_get_timer_started(A(gravity_timer)))
-    {
-        al_set_timer_count(A(gravity_timer), 0);
-        al_set_timer_speed(A(gravity_timer), gravity_get(level_get()));
-        al_start_timer(A(gravity_timer));
-    }
+        if (!al_get_timer_started(A(gravity_timer)))
+        {
+            al_set_timer_count(A(gravity_timer), 0);
+            al_set_timer_speed(A(gravity_timer), gravity_get(level_get()));
+            al_start_timer(A(gravity_timer));
+        }
 
-    if (previous_level != level_get())
-    {
-        al_set_timer_speed(A(gravity_timer), gravity_get(level_get()));
-        previous_level = level_get();
-    }
+        if (previous_level != level_get())
+        {
+            al_set_timer_speed(A(gravity_timer), gravity_get(level_get()));
+            previous_level = level_get();
+        }
 
-    if (event->type == ALLEGRO_EVENT_TIMER)
-    {
         int64_t gravity = al_get_timer_count(A(gravity_timer));
         for (int _ = 0; _ < gravity; _++)
         {
@@ -376,6 +378,7 @@ void player_update(ALLEGRO_EVENT *event, int frames)
                 if (player_lock_down(false))
                 {
                     should_dispense_next_piece = true;
+                    set_requires_update();
                     audio_play_sfx(SFX_LOCK_DOWN);
                 }
                 break;
@@ -384,121 +387,125 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         al_add_timer_count(A(gravity_timer), -(gravity));
     }
 
-    if (frames % (FPS / 10) == 0)
-    // if (event->type == ALLEGRO_EVENT_TIMER && )
+    if (!should_dispense_next_piece)
     {
-        if (keyboard_is_pressed(input_get_mapping(INPUT_MOVE_LEFT)))
+        if (frames % (FPS / 10) == 0)
         {
-            if (player_can_move_left(&player))
+            if (keyboard_is_pressed(input_get_mapping(INPUT_MOVE_LEFT)))
+            {
+                if (player_can_move_left(&player))
+                {
+                    was_last_move_a_rotation = false;
+                    player_move_left(&player);
+                    if (al_get_timer_started(A(lock_delay)))
+                    {
+                        reset_lock_delay();
+                    }
+                }
+            }
+
+            // MOVE RIGHT
+            if (keyboard_is_pressed(input_get_mapping(INPUT_MOVE_RIGHT)))
+            {
+                if (player_can_move_right(&player))
+                {
+                    was_last_move_a_rotation = false;
+                    player_move_right(&player);
+                    if (al_get_timer_started(A(lock_delay)))
+                    {
+                        reset_lock_delay();
+                    }
+                }
+            }
+
+            // SOFT DROP
+            if (keyboard_is_pressed(input_get_mapping(INPUT_SOFT_DROP)))
             {
                 was_last_move_a_rotation = false;
-                player_move_left(&player);
-                if (al_get_timer_started(A(lock_delay)))
+                int blocks_to_drop = 2;
+
+                for (int i = 0; i < blocks_to_drop; i++)
                 {
-                    reset_lock_delay();
+                    if (player_can_move_down(&player))
+                    {
+                        player_move_down(&player);
+                        score_add(SOFT_DROP);
+                    }
+                    else
+                    {
+                        if (player_lock_down(true))
+                        {
+                            keyboard_reset_key(input_get_mapping(INPUT_SOFT_DROP));
+                            should_dispense_next_piece = true;
+                            set_requires_update();
+                            audio_play_sfx(SFX_LOCK_DOWN);
+                        }
+                        break;
+                    }
                 }
             }
         }
 
-        // MOVE RIGHT
-        if (keyboard_is_pressed(input_get_mapping(INPUT_MOVE_RIGHT)))
+        if (event->type == ALLEGRO_EVENT_KEY_DOWN)
         {
-            if (player_can_move_right(&player))
+            if (event->keyboard.keycode == input_get_mapping(INPUT_ROTATE_CW))
             {
-                was_last_move_a_rotation = false;
-                player_move_right(&player);
-                if (al_get_timer_started(A(lock_delay)))
+                if (player_rotate_cw(&player))
                 {
-                    reset_lock_delay();
+                    was_last_move_a_rotation = true;
+                    if (al_get_timer_started(A(lock_delay)))
+                    {
+                        reset_lock_delay();
+                    }
+                    audio_play_sfx(SFX_ROTATE_CW);
                 }
             }
-        }
-
-        // SOFT DROP
-        if (keyboard_is_pressed(input_get_mapping(INPUT_SOFT_DROP)))
-        {
-            was_last_move_a_rotation = false;
-            int blocks_to_drop = 2;
-
-            for (int i = 0; i < blocks_to_drop; i++)
+            else if (event->keyboard.keycode == input_get_mapping(INPUT_ROTATE_CCW))
             {
-                if (player_can_move_down(&player))
+                if (player_rotate_ccw(&player))
+                {
+                    was_last_move_a_rotation = true;
+                    if (al_get_timer_started(A(lock_delay)))
+                    {
+                        reset_lock_delay();
+                    }
+                    audio_play_sfx(SFX_ROTATE_CCW);
+                }
+            }
+            else if (event->keyboard.keycode == input_get_mapping(INPUT_HARD_DROP))
+            {
+                was_last_move_a_rotation = false;
+                while (player_can_move_down(&player))
                 {
                     player_move_down(&player);
-                    score_add(SOFT_DROP);
+                    score_add(HARD_DROP);
                 }
-                else
+                if (player_lock_down(true))
                 {
-                    if (player_lock_down(true))
-                    {
-                        keyboard_reset_key(input_get_mapping(INPUT_SOFT_DROP));
-                        should_dispense_next_piece = true;
-                        audio_play_sfx(SFX_LOCK_DOWN);
-                    }
-                    break;
-                }
-            }
-        }
-    }
-
-    if (event->type == ALLEGRO_EVENT_KEY_DOWN)
-    {
-        if (event->keyboard.keycode == input_get_mapping(INPUT_ROTATE_CW))
-        {
-            if (player_rotate_cw(&player))
-            {
-                was_last_move_a_rotation = true;
-                if (al_get_timer_started(A(lock_delay)))
-                {
-                    reset_lock_delay();
-                }
-                audio_play_sfx(SFX_ROTATE_CW);
-            }
-        }
-        else if (event->keyboard.keycode == input_get_mapping(INPUT_ROTATE_CCW))
-        {
-            if (player_rotate_ccw(&player))
-            {
-                was_last_move_a_rotation = true;
-                if (al_get_timer_started(A(lock_delay)))
-                {
-                    reset_lock_delay();
-                }
-                audio_play_sfx(SFX_ROTATE_CCW);
-            }
-        }
-        else if (event->keyboard.keycode == input_get_mapping(INPUT_HARD_DROP))
-        {
-            was_last_move_a_rotation = false;
-            while (player_can_move_down(&player))
-            {
-                player_move_down(&player);
-                score_add(HARD_DROP);
-            }
-            if (player_lock_down(true))
-            {
-                should_dispense_next_piece = true;
-                audio_play_sfx(SFX_HARD_DROP);
-            }
-        }
-        else if (event->keyboard.keycode == input_get_mapping(INPUT_HOLD))
-        {
-            if (can_swap_with_held_piece)
-            {
-                was_last_move_a_rotation = false;
-                if (held_piece >= 0 && held_piece < PIECE_MAX)
-                {
-                    PIECE temp = held_piece;
-                    held_piece = player.piece;
-                    dispense_specific_piece(temp);
-                }
-                else
-                {
-                    held_piece = player.piece;
                     should_dispense_next_piece = true;
+                    set_requires_update();
+                    audio_play_sfx(SFX_HARD_DROP);
                 }
-                can_swap_with_held_piece = false;
-                al_stop_timer(A(lock_delay));
+            }
+            else if (event->keyboard.keycode == input_get_mapping(INPUT_HOLD))
+            {
+                if (can_swap_with_held_piece)
+                {
+                    was_last_move_a_rotation = false;
+                    if (held_piece >= 0 && held_piece < PIECE_MAX)
+                    {
+                        PIECE temp = held_piece;
+                        held_piece = player.piece;
+                        dispense_specific_piece(temp);
+                    }
+                    else
+                    {
+                        held_piece = player.piece;
+                        dispense_next_piece();
+                    }
+                    can_swap_with_held_piece = false;
+                    al_stop_timer(A(lock_delay));
+                }
             }
         }
     }
