@@ -205,7 +205,7 @@ void field_update(void)
 void field_draw(bool show_stack)
 {
     int border_w = 2;
-    ALLEGRO_COLOR border_c = al_map_rgb(0x98, 0x00, 0xff);
+    ALLEGRO_COLOR border_c = al_map_rgb(0x98, 0x00, 0xff); // Kairo's purple colour
 
     // draw a transparent background rectangle
     al_draw_filled_rectangle(FIELD_MARGIN_X - 1, FIELD_MARGIN_Y - border_w, FIELD_MARGIN_X + FIELD_W * MINO_W + border_w, FIELD_MARGIN_Y + FIELD_H * MINO_H + 1, al_map_rgba_f(0, 0, 0, 0.6));
@@ -218,8 +218,8 @@ void field_draw(bool show_stack)
 
     for (int j = FIELD_H - 1; j >= 0; j--)
     {
+        // check if the row has been marked as cleared
         bool is_row_cleared = false;
-
         for (int i = 0; i < num_cleared_rows; i++) {
             if (cleared_rows[i] == j) {
                 is_row_cleared = true;
@@ -227,7 +227,11 @@ void field_draw(bool show_stack)
             }
         }
 
-        if (is_row_cleared) continue;
+        // determine an appropriate alpha value for the row
+        float row_a = 1.0;
+        if (is_row_cleared) {
+            row_a = 1.0 - CLAMP((float)player_get_clear_timer_count() / CLEAR_TIMER_RESOLUTION, 0.0, 1.0);
+        }
 
         for (int i = 0; i < FIELD_W; i++)
         {
@@ -235,7 +239,9 @@ void field_draw(bool show_stack)
 
             if (cell->used)
             {
-                field_draw_cell(i, j, cell->c);
+                float r, g, b, a;
+                al_unmap_rgba_f(cell->c, &r, &g, &b, &a);
+                field_draw_cell(i, j, al_premul_rgba_f(r, g, b, a == 1.0 ? row_a : a));
             }
         }
     }

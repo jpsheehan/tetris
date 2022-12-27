@@ -310,7 +310,7 @@ bool player_lock_down(bool hard_lock)
 
 long player_get_clear_timer_count(void)
 {
-    if (al_get_timer_started(A(clear_timer)))
+    if (!al_get_timer_started(A(clear_timer)))
         return -1;
 
     return al_get_timer_count(A(clear_timer));
@@ -522,7 +522,7 @@ void draw_ghost_piece()
         player_move_down(&ghost);
     }
 
-    field_draw_mino(ghost.piece, ghost.rotation, ghost.x, ghost.y, al_map_rgba_f(0.5, 0.5, 0.5, 0.3));
+    field_draw_mino(ghost.piece, ghost.rotation, ghost.x, ghost.y, al_map_rgb_f(0.5, 0.5, 0.5));
 }
 
 void player_draw()

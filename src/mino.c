@@ -495,13 +495,13 @@ void mino_draw(PIECE piece, int rotation, int offset_x, int offset_y, ALLEGRO_CO
 
 void mino_draw_cell(int x, int y, ALLEGRO_COLOR c, float scale)
 {
-    float r, g, b;
+    float r, g, b, a;
 
-    al_unmap_rgb_f(c, &r, &g, &b);
+    al_unmap_rgba_f(c, &r, &g, &b, &a);
     r *= 0.7;
     g *= 0.7;
     b *= 0.7;
-    ALLEGRO_COLOR lighter = al_map_rgb_f(r, g, b);
+    ALLEGRO_COLOR lighter = al_map_rgba_f(r, g, b, a);
 
     ALLEGRO_VERTEX v[] = {
         { .x = x, .y = y, .z = 0, .color = c },
@@ -511,11 +511,11 @@ void mino_draw_cell(int x, int y, ALLEGRO_COLOR c, float scale)
     };
     al_draw_prim(v, NULL, NULL, 0, 4, ALLEGRO_PRIM_TRIANGLE_STRIP);
 
-    al_unmap_rgb_f(c, &r, &g, &b);
+    al_unmap_rgba_f(c, &r, &g, &b, &a);
     r *= 0.7;
     g *= 0.7;
     b *= 0.7;
-    ALLEGRO_COLOR darker = al_map_rgb_f(r, g, b);
+    ALLEGRO_COLOR darker = al_map_rgba_f(r, g, b, a);
     
     al_draw_rectangle(x, y, x + MINO_W * scale, y + MINO_H * scale, darker, 1);
 }
