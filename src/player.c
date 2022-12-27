@@ -15,6 +15,15 @@
 
 static void (*callback)(void);
 static TSPIN get_tspin(void);
+static bool player_rotate_cw(PLAYER *p);
+static bool player_rotate_ccw(PLAYER *p);
+
+typedef enum ROTATION
+{
+    NONE,
+    CW,
+    CCW
+} ROTATION;
 
 static PLAYER player;
 static PIECE held_piece;
@@ -27,6 +36,7 @@ static bool should_dispense_next_piece = false;
 
 static bool was_last_move_a_rotation = false;
 static int last_kick_index = -1;
+static ROTATION prespawn_rotation = NONE;
 
 static bool player_collides_with_cell(PLAYER *p)
 {
@@ -70,6 +80,16 @@ static void dispense_next_piece()
     dispense_specific_piece(randomiser_next());
     can_swap_with_held_piece = true;
     should_dispense_next_piece = false;
+
+    switch (prespawn_rotation)
+    {
+        case NONE: break;
+        case CW: player_rotate_cw(&player); break;
+        case CCW: player_rotate_ccw(&player); break;
+        default: safe_exit("Invalid rotation", 1); break;
+    }
+
+    prespawn_rotation = NONE;
 }
 
 static ALLEGRO_TIMER *create_lock_delay_timer(void)
@@ -387,7 +407,27 @@ void player_update(ALLEGRO_EVENT *event, int frames)
         al_add_timer_count(A(gravity_timer), -(gravity));
     }
 
-    if (!should_dispense_next_piece)
+    if (should_dispense_next_piece)
+    {
+        // pre-spawn rotations
+        if (event->type == ALLEGRO_EVENT_KEY_DOWN)
+        {
+            if (prespawn_rotation == NONE)
+            {
+                if (event->keyboard.keycode == input_get_mapping(INPUT_ROTATE_CW))
+                {
+                    prespawn_rotation = CW;
+                    audio_play_sfx(SFX_PRESPAWN_ROTATE);
+                }
+                else if (event->keyboard.keycode == input_get_mapping(INPUT_ROTATE_CCW))
+                {
+                    prespawn_rotation = CCW;
+                    audio_play_sfx(SFX_PRESPAWN_ROTATE);
+                }
+            }
+        }
+    }
+    else
     {
         if (frames % (FPS / 10) == 0)
         {

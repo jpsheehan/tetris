@@ -9,7 +9,7 @@
 #include "asset_loader.h"
 #include "utils.h"
 
-#define MAX_ASSETS 40
+#define MAX_ASSETS 50
 
 typedef struct ASSET
 {

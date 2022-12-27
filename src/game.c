@@ -382,8 +382,10 @@ void game_show_bonus(BONUS bonus)
     case SINGLE:
     case DOUBLE:
     case TRIPLE:
-    case TETRIS:
         audio_play_sfx(SFX_LINE_CLEAR);
+        break;
+    case TETRIS:
+        audio_play_sfx(SFX_TETRIS);
         break;
     case PERFECT_CLEAR_SINGLE:
     case PERFECT_CLEAR_DOUBLE:
