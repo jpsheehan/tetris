@@ -200,7 +200,7 @@ void leaderboard_dump(void)
     }
     else
     {
-      printf("Read %lu scores for %s mode\n", n, names[i]);
+      printf("Read %lu scores for %s mode\n", (unsigned long)n, names[i]);
       for (int j = 0; j < n; j++)
       {
         SCORE *score = &buffer[j];
@@ -210,7 +210,7 @@ void leaderboard_dump(void)
         }
         else
         {
-          printf("  %s got %lu points\n", score->name, score->value);
+          printf("  %s got %lu points\n", score->name, (unsigned long)score->value);
         }
       }
       printf("\n");

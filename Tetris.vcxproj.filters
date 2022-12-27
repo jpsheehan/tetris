@@ -66,6 +66,9 @@
     <ClCompile Include="src\transition.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\leaderboard.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\audio.h">
@@ -120,6 +123,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\transition.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\leaderboard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
