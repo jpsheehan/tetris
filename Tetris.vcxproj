@@ -148,7 +148,7 @@
     <ClInclude Include="src\hud.h" />
     <ClInclude Include="src\input.h" />
     <ClInclude Include="src\keyboard.h" />
-    <ClCompile Include="src\leaderboard.h" />
+    <ClInclude Include="src\leaderboard.h" />
     <ClInclude Include="src\main_menu.h" />
     <ClInclude Include="src\menu.h" />
     <ClInclude Include="src\mino.h" />
