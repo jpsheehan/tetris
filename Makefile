@@ -15,7 +15,7 @@ clean:
 
 .PHONY: all clean run
 
-$(OUT): $(OBJ)/tetris.o $(OBJ)/utils.o $(OBJ)/display.o $(OBJ)/keyboard.o $(OBJ)/field.o $(OBJ)/player.o $(OBJ)/score.o $(OBJ)/audio.o $(OBJ)/randomiser.o $(OBJ)/mino.o $(OBJ)/hud.o $(OBJ)/game.o $(OBJ)/menu.o $(OBJ)/asset_loader.o $(OBJ)/main_menu.o $(OBJ)/input.o $(OBJ)/transition.o
+$(OUT): $(OBJ)/tetris.o $(OBJ)/utils.o $(OBJ)/display.o $(OBJ)/keyboard.o $(OBJ)/field.o $(OBJ)/player.o $(OBJ)/score.o $(OBJ)/audio.o $(OBJ)/randomiser.o $(OBJ)/mino.o $(OBJ)/hud.o $(OBJ)/game.o $(OBJ)/menu.o $(OBJ)/asset_loader.o $(OBJ)/main_menu.o $(OBJ)/input.o $(OBJ)/transition.o $(OBJ)/leaderboard.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LFLAGS)
 
 $(OBJ)/tetris.o: $(SRC)/tetris.c $(SRC)/tetris.h
@@ -67,4 +67,7 @@ $(OBJ)/input.o: $(SRC)/input.c $(SRC)/input.h $(SRC)/tetris.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(OBJ)/transition.o: $(SRC)/transition.c $(SRC)/transition.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+$(OBJ)/leaderboard.o: $(SRC)/leaderboard.c $(SRC)/leaderboard.h
 	$(CC) -c -o $@ $< $(CFLAGS)

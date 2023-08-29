@@ -1,4 +1,5 @@
 *.o
+leaderboard.dat
 tetris
 vgcore.*
 /.vs/

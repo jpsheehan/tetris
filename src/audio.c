@@ -15,14 +15,16 @@ static char *filenames[SFX_MAX] = {
     "./resources/audio/sfx_lock_down.ogg",
     "./resources/audio/sfx_hard_drop.ogg",
     "./resources/audio/sfx_line_clear.ogg",
-    NULL,
-    NULL,
-    NULL,
-    NULL,
+    "./resources/audio/sfx_tetris.ogg",
+    "./resources/audio/sfx_perfect_clear.ogg",
+    "./resources/audio/sfx_tspin.ogg",
+    "./resources/audio/sfx_tspin.ogg",
+    "./resources/audio/sfx_pause.ogg",
     "./resources/audio/sfx_three.ogg",
     "./resources/audio/sfx_two.ogg",
     "./resources/audio/sfx_one.ogg",
     "./resources/audio/sfx_go.ogg",
+    "./resources/audio/sfx_prespawn_rotate.ogg",
 };
 
 ALLEGRO_AUDIO_STREAM *create_music(void)
@@ -41,14 +43,14 @@ ALLEGRO_SAMPLE *create_sample(void)
 
 void audio_init(void)
 {
-    // if (music == 0)
-    // {
-    //     music = asset_loader_load("audio stream", A_AUDIO_STREAM, (AssetLoaderCallback)&create_music);
+     if (music == 0)
+     {
+         music = asset_loader_load("audio stream", A_AUDIO_STREAM, (AssetLoaderCallback)&create_music);
 
-    //     al_set_audio_stream_playmode(A(music), ALLEGRO_PLAYMODE_LOOP);
-    //     audio_turn_music_down();
-    //     al_attach_audio_stream_to_mixer(A(music), al_get_default_mixer());
-    // }
+         al_set_audio_stream_playmode(A(music), ALLEGRO_PLAYMODE_LOOP);
+         audio_turn_music_down();
+         al_attach_audio_stream_to_mixer(A(music), al_get_default_mixer());
+     }
 
     for (int i = 0; i < SFX_MAX; i++)
     {

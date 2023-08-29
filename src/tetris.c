@@ -17,6 +17,7 @@
 #include "asset_loader.h"
 #include "main_menu.h"
 #include "transition.h"
+#include "leaderboard.h"
 
 typedef enum STATE
 {
@@ -65,6 +66,8 @@ int main()
     main_menu_init(menu_callback);
 
     al_start_timer(A(timer));
+
+    leaderboard_dump();
 
     while (1)
     {

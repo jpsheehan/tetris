@@ -82,6 +82,7 @@
     <Allegro_AddonAcodec>true</Allegro_AddonAcodec>
     <Allegro_AddonFont>true</Allegro_AddonFont>
     <Allegro_AddonImage>true</Allegro_AddonImage>
+    <Allegro_AddonTtf>true</Allegro_AddonTtf>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -126,6 +127,7 @@
     <ClCompile Include="src\hud.c" />
     <ClCompile Include="src\input.c" />
     <ClCompile Include="src\keyboard.c" />
+    <ClCompile Include="src\leaderboard.c" />
     <ClCompile Include="src\main_menu.c" />
     <ClCompile Include="src\menu.c" />
     <ClCompile Include="src\mino.c" />
@@ -146,12 +148,15 @@
     <ClInclude Include="src\hud.h" />
     <ClInclude Include="src\input.h" />
     <ClInclude Include="src\keyboard.h" />
+    <ClInclude Include="src\leaderboard.h" />
     <ClInclude Include="src\main_menu.h" />
     <ClInclude Include="src\menu.h" />
     <ClInclude Include="src\mino.h" />
     <ClInclude Include="src\player.h" />
     <ClInclude Include="src\randomiser.h" />
+    <ClInclude Include="src\resources.h" />
     <ClInclude Include="src\score.h" />
+    <ClInclude Include="src\tetris.h" />
     <ClInclude Include="src\transition.h" />
     <ClInclude Include="src\utils.h" />
   </ItemGroup>

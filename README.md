@@ -30,9 +30,11 @@ sudo apt install liballegro5-dev make
 - [x] Detect lock-out (locking down above the play area)
 - [ ] Fix up the input (it doesn't feel right)
   - I think it needs to accept your first input, then wait a little bit before being sensitive
-  - At the moment it is just sensitive
+  - At the moment it is too sensitive
 - [x] Add a way to pause the game (think about blurring the stack)
-- [ ] Display a Win/Lose screen with the final score. Offer to let the user type their initials here (for high score if neccessary).
+- [x] Display a Win/Lose screen with the final score.
+- [ ] Offer to let the user type their initials here (for high score if neccessary).
+- [x] Add a short delay after clearing line(s)
 
 ### Fluff
 - [x] Add a countdown before starting
@@ -45,7 +47,8 @@ sudo apt install liballegro5-dev make
 - [ ] Add a sound effect for when rotation fails
 - [ ] Add a sound effect for leveling up
 - [ ] Add some special effects for when lines are cleared (perhaps even animate the lines clearing)
-- [ ] Upscale the UI to 640x480
+- [x] Upscale the UI to 640x480
+- [ ] Think about using panning based on the piece position.
 
 ### Menu Stuff
 
@@ -58,6 +61,8 @@ sudo apt install liballegro5-dev make
 - [x] Add pause-menu option to restart
 - [x] Offer confirmations for restart and and abandon
 - [ ] Add highscores for each mode
+  - [ ] View the highscores before entering the mode
+  - [ ] Show each "next" highscore to beat during the game
 - [ ] Add options for muting sounds
 - [x] Add a retry menu after finishing the game
 - [x] Add a debug menu with setups for testing common patterns

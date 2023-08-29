@@ -41,8 +41,8 @@ static ALLEGRO_FONT *load_hold_font(void);
 static ALLEGRO_FONT *load_lines_cleared_font(void);
 
 static void draw_score(void);
-static void draw_randomiser(void);
-static void draw_held_piece(void);
+static void draw_randomiser(bool show_minos);
+static void draw_held_piece(bool show_minos);
 static void draw_level(void);
 static void draw_remaining_lines(void);
 static void draw_lines_cleared(void);
@@ -132,11 +132,8 @@ static char *bonus_words[] = {
 void hud_draw(HUD_UPDATE_DATA *pData)
 {
     draw_score();
-    if (pData->show_minos)
-    {
-        draw_randomiser();
-        draw_held_piece();
-    }
+    draw_randomiser(pData->show_minos);
+    draw_held_piece(pData->show_minos);
     draw_level();
     draw_remaining_lines();
     draw_lines_cleared();
@@ -169,9 +166,11 @@ static void draw_score(void)
     al_draw_textf(A(score_font), al_map_rgb_f(1, 1, 1), LEFT, TOP, ALLEGRO_ALIGN_LEFT, "%06ld", score_display);
 }
 
-static void draw_randomiser(void)
+static void draw_randomiser(bool show_minos)
 {
     al_draw_text(A(next_font), al_map_rgb_f(1, 1, 1), RIGHT, TOP + REL(1.5), ALLEGRO_ALIGN_RIGHT, "Next");
+    
+    if (!show_minos) return;
 
     int gap_y = MINO_H * 2;
     PIECE bag[6];
@@ -185,9 +184,11 @@ static void draw_randomiser(void)
     }
 }
 
-static void draw_held_piece(void)
+static void draw_held_piece(bool show_minos)
 {
     al_draw_textf(A(hold_font), al_map_rgb_f(1, 1, 1), LEFT, TOP + REL(1.5), 0, "Hold");
+
+    if (!show_minos) return;
 
     PIECE held_piece = player_get_held_piece();
 

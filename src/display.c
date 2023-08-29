@@ -107,3 +107,11 @@ static void set_scaling_factor(int width, int height)
     scaling_factor = MIN(width_ratio, height_ratio);
     al_acknowledge_resize(A(disp));
 }
+
+void disp_return_to_windowed_mode(void)
+{
+    if (al_get_display_flags(A(disp)) & ALLEGRO_FULLSCREEN_WINDOW)
+    {
+        al_set_display_flag(A(disp), ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
+    }
+}

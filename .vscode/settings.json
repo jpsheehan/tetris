@@ -1,23 +1,6 @@
 {
     "files.associations": {
-        "allegro.h": "c",
-        "keyboard.h": "c",
-        "mino.h": "c",
-        "allegro_primitives.h": "c",
-        "allegro5.h": "c",
-        "utils.h": "c",
-        "score.h": "c",
-        "field.h": "c",
-        "stdbool.h": "c",
-        "tetris.h": "c",
-        "transistion.h": "c",
-        "chrono": "c",
-        "random": "c",
-        "limits": "c",
-        "semaphore": "c",
-        "valarray": "c",
-        "ratio": "c",
-        "transition.h": "c",
-        "allegro_acodec.h": "c"
+        "*.c": "c",
+        "*.h": "c"
     }
 }
