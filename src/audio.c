@@ -43,14 +43,14 @@ ALLEGRO_SAMPLE *create_sample(void)
 
 void audio_init(void)
 {
-    // if (music == 0)
-    // {
-    //     music = asset_loader_load("audio stream", A_AUDIO_STREAM, (AssetLoaderCallback)&create_music);
+     if (music == 0)
+     {
+         music = asset_loader_load("audio stream", A_AUDIO_STREAM, (AssetLoaderCallback)&create_music);
 
-    //     al_set_audio_stream_playmode(A(music), ALLEGRO_PLAYMODE_LOOP);
-    //     audio_turn_music_down();
-    //     al_attach_audio_stream_to_mixer(A(music), al_get_default_mixer());
-    // }
+         al_set_audio_stream_playmode(A(music), ALLEGRO_PLAYMODE_LOOP);
+         audio_turn_music_down();
+         al_attach_audio_stream_to_mixer(A(music), al_get_default_mixer());
+     }
 
     for (int i = 0; i < SFX_MAX; i++)
     {
